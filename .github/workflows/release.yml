@@ -23,16 +23,16 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.THIS_PAT }}
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
       - name: Login to DockerHub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Docker metadata
-        uses: docker/metadata-action@v3
+        uses: docker/metadata-action@v4
         id: meta
         with:
           images: andrewthetechie/gha-repo-manager
@@ -44,7 +44,7 @@ jobs:
             type=sha,format=long,prefix=
       - name: Build and push
         id: docker_build
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           context: .
           file: Docker/Dockerfile
