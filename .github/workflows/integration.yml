@@ -17,7 +17,7 @@ jobs:
         uses: ./
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          repo: andrewthetechie/gha-clone-releases
+          repo: andrewthetechie/gha-repo-manager
       - name: Check outputs
         run: |
           test "${{ steps.test-action.outputs.addedReleases }}" == ""

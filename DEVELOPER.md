@@ -10,7 +10,7 @@ make build
 
 # Releasing
 
-Use the release job https://github.com/andrewthetechie/gha-clone-releases/actions/workflows/release.yml
+Use the release job https://github.com/andrewthetechie/gha-repo-manager/actions/workflows/release.yml
 
 Specify an incremented version, job will fail if you repeat a release.
 
