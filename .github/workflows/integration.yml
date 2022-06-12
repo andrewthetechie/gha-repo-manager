@@ -1,16 +1,23 @@
 name: Integration Test
-on: [push]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
 jobs:
-  build:
+  integration-testing:
+    name: Integration Testing
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
-      - name: Self test
-        id: selftest
-
-        # Put your action repo here
-        uses: jacobtomlinson/python-container-action@master
-
+      - uses: actions/checkout@v3
+        name: Checkout
+      - name: Test action
+        id: test-action
+        # test with the local checkout of the action
+        uses: ./
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repo: andrewthetechie/gha-clone-releases
       - name: Check outputs
         run: |
-          test "${{ steps.selftest.outputs.myOutput }}" == "Hello world"
+          test "${{ steps.test-action.outputs.addedReleases }}" == ""

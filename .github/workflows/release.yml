@@ -1,0 +1,89 @@
+name: Release
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release, like v1.0.0. Must increment current versions"
+        required: true
+      releaseNotes:
+        description: "Any notes for this release"
+        required: false
+        default: ""
+      prerelease:
+        description: "Is this a prerelease"
+        required: false
+        default: false
+        type: boolean
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.THIS_PAT }}
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Docker metadata
+        uses: docker/metadata-action@v3
+        id: meta
+        with:
+          images: andrewthetechie/gha-clone-releases
+          tags: |
+            type=raw,value=${{ inputs.version }}
+            # minimal (short sha)
+            type=sha,prefix=
+            # full length sha
+            type=sha,format=long,prefix=
+      - name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: Docker/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          # we're only using this docker image in gha, so only build a linux/amd64
+          platforms: linux/amd64
+          # https://github.com/docker/build-push-action/blob/master/docs/advanced/cache.md#registry-cache
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Update Action Dockerfile with Jinja
+        id: update_action-dockerfile
+        uses: cuchi/jinja2-action@v1.2.0
+        with:
+          template: Docker/ActionDockerfile.j2
+          output_file: Dockerfile
+          strict: true
+          variables: |
+            image_version=${{ inputs.version }}
+      - name: Commit Dockerfile changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "ci: update actions dockerfile for release"
+          file_pattern: Dockerfile
+      - name: Tag Repo
+        uses: richardsimko/update-tag@v1
+        with:
+          tag_name: ${{ inputs.version }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.THIS_PAT }}
+        with:
+          tag_name:  ${{ inputs.version }}
+          release_name:  ${{ inputs.version }}
+          body:  ${{ inputs.releaseNotes }}
+          draft: false
+          prerelease: ${{ inputs.prerelease }}

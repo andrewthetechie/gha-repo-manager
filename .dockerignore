@@ -1,0 +1,17 @@
+.mypy_cache/
+/.coverage
+/.coverage.*
+coverage.xml
+/.nox/
+/.python-version
+/.pytype/
+/dist/
+/docs/_build/
+/src/*.egg-info/
+__pycache__/
+.idea
+requirements-dev.txt
+Makefile
+LICENSE
+README.md
+.pre-commit-config.yaml

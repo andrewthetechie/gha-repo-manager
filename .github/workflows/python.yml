@@ -5,14 +5,10 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - name: Set up Python 3.7
-        uses: actions/setup-python@v1
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4.0.0
         with:
-          python-version: "3.7"
-
-      - uses: actions/checkout@v1
-
-      - name: Lint
-        run: |
-          pip install flake8
-          flake8 main.py
+          python-version: "3.9.2"
+      - uses: actions/checkout@v3
+      - name: Run Pre-commit
+        uses: pre-commit/action@v3.0.0
