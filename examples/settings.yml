@@ -19,8 +19,11 @@ settings:
   # A URL with more information about the repository. Set to an empty string to clear.
   homepage: https://example.github.io/
 
-  # A comma-separated list of topics to set on the repository. Set to an empty string ("") to clear all topics.
-  topics: gha, foo, bar
+  # A list of strings to apply as topics on the repo. Set to an empty string to clear topics. Omit or set to null to leave what repo already has
+  topics:
+   - gha
+   - foo
+   - bar
 
   # Either `true` to make the repository private, or `false` to make it public.
   private: false
@@ -38,7 +41,7 @@ settings:
   # Either `true` to enable downloads for this repository, `false` to disable them.
   has_downloads: true
 
-  # Updates the default branch for this repository.
+  # Set the default branch for this repository.
   default_branch: main
 
   # Either `true` to allow squash-merging pull requests, or `false` to prevent
@@ -83,7 +86,7 @@ labels:
     # set exists: false to delete a label. A delete that results in a "not found" will not fail a run
     exists: false
 
-branch_protection:
+branch_protections:
   - name: master
     # https://docs.github.com/en/rest/reference/repos#update-branch-protection
     # Branch Protection settings. Set to null to disable. Leave a value out to leave set at current repo settings
@@ -126,13 +129,13 @@ secrets:
   - key: SECRET_KEY
     # pull the value from an environment variable. If this variable is not found in the env, throw an error and fail the run
     # Set env vars on the github action job from secrets in your repo to sync screts across repos
-    src: env/SECRET_VALUE
+    env: SECRET_VALUE
   - key: ANOTHER_SECRET
     # set a value directly in your yaml, probably not a good idea for things that are actually a secret
-    val: bar
+    value: bar
   - key: THIRD_SECRET
     # pull the value from an environment variable
-    src: env/THIRD_VALUE
+    env: THIRD_VALUE
     # setting a value as not required allows you to not pass in an env var. if THIRD_VALUE is not set in the env, this secret won't be set but no error will be thrown
     required: false
   - key: DELETED_SECRET

@@ -1,13 +1,22 @@
-name: "Python Container Action Template"
-description: "Get started with Python Container actions"
-author: "Jacob Tomlinson"
+name: "Repo Manager"
+description: "Manage your Github repo(s) settings and secrets using Github Actions and a yaml file"
+author: "Andrew Herrington"
 inputs:
-  myInput:
-    description: "Input to use"
-    default: "world"
+  action:
+    description: "What action to take with this action. One of validate, check, or apply. Validate will validate your settings file, but not touch your repo. Check will check your repo with your settings file and output a report of any drift. Apply will apply the settings in your settings file to your repo"
+    default: "check"
+  settings_file:
+    description: What yaml file to use as your settings. This is local to runner running this action.
+    default: ".github/settings.yml"
+  repo:
+    description: What repo to perform this action on. Default is self, as in the repo this action is running in
+    default: "self"
+  token:
+    description: What github token to use with this action.
+    required: true
 outputs:
-  myOutput:
-    description: "Output from the action"
+  result:
+    description: "Result of the action"
 runs:
   using: "docker"
   image: "Dockerfile"
