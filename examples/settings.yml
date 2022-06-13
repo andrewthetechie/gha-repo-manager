@@ -87,12 +87,12 @@ labels:
     exists: false
 
 branch_protections:
-  - name: master
+  - name: main
     # https://docs.github.com/en/rest/reference/repos#update-branch-protection
-    # Branch Protection settings. Set to null to disable. Leave a value out to leave set at current repo settings
+    # Branch Protection settings. Leave a value out to leave set at current repo settings
     protection:
       # Require at least one approving review on a pull request, before merging. Set to null to disable.
-      required_pull_request_reviews:
+      pr_options:
         # The number of approvals required. (1-6)
         required_approving_review_count: 1
         # Dismiss approved reviews automatically when a new commit is pushed.
@@ -108,7 +108,10 @@ branch_protections:
         # Require branches to be up to date before merging.
         strict: true
         # The list of status checks to require in order to merge into this branch
-        checks: []
+        checks:
+          - lint
+          - test
+          - docker
       # Enforce all configured restrictions for administrators. Set to true to enforce required status checks for repository administrators. Set to null to disable.
       enforce_admins: true
       # Prevent merge commits from being pushed to matching branches
@@ -120,9 +123,11 @@ branch_protections:
         teams: []
   - name: dev
     # will clear any branch protection on the dev branch
-    protection: null
+    exists: False
   # if the repo has a third branch named test with branch protections setup, by not adding a protection with name: test, this config will not change
   # those existing protections.
+  - name: test
+    exists: True
 
 secrets:
   # Manage secrets in your repo. Useful to manage secrets from a central repo for non organizations or to manage secrets org wide
@@ -142,5 +147,5 @@ secrets:
     # setting exists to false will delete a secret. A delete that results in "not found" won't fail a run, so you can use this to make sure a secret is always deleted
     exists: false
   - key: BLANKED_SECRET
-    # set val to an empty string to blank out a secret in the repo, but leave it existing.
+    # set val to an empty string to blank out a secret in the repo, but leave the secret in place.
     val: ""

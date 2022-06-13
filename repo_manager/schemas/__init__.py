@@ -16,6 +16,7 @@ class RepoManagerConfig(BaseModel):
     settings: Optional[Settings]
     branch_protections: Optional[List[BranchProtection]]
     secrets: Optional[List[Secret]]
+    labels: Optional[List[Label]]
 
 
 def load_config(filename: str) -> RepoManagerConfig:

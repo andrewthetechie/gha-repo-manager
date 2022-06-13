@@ -1,5 +1,5 @@
+from typing import List
 from typing import Optional
-from typing import Set
 from typing import Union
 
 from pydantic import BaseModel  # pylint: disable=E0611
@@ -15,7 +15,7 @@ class Settings(BaseModel):
     homepage: Optional[Union[str, HttpUrl]] = Field(
         None, description="A URL with more information about the repository."
     )
-    topics: Optional[Union[str, Set[str]]] = Field(
+    topics: Optional[Union[str, List[str]]] = Field(
         None, description="A list of strings to apply as topics on the repo"
     )
     private: OptBool = Field(
@@ -49,7 +49,7 @@ class Settings(BaseModel):
     delete_branch_on_merge: OptBool = Field(
         None, description="Either `true` to enable automatic deletion of branches on merge, or `false` to disable"
     )
-    enable_automate_security_fixes: OptBool = Field(
+    enable_automated_security_fixes: OptBool = Field(
         None,
         description="Either `true` to enable automated security fixes, or `false` to disable automated security fixes.",
     )

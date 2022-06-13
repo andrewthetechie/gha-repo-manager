@@ -46,12 +46,12 @@ class PROptions(BaseModel):
     )
     require_code_owner_reviews: OptBool = Field(None, description="Blocks merge until code owners have reviewed.")
     dismissal_restrictions: Optional[DismissalOptions] = Field(
-        None, description="Options related to PR dismissal. Only available to Orgs."
+        None, description="Options related to PR dismissal. Only available to Orgs. Not available in the Check command"
     )
 
 
 class ProtectionOptions(BaseModel):
-    required_pull_request_reviews: Optional[PROptions] = Field(None, description="Options related to PR reviews")
+    pr_options: Optional[PROptions] = Field(None, description="Options related to PR reviews")
     required_status_checks: Optional[StatusChecksOptions] = Field(
         None, description="Options related to required status checks"
     )
@@ -65,8 +65,18 @@ class ProtectionOptions(BaseModel):
     restrictions: Optional[RestrictionOptions] = Field(
         None, description="Options related to restricting who can push to this branch"
     )
+    allow_force_pushes: OptBool = Field(None, description="Permit force pushes for all users with push access.")
+    allow_deletions: OptBool = Field(None, description="Allow users with push access to delete matching branches.")
+    require_conversation_resolution: OptBool = Field(
+        None,
+        description="When enabled, all conversations on code must be resolved before a pull request can be merged.",
+    )
+    require_signed_commits: OptBool = Field(
+        None, description="Commits pushed to matching branches must have verified signatures."
+    )
 
 
 class BranchProtection(BaseModel):
     name: OptStr = Field(None, description="Name of the branch")
     protection: Optional[ProtectionOptions] = Field(None, description="Protection options for the branch")
+    exists: OptBool = Field(True, description="Set to false to delete a branch protection rule")

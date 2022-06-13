@@ -17,6 +17,8 @@ inputs:
 outputs:
   result:
     description: "Result of the action"
+  diff:
+    description: "Diff of this action, dumped to a json string"
 runs:
   using: "docker"
   image: "Dockerfile"

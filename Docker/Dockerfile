@@ -1,7 +1,7 @@
 # Distroless runs python 3.9.2
 FROM python:3.9.2-slim AS builder
 ADD Docker/builder/rootfs /
-ADD repo-manager /app/repo-manager
+ADD repo_manager /app/repo_manager
 ADD main.py /app/main.py
 WORKDIR /app
 
