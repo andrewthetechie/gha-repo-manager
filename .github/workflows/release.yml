@@ -15,7 +15,7 @@ on:
         default: false
         type: boolean
 jobs:
-  release:
+  update-dockerfile:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -35,7 +35,7 @@ jobs:
         uses: docker/metadata-action@v4
         id: meta
         with:
-          images: andrewthetechie/gha-repo-manager
+          images: andrewthetechie/gha-cookiecutter
           tags: |
             type=raw,value=${{ inputs.version }}
             # minimal (short sha)
@@ -70,12 +70,13 @@ jobs:
         with:
           commit_message: "ci: update actions dockerfile for release"
           file_pattern: Dockerfile
-      - name: Tag Repo
-        uses: richardsimko/update-tag@v1
-        with:
-          tag_name: ${{ inputs.version }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          tagging_message: ${{ inputs.version }}
+  release:
+    runs-on: ubuntu-latest
+    needs: update-dockerfile
+    steps:
+      - name: Clean Workspace
+        uses: AutoModality/action-clean@v1.1.0
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
