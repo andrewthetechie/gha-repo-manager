@@ -13,8 +13,11 @@ from github.Repository import Repository
 from repo_manager.schemas.label import Label
 
 
-def update_label():
-    ...
+def update_label(repo: Repository, label: Label):
+    this_label = repo.get_label(label.name)
+    color = this_label.color if label.color_no_hash is None else label.color_no_hash
+    description = this_label.description if label.description is None else label.description
+    this_label.edit(label.expected_name, color, description)
 
 
 def check_repo_labels(
