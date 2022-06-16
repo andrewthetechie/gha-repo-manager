@@ -20,6 +20,10 @@ def diff_option(key: str, expected: Any, repo_value: Any) -> Optional[str]:
     return None
 
 
+def update_branch_protection():
+    ...
+
+
 def check_repo_branch_protections(
     repo: Repository, config_branch_protections: List[BranchProtection]
 ) -> Tuple[bool, Dict[str, Union[List[str], Dict[str, Any]]]]:

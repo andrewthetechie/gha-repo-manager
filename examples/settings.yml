@@ -146,6 +146,3 @@ secrets:
   - key: DELETED_SECRET
     # setting exists to false will delete a secret. A delete that results in "not found" won't fail a run, so you can use this to make sure a secret is always deleted
     exists: false
-  - key: BLANKED_SECRET
-    # set val to an empty string to blank out a secret in the repo, but leave the secret in place.
-    val: ""

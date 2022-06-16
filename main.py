@@ -5,9 +5,13 @@ import sys
 from actions_toolkit import core as actions_toolkit
 
 from repo_manager.github.branch_protections import check_repo_branch_protections
+from repo_manager.github.branch_protections import update_branch_protection
 from repo_manager.github.labels import check_repo_labels
+from repo_manager.github.labels import update_label
 from repo_manager.github.secrets import check_repo_secrets
+from repo_manager.github.secrets import upsert_secret
 from repo_manager.github.settings import check_repo_settings
+from repo_manager.github.settings import update_setting
 from repo_manager.schemas import load_config
 from repo_manager.utils import get_inputs
 
@@ -47,7 +51,30 @@ def main():
         sys.exit(0)
 
     if inputs["action"] == "apply":
-        actions_toolkit.set_failed("Not Yet Implemented")
+        errors = []
+        from pprint import pprint
+
+        pprint(diffs)
+        secret_diffs = diffs.get("secrets", None)
+        if secret_diffs is not None:
+            for secret in config.secrets:
+                if secret.exists:
+                    try:
+                        inputs["repo_object"].create_secret(secret.key, secret.expected_value)
+                        actions_toolkit.info(f"Set {secret.key} to expected value")
+                    except Exception as exc:  # this should be tighter
+                        errors.append({"type": "secret-update", "key": secret.key, "error": f"{exc}"})
+                else:
+                    try:
+                        inputs["repo_object"].delete_secret(secret.key)
+                        actions_toolkit.info(f"Deleted {secret.key}")
+                    except Exception as exc:  # this should be tighter
+                        errors.append({"type": "secret-delete", "key": secret.key, "error": f"{exc}"})
+
+        if len(errors) > 0:
+            actions_toolkit.error(json.dumps(errors))
+            actions_toolkit.set_failed("Errors during apply")
+        actions_toolkit.set_output("result", "Apply successful")
 
 
 if __name__ == "__main__":

@@ -13,6 +13,10 @@ from github.Repository import Repository
 from repo_manager.schemas.label import Label
 
 
+def update_label():
+    ...
+
+
 def check_repo_labels(
     repo: Repository, config_labels: List[Label]
 ) -> Tuple[bool, Dict[str, Union[List[str], Dict[str, Any]]]]:

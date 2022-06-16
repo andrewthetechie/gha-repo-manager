@@ -10,6 +10,10 @@ from github.Repository import Repository
 from repo_manager.schemas.settings import Settings
 
 
+def update_setting():
+    ...
+
+
 def check_repo_settings(repo: Repository, settings: Settings) -> Tuple[bool, List[Optional[str]]]:
     """Checks a repo's settings vs our expected settings
 

@@ -1,3 +1,4 @@
+import os
 from typing import List
 from typing import Optional
 from typing import Union
@@ -9,6 +10,10 @@ from pydantic import validator
 
 OptBool = Optional[bool]
 OptStr = Optional[str]
+
+
+class SecretEnvError(Exception):
+    ...
 
 
 class Secret(BaseModel):
@@ -30,3 +35,12 @@ class Secret(BaseModel):
             raise ValueError("Cannot set an env and a value in the same secret, remove one.")
 
         return v
+
+    @property
+    def expected_value(self):
+        if self.value is None:
+            env_var = os.environ.get(self.env)
+            if env_var is None:
+                raise SecretEnvError(f"{self.env} is not set")
+            return env_var
+        return self.value

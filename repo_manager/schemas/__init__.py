@@ -18,6 +18,22 @@ class RepoManagerConfig(BaseModel):
     secrets: Optional[List[Secret]]
     labels: Optional[List[Label]]
 
+    @property
+    def secrets_dict(self):
+        return {secret.key for secret in self.secrets} if self.secrets is not None else {}
+
+    @property
+    def labels_dict(self):
+        return {label.expected_name for label in self.labels} if self.labels is not None else {}
+
+    @property
+    def branch_protections_dict(self):
+        return (
+            {branch_protection.name for branch_protection in self.branch_protections}
+            if self.branch_protections is not None
+            else {}
+        )
+
 
 def load_config(filename: str) -> RepoManagerConfig:
     """Loads a yaml file into a RepoManagerconfig"""

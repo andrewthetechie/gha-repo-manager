@@ -12,6 +12,10 @@ from github.Repository import Repository
 from repo_manager.schemas.secret import Secret
 
 
+def upsert_secret(repo: Repository, secret_key: str, secret_config: Secret):
+    ...
+
+
 def check_repo_secrets(
     repo: Repository, secrets: List[Secret]
 ) -> Tuple[bool, Dict[str, Union[List[str], Dict[str, Any]]]]:
@@ -43,7 +47,7 @@ def check_repo_secrets(
         secret_config = secrets_dict.get(secret_name, None)
         if secret_config is None:
             continue
-        if not secret_config.get("exists", True):
+        if not secret_config.exists:
             diff["extra"].append(secret_name)
             checked = False
 
