@@ -10,5 +10,6 @@ jobs:
         with:
           python-version: "3.9.2"
       - uses: actions/checkout@v3
+      - run: pip install -r requirements-dev.txt
       - name: Run Pre-commit
         uses: pre-commit/action@v3.0.0

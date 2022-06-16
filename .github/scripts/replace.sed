@@ -1,4 +1,4 @@
-#!/usr/bin/env sed -nEf
+#!/usr/bin/env -S sed -nEf
 
 
 /###START_INPUT_AUTOMATION###/ {
