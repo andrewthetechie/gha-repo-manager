@@ -23,30 +23,31 @@ def main():
         sys.exit(0)
     actions_toolkit.info(f"Config from {inputs['settings_file']} validated.")
 
-    if inputs["action"] == "check":
-        check_result = True
-        diffs = {}
-        for check, to_check in {
-            check_repo_settings: ("settings", config.settings),
-            check_repo_secrets: ("secrets", config.secrets),
-            check_repo_labels: ("labels", config.labels),
-            check_repo_branch_protections: ("branch_protections", config.branch_protections),
-        }.items():
-            check_name, to_check = to_check
-            if to_check is not None:
-                this_check, this_diffs = check(inputs["repo_object"], to_check)
-                check_result &= this_check
-                diffs[check_name] = this_diffs
+    check_result = True
+    diffs = {}
+    for check, to_check in {
+        check_repo_settings: ("settings", config.settings),
+        check_repo_secrets: ("secrets", config.secrets),
+        check_repo_labels: ("labels", config.labels),
+        check_repo_branch_protections: ("branch_protections", config.branch_protections),
+    }.items():
+        check_name, to_check = to_check
+        if to_check is not None:
+            this_check, this_diffs = check(inputs["repo_object"], to_check)
+            check_result &= this_check
+            diffs[check_name] = this_diffs
 
         actions_toolkit.set_output("diff", json.dumps(diffs))
+
+    if inputs["action"] == "check":
         if not check_result:
             actions_toolkit.set_output("result", "Check failed, diff detected")
             actions_toolkit.set_failed("Diff detected")
         actions_toolkit.set_output("result", "Check passed")
         sys.exit(0)
 
-        if inputs["action"] == "apply":
-            actions_toolkit.set_failed("Not Yet Implemented")
+    if inputs["action"] == "apply":
+        actions_toolkit.set_failed("Not Yet Implemented")
 
 
 if __name__ == "__main__":

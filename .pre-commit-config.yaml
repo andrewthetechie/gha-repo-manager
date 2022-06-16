@@ -30,3 +30,10 @@ repos:
   rev: 1.7.4
   hooks:
   - id: bandit
+- repo: local
+  hooks:
+    - id: update-inputs
+      name: Update inputs
+      entry: make generate-inputs
+      language: system
+      pass_filenames: false

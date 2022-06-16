@@ -21,5 +21,9 @@ install-requirements:  ## Pip installs our requirements
 setup-pre-commit:
 	pre-commit install
 
-build:
+build: ## build a docker file
 	docker build --platform linux/amd64 -t gha-repo-manager -f Docker/Dockerfile .
+
+.ONESHELL:
+generate-inputs: ## Generate a dict of inputs from actions.yml into repo_manager/utils/__init__.py
+	./.github/scripts/replace_inputs.sh
