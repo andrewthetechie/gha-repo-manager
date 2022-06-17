@@ -18,8 +18,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           repo: andrewthetechie/gha-repo-manager
-          action: "validate"
-          settings_file: "./examples/settings.yml"
+          action: "check"
       - name: Check outputs
         run: |
-          test "${{ steps.test-action.outputs.addedReleases }}" == ""
+          test "${{ steps.test-action.outputs.result }}" == "Check passed"
