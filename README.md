@@ -24,10 +24,10 @@ See [examples/settings.yml](./examples/settings.yml) for an example config file.
 ### Example workflow
 
 ```yaml
-name: Run Cookiecutter
+name: Run Repo Manager
 on: [workflow_dispatch]
 jobs:
-  build:
+  repo-manager:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
