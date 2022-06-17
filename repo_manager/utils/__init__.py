@@ -86,3 +86,12 @@ def get_inputs() -> Dict[str, Any]:
     parsed_inputs["repo_object"] = repo
 
     return parsed_inputs
+
+
+def attr_to_kwarg(attr_name: str, obj: Any, kwargs: dict, transform_key: str = None):
+    value = getattr(obj, attr_name, None)
+    if value is not None:
+        if transform_key is None:
+            kwargs[attr_name] = value
+        else:
+            kwargs[transform_key] = value

@@ -13,11 +13,34 @@ Manage your Github repo(s) settings and secrets using Github Actions and a yaml 
 <!-- action-docs-description -->
 
 ## Usage
+This action manages your repo from a yaml file. You can manage:
+* branch protection
+* labels
+* repos
+* secrets
+* repo settings
 
-
+See [examples/settings.yml](./examples/settings.yml) for an example config file. The schemas for this file are in [repo_manager.schemas](./repo_magager/schemas).
 ### Example workflow
 
 ```yaml
+name: Run Cookiecutter
+on: [workflow_dispatch]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    name: Checkout
+    - name: Run RepoManager
+      uses: andrewthetechie/gha-repo-manager@main
+      with:
+        # Apply your settings to the repo, can also be check to just check repo settings vs your file or validate, to validate your
+        # file is valid
+        action: apply
+        settings_file: .github/settings.yml
+        # need a PAT that can edit repo settings
+        token: ${{ secrets.GITHUB_PAT }}
 
 ```
 

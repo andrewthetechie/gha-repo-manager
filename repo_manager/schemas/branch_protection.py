@@ -12,7 +12,6 @@ OptStr = Optional[str]
 
 
 class RestrictionOptions(BaseModel):
-    apps: Optional[List[str]] = Field(None, description="List of App names that cannot push to this branch")
     users: Optional[List[str]] = Field(
         None, description="List of users who cannot push to this branch, only available to orgs"
     )
@@ -59,7 +58,7 @@ class ProtectionOptions(BaseModel):
         None,
         description="Enforce all configured restrictions for administrators. Set to true to enforce required status checks for repository administrators. Set to null to disable.",
     )
-    required_linear_history: OptBool = Field(
+    require_linear_history: OptBool = Field(
         None, description="Prevent merge commits from being pushed to matching branches"
     )
     restrictions: Optional[RestrictionOptions] = Field(
@@ -67,6 +66,11 @@ class ProtectionOptions(BaseModel):
     )
     allow_force_pushes: OptBool = Field(None, description="Permit force pushes for all users with push access.")
     allow_deletions: OptBool = Field(None, description="Allow users with push access to delete matching branches.")
+    block_creations: OptBool = Field(
+        None,
+        description="If set to true, the restrictions branch protection settings which limits who can push will also block pushes which create new branches, unless the push is initiated by a user, team, or app which has the ability to push. Set to true to restrict new branch creation.",
+    )
+
     require_conversation_resolution: OptBool = Field(
         None,
         description="When enabled, all conversations on code must be resolved before a pull request can be merged.",

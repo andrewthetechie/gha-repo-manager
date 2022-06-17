@@ -101,25 +101,30 @@ branch_protections:
         # Blocks merge until code owners have reviewed.
         require_code_owner_reviews: true
         # Specify which users and teams can dismiss pull request reviews. Pass an empty dismissal_restrictions object to disable. User and team dismissal_restrictions are only available for organization-owned repositories. Omit this parameter for personal repositories.
-        dismissal_restrictions:
-          users: []
-          teams: []
+        # dismissal_restrictions:
+        #   users: []
+        #   teams: []
       # Require status checks to pass before merging. Set to null to disable
-      required_status_checks:
-        # Require branches to be up to date before merging.
-        strict: true
-        # The list of status checks to require in order to merge into this branch
-        checks:
-          - lint
-          - test
-          - docker
+      # required_status_checks:
+      #   # Require branches to be up to date before merging.
+      #   strict: true
+      #   # The list of status checks to require in order to merge into this branch
+        # checks:
+        #   - lint
+        #   - test
+        #   - docker
       # Enforce all configured restrictions for administrators. Set to true to enforce required status checks for repository administrators. Set to null to disable.
       enforce_admins: true
       # Prevent merge commits from being pushed to matching branches
-      required_linear_history: true
+      require_linear_history: true
+      # Permit force pushes for all users with push access.
+      allow_force_pushes: true
+      # Allow users with push access to delete matching branches.
+      allow_deletions: true
+      # If set to true, the restrictions branch protection settings which limits who can push will also block pushes which create new branches, unless the push is initiated by a user, team, or app which has the ability to push. Set to true to restrict new branch creation.
+      block_creations: true
       # Restrict who can push to this branch. Team and user restrictions are only available for organization-owned repositories. Set to null to disable.
       restrictions:
-        apps: []
         users: []
         teams: []
   - name: dev

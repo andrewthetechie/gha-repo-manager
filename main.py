@@ -12,7 +12,7 @@ from repo_manager.github.labels import update_label
 from repo_manager.github.secrets import check_repo_secrets
 from repo_manager.github.secrets import upsert_secret
 from repo_manager.github.settings import check_repo_settings
-from repo_manager.github.settings import update_setting
+from repo_manager.github.settings import update_settings
 from repo_manager.schemas import load_config
 from repo_manager.utils import get_inputs
 
@@ -100,6 +100,7 @@ def main():
 
         bp_diff = diffs.get("branch_protections", None)
         if bp_diff is not None:
+            # delete branch protection
             for branch_name in bp_diff["extra"]:
                 try:
                     this_branch = inputs["repo_object"].get_branch(branch_name)
@@ -111,11 +112,12 @@ def main():
                 except Exception as exc:  # this should be tighter
                     errors.append({"type": "bp-delete", "name": branch_name, "error": f"{exc}"})
 
+            # update or create branch protection
             for branch_name in bp_diff["missing"] + list(bp_diff["diffs"].keys()):
                 try:
                     bp_config = config.branch_protections_dict[branch_name]
                     if bp_config.protection is not None:
-                        update_branch_protection(inputs["repo_object"], bp_config.protection)
+                        update_branch_protection(inputs["repo_object"], branch_name, bp_config.protection)
                         actions_toolkit.info(f"Updated branch proection for {branch_name}")
                     else:
                         actions_toolkit.warning(f"Branch protection config for {branch_name} is empty")
@@ -128,6 +130,13 @@ def main():
                         errors.append({"type": "bp-update", "name": branch_name, "error": f"{ghexc}"})
                 except Exception as exc:  # this should be tighter
                     errors.append({"type": "bp-update", "name": branch_name, "error": f"{exc}"})
+
+        if config.settings is not None:
+            try:
+                update_settings(inputs["repo_object"], config.settings)
+                actions_toolkit.info("Synced Settings")
+            except Exception as exc:
+                errors.append({"type": "settings-update", "error": f"{exc}"})
 
         if len(errors) > 0:
             actions_toolkit.error(json.dumps(errors))
