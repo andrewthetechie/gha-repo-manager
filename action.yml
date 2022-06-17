@@ -1,4 +1,4 @@
-name: "Repo Manager"
+name: "Yaml Repo Manager"
 description: "Manage your Github repo(s) settings and secrets using Github Actions and a yaml file"
 author: "Andrew Herrington"
 inputs:
