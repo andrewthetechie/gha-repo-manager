@@ -128,10 +128,12 @@ def main():
 
             for branch_name in bp_diff["diffs"].keys():
                 try:
-                    this_branch = inputs["repo_object"].get_branch(branch_name)
                     bp_config = config.branch_protections_dict[branch_name]
-                    # TODO: This isn't working
-                    this_branch.edit_protection(**bp_config.protection.dict())
+                    if bp_config.protection is not None:
+                        update_branch_protection(inputs["repo_object"], bp_config.protection)
+                        actions_toolkit.info(f"Updated branch proection for {branch_name}")
+                    else:
+                        actions_toolkit.info(f"Branch protection config for {branch_name} is empty")
                 except GithubException as ghexc:
                     if ghexc.status == 404:
                         actions_toolkit.info(

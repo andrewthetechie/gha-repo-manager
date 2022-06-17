@@ -11,6 +11,7 @@ from typing import Union
 from github.Repository import Repository
 
 from repo_manager.schemas.branch_protection import BranchProtection
+from repo_manager.schemas.branch_protection import ProtectionOptions
 
 
 def diff_option(key: str, expected: Any, repo_value: Any) -> Optional[str]:
@@ -20,7 +21,8 @@ def diff_option(key: str, expected: Any, repo_value: Any) -> Optional[str]:
     return None
 
 
-def update_branch_protection():
+def update_branch_protection(repo: Repository, protection_config: ProtectionOptions):
+    # TODO: write this
     ...
 
 
