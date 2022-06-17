@@ -46,7 +46,7 @@ def check_repo_branch_protections(
             missing_protections.append(config_bp.name)
             continue
         if not config_bp.exists and repo_bp is not None:
-            extra_labels.append(config_bp.name)
+            extra_protections.append(config_bp.name)
             continue
 
         diffs = []

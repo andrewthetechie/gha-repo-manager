@@ -87,6 +87,7 @@ labels:
     exists: false
 
 branch_protections:
+  # branch protection can only be created for branches that exist.
   - name: main
     # https://docs.github.com/en/rest/reference/repos#update-branch-protection
     # Branch Protection settings. Leave a value out to leave set at current repo settings
@@ -122,7 +123,7 @@ branch_protections:
         users: []
         teams: []
   - name: dev
-    # will clear any branch protection on the dev branch
+    # will clear any branch protection on the dev branch, IF the dev branch exists. If you setup protection for a non-existant branch, this action cannot delete it
     exists: False
   # if the repo has a third branch named test with branch protections setup, by not adding a protection with name: test, this config will not change
   # those existing protections.

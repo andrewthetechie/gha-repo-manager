@@ -3,6 +3,7 @@ import os
 import sys
 
 from actions_toolkit import core as actions_toolkit
+from github.GithubException import GithubException
 
 from repo_manager.github.branch_protections import check_repo_branch_protections
 from repo_manager.github.branch_protections import update_branch_protection
@@ -96,6 +97,51 @@ def main():
             for label_name in labels_diff["diffs"].keys():
                 update_label(inputs["repo_object"], config.labels_dict[label_name])
                 actions_toolkit.info(f"Updated label {label_name}")
+
+        bp_diff = diffs.get("branch_protections", None)
+        if bp_diff is not None:
+            for branch_name in bp_diff["extra"]:
+                try:
+                    this_branch = inputs["repo_object"].get_branch(branch_name)
+                    this_branch.remove_protection()
+                except GithubException as ghexc:
+                    if ghexc.status != 404:
+                        # a 404 on a delete is fine, means it isnt protected
+                        errors.append({"type": "bp-delete", "name": branch_name, "error": f"{ghexc}"})
+                except Exception as exc:  # this should be tighter
+                    errors.append({"type": "bp-delete", "name": branch_name, "error": f"{exc}"})
+
+            for branch_name in bp_diff["missing"]:
+                try:
+                    this_branch = inputs["repo_object"].get_branch(branch_name)
+                    bp_config = config.branch_protections_dict[branch_name]
+                    this_branch.edit_protection(**bp_config)
+                except GithubException as ghexc:
+                    if ghexc.status == 404:
+                        actions_toolkit.info(
+                            f"Can't create branch protection for {branch_name} because the branch does not exist"
+                        )
+                    else:
+                        errors.append({"type": "bp-create", "name": branch_name, "error": f"{ghexc}"})
+                except Exception as exc:  # this should be tighter
+                    errors.append({"type": "bp-create", "name": branch_name, "error": f"{exc}"})
+
+            for branch_name in bp_diff["diffs"].keys():
+                try:
+                    this_branch = inputs["repo_object"].get_branch(branch_name)
+                    bp_config = config.branch_protections_dict[branch_name]
+                    # TODO: This isn't working
+                    this_branch.edit_protection(**bp_config.protection.dict())
+                except GithubException as ghexc:
+                    if ghexc.status == 404:
+                        actions_toolkit.info(
+                            f"Can't Update branch protection for {branch_name} because the branch does not exist"
+                        )
+                    else:
+                        errors.append({"type": "bp-update", "name": branch_name, "error": f"{ghexc}"})
+                except Exception as exc:  # this should be tighter
+                    errors.append({"type": "bp-update", "name": branch_name, "error": f"{exc}"})
+
         if len(errors) > 0:
             actions_toolkit.error(json.dumps(errors))
             actions_toolkit.set_failed("Errors during apply")
