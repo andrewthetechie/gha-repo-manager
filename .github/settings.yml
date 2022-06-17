@@ -1,95 +1,108 @@
-settings:
-  # See https://docs.github.com/en/rest/reference/repos#update-a-repository for all available settings.
-  # any of these settings can be ommitted to just leave the repo's current setting
-  # If a setting has a value in settings.yml, it will always overwrite what exists in the repo.
+# settings:
+#   # See https://docs.github.com/en/rest/reference/repos#update-a-repository for all available settings.
+#   # any of these settings can be ommitted to just leave the repo's current setting
+#   # If a setting has a value in settings.yml, it will always overwrite what exists in the repo.
 
-  # A short description of the repository that will show up on GitHub. Set to an empty string to clear.
-  description: Manage your Github repo(s) settings and secrets using Github Actions and a yaml file
-  # A URL with more information about the repository. Set to an empty string to clear.
-  homepage: https://github.com/andrewthetechie/gha-repo-manager
+#   # A short description of the repository that will show up on GitHub. Set to an empty string to clear.
+#   description: Manage your Github repo(s) settings and secrets using Github Actions and a yaml file
+#   # A URL with more information about the repository. Set to an empty string to clear.
+#   homepage: https://github.com/andrewthetechie/gha-repo-manager
 
-  # A list of strings to apply as topics on the repo. Set to an empty string to clear topics. Omit or set to null to leave what repo already has
-  topics:
-   - github-actions
-   - python
+#   # A list of strings to apply as topics on the repo. Set to an empty string to clear topics. Omit or set to null to leave what repo already has
+#   topics:
+#    - github-actions
+#    - python
 
-  # Either `true` to make the repository private, or `false` to make it public.
-  private: false
+#   # Either `true` to make the repository private, or `false` to make it public.
+#   private: false
 
-  # Either `true` to enable issues for this repository, `false` to disable them.
-  has_issues: true
+#   # Either `true` to enable issues for this repository, `false` to disable them.
+#   has_issues: true
 
-  # Either `true` to enable projects for this repository, or `false` to disable them.
-  # If projects are disabled for the organization, passing `true` will cause an API error.
-  has_projects: false
+#   # Either `true` to enable projects for this repository, or `false` to disable them.
+#   # If projects are disabled for the organization, passing `true` will cause an API error.
+#   has_projects: false
 
-  # Either `true` to enable the wiki for this repository, `false` to disable it.
-  has_wiki: false
+#   # Either `true` to enable the wiki for this repository, `false` to disable it.
+#   has_wiki: false
 
-  # Either `true` to enable downloads for this repository, `false` to disable them.
-  has_downloads: false
+#   # Either `true` to enable downloads for this repository, `false` to disable them.
+#   has_downloads: false
 
-  # Set the default branch for this repository.
-  default_branch: main
+#   # Set the default branch for this repository.
+#   default_branch: main
 
-  # Either `true` to allow squash-merging pull requests, or `false` to prevent
-  # squash-merging.
-  allow_squash_merge: true
+#   # Either `true` to allow squash-merging pull requests, or `false` to prevent
+#   # squash-merging.
+#   allow_squash_merge: true
 
-  # Either `true` to allow merging pull requests with a merge commit, or `false`
-  # to prevent merging pull requests with merge commits.
-  allow_merge_commit: true
+#   # Either `true` to allow merging pull requests with a merge commit, or `false`
+#   # to prevent merging pull requests with merge commits.
+#   allow_merge_commit: true
 
-  # Either `true` to allow rebase-merging pull requests, or `false` to prevent
-  # rebase-merging.
-  allow_rebase_merge: true
+#   # Either `true` to allow rebase-merging pull requests, or `false` to prevent
+#   # rebase-merging.
+#   allow_rebase_merge: true
 
-  # Either `true` to enable automatic deletion of branches on merge, or `false` to disable
-  delete_branch_on_merge: true
+#   # Either `true` to enable automatic deletion of branches on merge, or `false` to disable
+#   delete_branch_on_merge: true
 
-  # Either `true` to enable automated security fixes, or `false` to disable
-  # automated security fixes.
-  enable_automated_security_fixes: true
+#   # Either `true` to enable automated security fixes, or `false` to disable
+#   # automated security fixes.
+#   enable_automated_security_fixes: true
 
-  # Either `true` to enable vulnerability alerts, or `false` to disable
-  # vulnerability alerts.
-  enable_vulnerability_alerts: true
+#   # Either `true` to enable vulnerability alerts, or `false` to disable
+#   # vulnerability alerts.
+#   enable_vulnerability_alerts: true
 
-# Labels: define labels for Issues and Pull Requests
-labels:
-  - name: bug
-    color: CC0000
-    description: An issue with the system.
+# # Labels: define labels for Issues and Pull Requests
+# labels:
+#   - name: bug
+#     color: CC0000
+#     description: An issue with the system.
 
-  - name: feature
-    # If including a `#`, make sure to wrap it with quotes!
-    color: '#336699'
-    description: New functionality.
+#   - name: feature
+#     # If including a `#`, make sure to wrap it with quotes!
+#     color: '#336699'
+#     description: New functionality.
 
-branch_protections:
-  # branch protection can only be created for branches that exist.
-  - name: main
-    # https://docs.github.com/en/rest/reference/repos#update-branch-protection
-    # Branch Protection settings. Leave a value out to leave set at current repo settings
-    protection:
-      # Require at least one approving review on a pull request, before merging. Set to null to disable.
-      pr_options:
-        # Dismiss approved reviews automatically when a new commit is pushed.
-        dismiss_stale_reviews: true
-        # Specify which users and teams can dismiss pull request reviews. Pass an empty dismissal_restrictions object to disable. User and team dismissal_restrictions are only available for organization-owned repositories. Omit this parameter for personal repositories.
-        # dismissal_restrictions:
-        #   users: []
-        #   teams: []
-      # Require status checks to pass before merging. Set to null to disable
-      required_status_checks:
-        # Require branches to be up to date before merging.
-        strict: true
-        # The list of status checks to require in order to merge into this branch
-        checks:
-          - Lint
-          - Integration Testing
-          - Generate Docs
-      # Enforce all configured restrictions for administrators. Set to true to enforce required status checks for repository administrators. Set to null to disable.
-      enforce_admins: false
-      # Permit force pushes for all users with push access.
-      allow_force_pushes: true
+# branch_protections:
+#   # branch protection can only be created for branches that exist.
+#   - name: main
+#     # https://docs.github.com/en/rest/reference/repos#update-branch-protection
+#     # Branch Protection settings. Leave a value out to leave set at current repo settings
+#     protection:
+#       # Require at least one approving review on a pull request, before merging. Set to null to disable.
+#       pr_options:
+#         # Dismiss approved reviews automatically when a new commit is pushed.
+#         dismiss_stale_reviews: true
+#         # Specify which users and teams can dismiss pull request reviews. Pass an empty dismissal_restrictions object to disable. User and team dismissal_restrictions are only available for organization-owned repositories. Omit this parameter for personal repositories.
+#         # dismissal_restrictions:
+#         #   users: []
+#         #   teams: []
+#       # Require status checks to pass before merging. Set to null to disable
+#       required_status_checks:
+#         # Require branches to be up to date before merging.
+#         strict: true
+#         # The list of status checks to require in order to merge into this branch
+#         checks:
+#           - Lint
+#           - Integration Testing
+#           - Generate Docs
+#       # Enforce all configured restrictions for administrators. Set to true to enforce required status checks for repository administrators. Set to null to disable.
+#       enforce_admins: false
+#       # Permit force pushes for all users with push access.
+#       allow_force_pushes: true
+
+files:
+  - src_file: examples/settings.yml
+    dest_file: examples/settings.yml
+  - src_file: .github/scripts/README.md
+    dest_file: .github/scripts/README.md
+  - dest_file: .github/dependabot.yml
+    exists: false
+  - src_file: remote://README.md
+    dest_file: NEW-README.md
+  - src_file: remote://test-file
+    dest_file: new-test-file
+    move: true

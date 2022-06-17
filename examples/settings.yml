@@ -152,3 +152,33 @@ secrets:
   - key: DELETED_SECRET
     # setting exists to false will delete a secret. A delete that results in "not found" won't fail a run, so you can use this to make sure a secret is always deleted
     exists: false
+
+# Can copy files from your local context to the repo.
+# Manipulate files in the target repo
+# * move files around
+# * delete files
+# Changes are automatically commited and pushed to a target branch (default is default branch)
+# File operations are applied sequentially
+files:
+  # copy templates/actions/my_workflow.yml to .github/workflows/my_workflow.yml in your target repo
+  # and commit it with the default commit message and to your repo's default branch.
+  # default commit message is "repo_manager file commit"
+  - src_file: templates/actions/my_workflow.yml
+    dest_file: .github/workflows/my_workflow.yml
+  - src_file: templates/issues/issue_template.md
+    dest_file: .github/ISSUE_TEMPLATE/issue.md
+    commit_msg: update issue template
+    # Update this file in the dev branch. If the dev branch doesn't exist, this will fail the workflow
+  - src_file: templates/dev/dev.md
+    dest_file: dev.md
+    target_branch: dev
+  # This moves README.md to README.rst in the remote. If README.md doesn't exist, the workflow will not fail and will emit a warning.
+  - src_file: remote://README.md
+    dest_file: README.rst
+    move: true
+    commit_msg: 'move readme'
+  # This removes OLDDOC.md in the dev branch. If OLDDOC.md doesn't exist, the workflow will emit a warning
+  - dest_file: OLDDOC.md
+    exists: false
+    branch: dev
+    commit_msg: 'remove OLDDOC.md from dev'

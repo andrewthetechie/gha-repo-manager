@@ -19,8 +19,17 @@ This action manages your repo from a yaml file. You can manage:
 * repos
 * secrets
 * repo settings
+* Files
 
 See [examples/settings.yml](./examples/settings.yml) for an example config file. The schemas for this file are in [repo_manager.schemas](./repo_magager/schemas).
+
+### File Management -- Experimental
+File management can copy files from your local environment to a target repo, copy files from one location to another in the target repo, move files in the target repo, and delete files in the target repo.
+
+File operations are performed using the Github BLOB API and your PAT. Each file operation is a separate commit.
+
+This feature is helpful to keep workflows or settings file in sync from a central repo to many repos.
+
 ### Example workflow
 
 ```yaml

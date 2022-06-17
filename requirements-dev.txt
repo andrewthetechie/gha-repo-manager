@@ -1,2 +1,7 @@
 pre-commit
 black
+flake8
+pytest
+pytest-pythonpath
+pytest-mock
+pytest-cov

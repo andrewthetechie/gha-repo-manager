@@ -1,14 +1,14 @@
 
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v4.0.1
+  rev: v4.3.0
   hooks:
   - id: check-yaml
   - id: debug-statements
   - id: end-of-file-fixer
   - id: trailing-whitespace
 - repo: https://github.com/asottile/reorder_python_imports
-  rev: v2.6.0
+  rev: v3.1.0
   hooks:
   - id: reorder-python-imports
     args: [--application-directories, '.:src', --py39-plus]
@@ -18,18 +18,19 @@ repos:
   - id: black
     args: [--line-length=119, --target-version=py39]
 - repo: https://github.com/asottile/pyupgrade
-  rev: v2.29.0
+  rev: v2.34.0
   hooks:
   - id: pyupgrade
     args: [--py37-plus]
 - repo: https://github.com/jorisroovers/gitlint
-  rev: v0.16.0
+  rev: v0.17.0
   hooks:
   - id: gitlint
 - repo: https://github.com/PyCQA/bandit
   rev: 1.7.4
   hooks:
   - id: bandit
+    args: ["--exclude", ".tox,.eggs,tests"]
 - repo: local
   hooks:
     - id: update-inputs
@@ -43,6 +44,20 @@ repos:
       name: Run Actionlint
       entry: make actionlint
       language: system
+- repo: local
+  hooks:
+    - id: pytest-check
+      name: pytest-check
+      entry: pytest
+      language: system
+      pass_filenames: false
+      always_run: true
+# flake8
+- repo: https://github.com/PyCQA/flake8
+  rev: 4.0.1
+  hooks:
+    - id: flake8
+      exclude: ^tests/
 # Once https://github.com/rhysd/actionlint/issues/152 is fixed, we can use the actionlint pre-commit
 # # action lint specifically lints gha actions
 # - repo: https://github.com/rhysd/actionlint

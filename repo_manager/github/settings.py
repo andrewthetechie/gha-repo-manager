@@ -1,9 +1,7 @@
-from collections.abc import Callable
 from typing import Any
 from typing import List
 from typing import Optional
 from typing import Tuple
-from typing import Union
 
 from github.Repository import Repository
 

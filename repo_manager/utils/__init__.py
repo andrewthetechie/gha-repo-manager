@@ -1,9 +1,7 @@
 import os
-import sys
 from typing import Any
 from typing import Dict
 
-import yaml
 from actions_toolkit import core as actions_toolkit
 
 from repo_manager.github import get_github_client
@@ -32,7 +30,8 @@ VALID_ACTIONS = {"validate": None, "check": None, "apply": None}
 
 def get_inputs() -> Dict[str, Any]:
     """Get inputs from our workflow, valudate them, and return as a dict
-    Reads inputs from actions.yaml. Non required inputs that are not set are returned as None
+    Reads inputs from the dict INPUTS. This dict is generated from the actions.yml file.
+    Non required inputs that are not set are returned as None
     Returns:
         Dict[str, Any]: [description]
     """
@@ -40,10 +39,10 @@ def get_inputs() -> Dict[str, Any]:
     for input_name, input_config in INPUTS.items():
         this_input_value = actions_toolkit.get_input(
             input_name,
-            required=input_config.get("required", input_config.get("default", None) == None),
+            required=input_config.get("required", input_config.get("default", None) is None),
         )
         parsed_inputs[input_name] = this_input_value if this_input_value != "" else None
-        # set defaults from actions.yaml if not running in github, this is for local testing
+        # set defaults if not running in github, this is to ease local testing
         # https://docs.github.com/en/actions/learn-github-actions/environment-variables
         if (
             os.environ.get("CI", "false").lower() == "false"
@@ -53,7 +52,16 @@ def get_inputs() -> Dict[str, Any]:
                 parsed_inputs[input_name] = input_config.get("default", None)
                 if parsed_inputs[input_name] is None:
                     actions_toolkit.set_failed(f"Error getting inputs. {input_name} is missing a default")
+    return validate_inputs(parsed_inputs)
 
+
+def validate_inputs(parsed_inputs: Dict[str, Any]) -> Dict[str, Any]:
+    """Validate inputs
+    Args:
+        inputs (Dict[str, Any]): [description]
+    """
+    if parsed_inputs["action"] not in VALID_ACTIONS:
+        actions_toolkit.set_failed(f"Invalid action: {parsed_inputs['action']}")
     # validate our inputs
     parsed_inputs["action"] = parsed_inputs["action"].lower()
     if parsed_inputs["action"] not in VALID_ACTIONS.keys():
@@ -75,7 +83,7 @@ def get_inputs() -> Dict[str, Any]:
         parsed_inputs["repo"] = os.environ.get("GITHUB_REPOSITORY", None)
         if parsed_inputs["repo"] is None:
             actions_toolkit.set_failed(
-                f"Error getting inputs. repo is 'self' and GITHUB_REPOSITORY env var is not set. Please set INPUT_REPO or GITHUB_REPOSITORY in the env"
+                "Error getting inputs. repo is 'self' and GITHUB_REPOSITORY env var is not set. Please set INPUT_REPO or GITHUB_REPOSITORY in the env"
             )
 
     try:

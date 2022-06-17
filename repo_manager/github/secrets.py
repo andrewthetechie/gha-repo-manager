@@ -1,9 +1,7 @@
 import json
-from collections.abc import Callable
 from typing import Any
 from typing import Dict
 from typing import List
-from typing import Optional
 from typing import Tuple
 from typing import Union
 
@@ -30,7 +28,7 @@ def check_repo_secrets(
     """
     status, headers, raw_data = repo._requester.requestJson("GET", f"{repo.url}/actions/secrets")
     if status != 200:
-        raise Exception(f"Unable to get repo's secrets {exc}")
+        raise Exception(f"Unable to get repo's secrets {status}")
     try:
         secret_data = json.loads(raw_data)
     except json.JSONDecodeError as exc:
@@ -41,7 +39,10 @@ def check_repo_secrets(
     repo_secret_names = [secret["name"] for secret in secret_data["secrets"]]
     secrets_dict = {secret.key: secret for secret in secrets}
     expected_secret_names = [secret.key for secret in secrets if secret.exists]
-    diff = {"missing": list(set(expected_secret_names) - set(repo_secret_names)), "extra": []}
+    diff = {
+        "missing": list(set(expected_secret_names) - set(repo_secret_names)),
+        "extra": [],
+    }
     extra_secret_names = list(set(repo_secret_names) - set(expected_secret_names))
     for secret_name in extra_secret_names:
         secret_config = secrets_dict.get(secret_name, None)

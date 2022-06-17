@@ -1,12 +1,11 @@
 from typing import List
 from typing import Optional
-from typing import Union
 
 import yaml
 from pydantic import BaseModel  # pylint: disable=E0611
-from pydantic import Field
 
 from .branch_protection import BranchProtection
+from .file import FileConfig
 from .label import Label
 from .secret import Secret
 from .settings import Settings
@@ -17,6 +16,7 @@ class RepoManagerConfig(BaseModel):
     branch_protections: Optional[List[BranchProtection]]
     secrets: Optional[List[Secret]]
     labels: Optional[List[Label]]
+    files: Optional[List[FileConfig]]
 
     @property
     def secrets_dict(self):

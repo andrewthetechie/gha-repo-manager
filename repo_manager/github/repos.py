@@ -14,6 +14,6 @@ def get_repo(client: Github, repo: str) -> Tuple[bool, Optional[Repository]]:
     try:
         repo = client.get_repo(repo)
     except Exception as exc:  # this exception should be tighter
-        raise BadTokenError()
+        raise BadTokenError(exc)
 
     return True, repo

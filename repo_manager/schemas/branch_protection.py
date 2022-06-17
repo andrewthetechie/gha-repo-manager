@@ -1,11 +1,9 @@
 from typing import List
 from typing import Optional
-from typing import Union
 
 from pydantic import BaseModel  # pylint: disable=E0611
 from pydantic import conint
 from pydantic import Field
-from pydantic import HttpUrl  # pylint: disable=E0611
 
 OptBool = Optional[bool]
 OptStr = Optional[str]
