@@ -21,7 +21,7 @@ def main():
     inputs = get_inputs()
     actions_toolkit.debug(f"Loading config from {inputs['settings_file']}")
     config = load_config(inputs["settings_file"])
-
+    actions_toolkit.debug(f"Inputs: {inputs}")
     if inputs["action"] == "validate":
         actions_toolkit.set_output("result", f"Validated {inputs['settings_file']}")
         actions_toolkit.set_output("diff", json.dumps({}))
@@ -42,7 +42,7 @@ def main():
             check_result &= this_check
             diffs[check_name] = this_diffs
 
-        actions_toolkit.set_output("diff", json.dumps(diffs))
+    actions_toolkit.set_output("diff", json.dumps(diffs))
 
     if inputs["action"] == "check":
         if not check_result:
@@ -53,9 +53,6 @@ def main():
 
     if inputs["action"] == "apply":
         errors = []
-        from pprint import pprint
-
-        pprint(diffs)
 
         # Because we cannot diff secrets, just apply it every time
         if config.secrets is not None:
