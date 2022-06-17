@@ -32,3 +32,7 @@ install-action-lint-mac: ## Install actionlint (used in pre-commit) on a mac usi
 
 install-action-lint: ## Install actionlint (used in pre-commit) using go install
 	go install github.com/rhysd/actionlint/cmd/actionlint@latest
+
+actionlint: ## run actionlint with our ignores
+	# https://github.com/rhysd/actionlint/issues/152
+	actionlint -ignore 'property \".+\" is not defined in object type {}'
