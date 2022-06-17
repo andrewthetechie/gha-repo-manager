@@ -37,3 +37,8 @@ repos:
       entry: make generate-inputs
       language: system
       pass_filenames: false
+# action lint specifically lints gha actions
+- repo: https://github.com/rhysd/actionlint
+  rev: v1.6.13
+  hooks:
+    - id: actionlint
