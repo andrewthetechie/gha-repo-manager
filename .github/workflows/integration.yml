@@ -16,8 +16,7 @@ jobs:
         # test with the local checkout of the action
         uses: ./
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          repo: andrewthetechie/gha-repo-manager
+          token: ${{ secrets.THIS_PAT }}
           action: "check"
       - name: Check outputs
         run: |
