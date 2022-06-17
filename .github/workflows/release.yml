@@ -94,7 +94,7 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.THIS_PAT }}
-      - run: cp Docker/Dockerfile Dockerfile
+      - run: cp Docker/Dockerfile ./Dockerfile
       - name: Commit Dockerfile changes
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
