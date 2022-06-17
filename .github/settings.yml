@@ -66,9 +66,6 @@ labels:
     color: '#336699'
     description: New functionality.
 
-  - name: Help Wanted
-    description: An issue good for someone to jump in on
-
 branch_protections:
   # branch protection can only be created for branches that exist.
   - name: main
@@ -89,9 +86,9 @@ branch_protections:
         strict: true
         # The list of status checks to require in order to merge into this branch
         checks:
-          - lint
-          - integration-testing
-          - docs
+          - Lint
+          - Integration Testing
+          - Generate Docs
       # Enforce all configured restrictions for administrators. Set to true to enforce required status checks for repository administrators. Set to null to disable.
       enforce_admins: false
       # Permit force pushes for all users with push access.

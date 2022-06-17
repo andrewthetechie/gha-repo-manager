@@ -58,19 +58,20 @@ def main():
         pprint(diffs)
 
         # Because we cannot diff secrets, just apply it every time
-        for secret in config.secrets:
-            if secret.exists:
-                try:
-                    inputs["repo_object"].create_secret(secret.key, secret.expected_value)
-                    actions_toolkit.info(f"Set {secret.key} to expected value")
-                except Exception as exc:  # this should be tighter
-                    errors.append({"type": "secret-update", "key": secret.key, "error": f"{exc}"})
-            else:
-                try:
-                    inputs["repo_object"].delete_secret(secret.key)
-                    actions_toolkit.info(f"Deleted {secret.key}")
-                except Exception as exc:  # this should be tighter
-                    errors.append({"type": "secret-delete", "key": secret.key, "error": f"{exc}"})
+        if config.secrets is not None:
+            for secret in config.secrets:
+                if secret.exists:
+                    try:
+                        inputs["repo_object"].create_secret(secret.key, secret.expected_value)
+                        actions_toolkit.info(f"Set {secret.key} to expected value")
+                    except Exception as exc:  # this should be tighter
+                        errors.append({"type": "secret-update", "key": secret.key, "error": f"{exc}"})
+                else:
+                    try:
+                        inputs["repo_object"].delete_secret(secret.key)
+                        actions_toolkit.info(f"Deleted {secret.key}")
+                    except Exception as exc:  # this should be tighter
+                        errors.append({"type": "secret-delete", "key": secret.key, "error": f"{exc}"})
 
         labels_diff = diffs.get("labels", None)
         if labels_diff is not None:

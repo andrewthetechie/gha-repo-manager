@@ -40,6 +40,9 @@ def update_settings(repo: Repository, settings: Settings):
         else:
             repo.disable_vulnerability_alert()
 
+    if settings.topics is not None:
+        repo.replace_topics(settings.topics)
+
 
 def check_repo_settings(repo: Repository, settings: Settings) -> Tuple[bool, List[Optional[str]]]:
     """Checks a repo's settings vs our expected settings
