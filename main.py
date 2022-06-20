@@ -1,23 +1,26 @@
 import json
-import os
 import sys
 
 from actions_toolkit import core as actions_toolkit
 from github.GithubException import GithubException
+from github.GithubException import UnknownObjectException
 
 from repo_manager.github.branch_protections import check_repo_branch_protections
 from repo_manager.github.branch_protections import update_branch_protection
+from repo_manager.github.files import copy_file
+from repo_manager.github.files import delete_file
+from repo_manager.github.files import move_file
+from repo_manager.github.files import RemoteSrcNotFoundError
 from repo_manager.github.labels import check_repo_labels
 from repo_manager.github.labels import update_label
 from repo_manager.github.secrets import check_repo_secrets
-from repo_manager.github.secrets import upsert_secret
 from repo_manager.github.settings import check_repo_settings
 from repo_manager.github.settings import update_settings
 from repo_manager.schemas import load_config
 from repo_manager.utils import get_inputs
 
 
-def main():
+def main():  # noqa: C901
     inputs = get_inputs()
     actions_toolkit.debug(f"Loading config from {inputs['settings_file']}")
     config = load_config(inputs["settings_file"])
@@ -34,7 +37,10 @@ def main():
         check_repo_settings: ("settings", config.settings),
         check_repo_secrets: ("secrets", config.secrets),
         check_repo_labels: ("labels", config.labels),
-        check_repo_branch_protections: ("branch_protections", config.branch_protections),
+        check_repo_branch_protections: (
+            "branch_protections",
+            config.branch_protections,
+        ),
     }.items():
         check_name, to_check = to_check
         if to_check is not None:
@@ -62,13 +68,25 @@ def main():
                         inputs["repo_object"].create_secret(secret.key, secret.expected_value)
                         actions_toolkit.info(f"Set {secret.key} to expected value")
                     except Exception as exc:  # this should be tighter
-                        errors.append({"type": "secret-update", "key": secret.key, "error": f"{exc}"})
+                        errors.append(
+                            {
+                                "type": "secret-update",
+                                "key": secret.key,
+                                "error": f"{exc}",
+                            }
+                        )
                 else:
                     try:
                         inputs["repo_object"].delete_secret(secret.key)
                         actions_toolkit.info(f"Deleted {secret.key}")
                     except Exception as exc:  # this should be tighter
-                        errors.append({"type": "secret-delete", "key": secret.key, "error": f"{exc}"})
+                        errors.append(
+                            {
+                                "type": "secret-delete",
+                                "key": secret.key,
+                                "error": f"{exc}",
+                            }
+                        )
 
         labels_diff = diffs.get("labels", None)
         if labels_diff is not None:
@@ -87,11 +105,19 @@ def main():
                 else:
                     try:
                         inputs["repo_object"].create_label(
-                            label_object.expected_name, label_object.color_no_hash, label_object.description
+                            label_object.expected_name,
+                            label_object.color_no_hash,
+                            label_object.description,
                         )
                         actions_toolkit.info(f"Created label {label_name}")
                     except Exception as exc:  # this should be tighter
-                        errors.append({"type": "label-create", "name": label_name, "error": f"{exc}"})
+                        errors.append(
+                            {
+                                "type": "label-create",
+                                "name": label_name,
+                                "error": f"{exc}",
+                            }
+                        )
             for label_name in labels_diff["diffs"].keys():
                 update_label(inputs["repo_object"], config.labels_dict[label_name])
                 actions_toolkit.info(f"Updated label {label_name}")
@@ -106,7 +132,13 @@ def main():
                 except GithubException as ghexc:
                     if ghexc.status != 404:
                         # a 404 on a delete is fine, means it isnt protected
-                        errors.append({"type": "bp-delete", "name": branch_name, "error": f"{ghexc}"})
+                        errors.append(
+                            {
+                                "type": "bp-delete",
+                                "name": branch_name,
+                                "error": f"{ghexc}",
+                            }
+                        )
                 except Exception as exc:  # this should be tighter
                     errors.append({"type": "bp-delete", "name": branch_name, "error": f"{exc}"})
 
@@ -125,7 +157,13 @@ def main():
                             f"Can't Update branch protection for {branch_name} because the branch does not exist"
                         )
                     else:
-                        errors.append({"type": "bp-update", "name": branch_name, "error": f"{ghexc}"})
+                        errors.append(
+                            {
+                                "type": "bp-update",
+                                "name": branch_name,
+                                "error": f"{ghexc}",
+                            }
+                        )
                 except Exception as exc:  # this should be tighter
                     errors.append({"type": "bp-update", "name": branch_name, "error": f"{exc}"})
 
@@ -135,6 +173,56 @@ def main():
                 actions_toolkit.info("Synced Settings")
             except Exception as exc:
                 errors.append({"type": "settings-update", "error": f"{exc}"})
+
+        commits = []
+        if config.files is not None:
+            for file_config in config.files:
+                # delete files
+                if not file_config.exists:
+                    try:
+                        commits.append(delete_file(inputs["repo_object"], file_config))
+                        actions_toolkit.info(f"Deleted {str(file_config.dest_file)}")
+                    except UnknownObjectException:
+                        actions_toolkit.warning(
+                            f"{str(file_config.dest_file)} does not exist in {file_config.target_branch if file_config.target_branch is not None else inputs['repo_object'].default_branch} branch. Because this is a delete, not failing run"
+                        )
+                    except Exception as exc:
+                        errors.append({"type": "file-delete", "file": str(file_config.dest_file), "error": f"{exc}"})
+                elif file_config.move:
+                    try:
+                        copy_commit, delete_commit = move_file(inputs["repo_object"], file_config)
+                        commits.append(copy_commit)
+                        commits.append(delete_commit)
+                        actions_toolkit.info(f"Moved {str(file_config.src_file)} to {str(file_config.dest_file)}")
+                    except RemoteSrcNotFoundError:
+                        actions_toolkit.warning(
+                            f"{str(file_config.src_file)} does not exist in {file_config.target_branch if file_config.target_branch is not None else inputs['repo_object'].default_branch} branch. Because this is a move, not failing run"
+                        )
+                    except Exception as exc:
+                        errors.append(
+                            {
+                                "type": "file-move",
+                                "src_file": str(file_config.src_file),
+                                "dest_file": str(file_config.dest_file),
+                                "error": f"{exc}",
+                            }
+                        )
+                else:
+                    try:
+                        commits.append(copy_file(inputs["repo_object"], file_config))
+                        actions_toolkit.info(
+                            f"Copied{' remote ' if file_config.remote_src else ' '}{str(file_config.src_file)} to {str(file_config.dest_file)}"
+                        )
+                    except Exception as exc:
+                        errors.append(
+                            {
+                                "type": "file-copy",
+                                "src_file": str(file_config.src_file),
+                                "dest_file": str(file_config.dest_file),
+                                "error": f"{exc}",
+                            }
+                        )
+        actions_toolkit.info("Commit SHAs: " + ",".join(commits))
 
         if len(errors) > 0:
             actions_toolkit.error(json.dumps(errors))

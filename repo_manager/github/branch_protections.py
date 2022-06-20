@@ -1,5 +1,3 @@
-import json
-from collections.abc import Callable
 from copy import deepcopy
 from typing import Any
 from typing import Dict
@@ -25,9 +23,9 @@ def diff_option(key: str, expected: Any, repo_value: Any) -> Optional[str]:
     return None
 
 
-def update_branch_protection(repo: Repository, branch: str, protection_config: ProtectionOptions):
+def update_branch_protection(repo: Repository, branch: str, protection_config: ProtectionOptions):  # noqa: C901
     # Copied from https://github.com/PyGithub/PyGithub/blob/001970d4a828017f704f6744a5775b4207a6523c/github/Branch.py#L112
-    # Until
+    # Until pygithub supports this, we need to do it manually
     def edit_protection(  # nosec
         branch,
         strict=NotSet,
@@ -179,24 +177,50 @@ def update_branch_protection(repo: Repository, branch: str, protection_config: P
 
         if repo.organization is not None:
             attr_to_kwarg(
-                "users", protection_config.pr_options.dismissal_restrictions, kwargs, transform_key="dismissal_users"
+                "users",
+                protection_config.pr_options.dismissal_restrictions,
+                kwargs,
+                transform_key="dismissal_users",
             )
             attr_to_kwarg(
-                "teams", protection_config.pr_options.dismissal_restrictions, kwargs, transform_key="dismissal_teams"
+                "teams",
+                protection_config.pr_options.dismissal_restrictions,
+                kwargs,
+                transform_key="dismissal_teams",
             )
 
     if repo.organization is not None:
-        attr_to_kwarg("users", protection_config.restrictions, kwargs, transform_key="user_push_restrictions")
-        attr_to_kwarg("teams", protection_config.restrictions, kwargs, transform_key="team_push_restrictions")
+        attr_to_kwarg(
+            "users",
+            protection_config.restrictions,
+            kwargs,
+            transform_key="user_push_restrictions",
+        )
+        attr_to_kwarg(
+            "teams",
+            protection_config.restrictions,
+            kwargs,
+            transform_key="team_push_restrictions",
+        )
 
     attr_to_kwarg("enforce_admins", protection_config, kwargs)
 
     # these are going to be used by edit_required_status_checks
     attr_to_kwarg("strict", protection_config.required_status_checks, status_check_kwargs)
-    attr_to_kwarg("checks", protection_config.required_status_checks, status_check_kwargs, transform_key="contexts")
+    attr_to_kwarg(
+        "checks",
+        protection_config.required_status_checks,
+        status_check_kwargs,
+        transform_key="contexts",
+    )
 
     # these are not handled by edit_protection, so we have to use the custom api
-    attr_to_kwarg("require_linear_history", protection_config, extra_kwargs, transform_key="required_linear_history")
+    attr_to_kwarg(
+        "require_linear_history",
+        protection_config,
+        extra_kwargs,
+        transform_key="required_linear_history",
+    )
     attr_to_kwarg("allow_force_pushes", protection_config, extra_kwargs)
     attr_to_kwarg("allow_deletions", protection_config, extra_kwargs)
     attr_to_kwarg("block_creations", protection_config, extra_kwargs)
@@ -305,7 +329,11 @@ def check_repo_branch_protections(
             )
 
         diffs.append(
-            diff_option("enforce_admins", config_bp.protection.enforce_admins, this_protection.enforce_admins)
+            diff_option(
+                "enforce_admins",
+                config_bp.protection.enforce_admins,
+                this_protection.enforce_admins,
+            )
         )
         diffs.append(
             diff_option(

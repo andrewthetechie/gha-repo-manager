@@ -10,3 +10,4 @@ coverage.xml
 /src/*.egg-info/
 __pycache__/
 .idea
+.vscode
