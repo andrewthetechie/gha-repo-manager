@@ -9,6 +9,11 @@ jobs:
     name: Generate Docs
     runs-on: ubuntu-latest
     steps:
+      - name: Cancel Workflow Action
+        uses: styfle/cancel-workflow-action@0.9.1
+        with:
+          all_but_latest: true
+          access_token: ${{ secrets.THIS_PAT }}
       - name: Set up Node
         uses: actions/setup-node@v3
         with:
