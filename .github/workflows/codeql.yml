@@ -21,7 +21,7 @@ jobs:
       uses: styfle/cancel-workflow-action@0.9.1
       with:
         all_but_latest: true
-        access_token: ${{ secrets.GITHUB_TOKEN }}
+        access_token: ${{ secrets.THIS_PAT }}
     - name: Checkout repository
       uses: actions/checkout@v3
       with:
