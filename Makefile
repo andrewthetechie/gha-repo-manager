@@ -15,8 +15,7 @@ pyenv-setup:
 	pyenv local gha-repo-manager
 
 install-requirements:  ## Pip installs our requirements
-	pip install -r Docker/builder/rootfs/requirements.txt
-	pip install -r requirements-dev.txt
+	pip install -r Docker/builder/rootfs/requirements.txt -r requirements-dev.txt
 
 setup-pre-commit:
 	pre-commit install
