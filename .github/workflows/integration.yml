@@ -11,6 +11,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         name: Checkout
+        with:
+            token: ${{ secrets.GITHUB_TOKEN }}
       - name: Test action
         id: test-action
         # test with the local checkout of the action
