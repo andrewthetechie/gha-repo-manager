@@ -18,6 +18,8 @@ jobs:
           go-version: '>=1.17.0'
       - run: go install github.com/rhysd/actionlint/cmd/actionlint@latest
       - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
       - run: pip install -r requirements-dev.txt -r Docker/builder/rootfs/requirements.txt
       - name: Run Pre-commit
         uses: pre-commit/action@v3.0.0
