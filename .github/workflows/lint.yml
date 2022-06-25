@@ -9,6 +9,11 @@ jobs:
     name: Lint and Test
     runs-on: ubuntu-latest
     steps:
+      - name: Cancel Workflow Action
+        uses: styfle/cancel-workflow-action@0.9.1
+        with:
+          all_but_latest: true
+          access_token: ${{ secrets.THIS_PAT }}
       - name: Set up Python 3.9
         uses: actions/setup-python@v4.0.0
         with:
