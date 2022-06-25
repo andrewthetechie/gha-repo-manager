@@ -35,7 +35,7 @@ jobs:
         uses: docker/metadata-action@v4
         id: meta
         with:
-          images: andrewthetechie/gha-repo-manager
+          images: ${{ env.GITHUB_REPOSITORY }}
           tags: |
             type=raw,value=${{ inputs.version }}
             # minimal (short sha)
