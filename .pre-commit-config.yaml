@@ -38,12 +38,10 @@ repos:
       entry: make generate-inputs
       language: system
       pass_filenames: false
-- repo: local
+- repo: https://github.com/rhysd/actionlint
+  rev: v1.6.14
   hooks:
-    - id: run-actionlint
-      name: Run Actionlint
-      entry: make actionlint
-      language: system
+    - id: actionlint
 - repo: local
   hooks:
     - id: pytest-check
@@ -58,11 +56,3 @@ repos:
   hooks:
     - id: flake8
       exclude: ^tests/
-# Once https://github.com/rhysd/actionlint/issues/152 is fixed, we can use the actionlint pre-commit
-# # action lint specifically lints gha actions
-# - repo: https://github.com/rhysd/actionlint
-#   rev: v1.6.13
-#   hooks:
-#     - id: actionlint
-#       args:
-#        - "-ignore 'property \".+\" is not defined in object type {}'"
