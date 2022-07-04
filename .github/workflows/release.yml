@@ -35,7 +35,8 @@ jobs:
         uses: docker/metadata-action@v4
         id: meta
         with:
-          images: ${{ env.GITHUB_REPOSITORY }}
+          images: |
+            ${{ github.repository }}
           tags: |
             type=raw,value=${{ inputs.version }}
             # minimal (short sha)
@@ -93,6 +94,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           token: ${{ secrets.THIS_PAT }}
+          fetch-depth: 0
       - run: cp Docker/Dockerfile ./Dockerfile
       - name: Commit Dockerfile changes
         uses: stefanzweifel/git-auto-commit-action@v4
