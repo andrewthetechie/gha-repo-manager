@@ -14,6 +14,7 @@ class SecretEnvError(Exception):
 
 
 class Secret(BaseModel):
+    type: OptStr = Field(None, description="Type of secret, can be `dependabot` or `actions`")
     key: OptStr = Field(None, description="Secret's name.")
     env: OptStr = Field(None, description="Environment variable to pull the secret from")
     value: OptStr = Field(None, description="Value to set this secret to")
@@ -22,6 +23,12 @@ class Secret(BaseModel):
         description="Setting a value as not required allows you to not pass in an env var without causing an error",
     )
     exists: OptBool = Field(True, description="Set to false to delete a secret")
+
+    @validator("type")
+    def validate_type(cls, v):
+        if v not in ["dependabot", "actions"]:
+            raise ValueError("Secret type must be either `dependabot` or `actions`")
+        return v
 
     @validator("value", always=True)
     def validate_value(cls, v, values) -> OptStr:
