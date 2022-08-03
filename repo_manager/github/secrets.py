@@ -10,8 +10,26 @@ from github.Repository import Repository
 from repo_manager.schemas.secret import Secret
 
 
-def upsert_secret(repo: Repository, secret_key: str, secret_config: Secret):
-    ...
+def create_secret(repo: Repository, secret_name: str, unencrypted_value: str, is_dependabot: bool = False) -> bool:
+    """
+    :calls: `PUT /repos/{owner}/{repo}/actions/secrets/{secret_name} <https://docs.github.com/en/rest/reference/actions#get-a-repository-secret>`_
+
+    Copied from https://github.com/PyGithub/PyGithub/blob/master/github/Repository.py#L1428 in order to support dependabot
+    :param secret_name: string
+    :param unencrypted_value: string
+    :rtype: bool
+    """
+    public_key = repo.get_public_key()
+    payload = public_key.encrypt(unencrypted_value)
+    put_parameters = {
+        "key_id": public_key.key_id,
+        "encrypted_value": payload,
+    }
+    secret_type = "actions" if not is_dependabot else "dependabot"
+    status, headers, data = repo._requester.requestJson(
+        "PUT", f"{repo.url}/actions/{secret_type}/{secret_name}", input=put_parameters
+    )
+    return status == 201
 
 
 def check_repo_secrets(
