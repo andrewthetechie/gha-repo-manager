@@ -21,9 +21,9 @@ settings:
 
   # A list of strings to apply as topics on the repo. Set to an empty string to clear topics. Omit or set to null to leave what repo already has
   topics:
-   - gha
-   - foo
-   - bar
+    - gha
+    - foo
+    - bar
 
   # Either `true` to make the repository private, or `false` to make it public.
   private: false
@@ -75,7 +75,7 @@ labels:
 
   - name: feature
     # If including a `#`, make sure to wrap it with quotes!
-    color: '#336699'
+    color: "#336699"
     description: New functionality.
 
   - name: Help Wanted
@@ -109,10 +109,10 @@ branch_protections:
       #   # Require branches to be up to date before merging.
       #   strict: true
       #   # The list of status checks to require in order to merge into this branch
-        # checks:
-        #   - lint
-        #   - test
-        #   - docker
+      # checks:
+      #   - lint
+      #   - test
+      #   - docker
       # Enforce all configured restrictions for administrators. Set to true to enforce required status checks for repository administrators. Set to null to disable.
       enforce_admins: true
       # Prevent merge commits from being pushed to matching branches
@@ -141,6 +141,10 @@ secrets:
     # pull the value from an environment variable. If this variable is not found in the env, throw an error and fail the run
     # Set env vars on the github action job from secrets in your repo to sync screts across repos
     env: SECRET_VALUE
+    # Set a dependabot secret on the repo
+  - key: SECRET_KEY
+    env: SECRET_VALUE
+    type: dependabot
   - key: ANOTHER_SECRET
     # set a value directly in your yaml, probably not a good idea for things that are actually a secret
     value: bar
@@ -176,9 +180,9 @@ files:
   - src_file: remote://README.md
     dest_file: README.rst
     move: true
-    commit_msg: 'move readme'
+    commit_msg: "move readme"
   # This removes OLDDOC.md in the dev branch. If OLDDOC.md doesn't exist, the workflow will emit a warning
   - dest_file: OLDDOC.md
     exists: false
     branch: dev
-    commit_msg: 'remove OLDDOC.md from dev'
+    commit_msg: "remove OLDDOC.md from dev"
