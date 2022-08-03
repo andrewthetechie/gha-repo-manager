@@ -6,9 +6,20 @@ from typing import Set
 from typing import Tuple
 from typing import Union
 
+from github.PublicKey import PublicKey
 from github.Repository import Repository
 
 from repo_manager.schemas.secret import Secret
+
+
+def get_public_key(repo: Repository, is_dependabot: bool = False) -> PublicKey:
+    """
+    :calls: `GET /repos/{owner}/{repo}/actions/secrets/public-key <https://docs.github.com/en/rest/reference/actions#get-a-repository-public-key>`_
+    :rtype: :class:`github.PublicKey.PublicKey`
+    """
+    secret_type = "actions" if not is_dependabot else "dependabot"
+    headers, data = repo._requester.requestJsonAndCheck("GET", f"{repo.url}/{secret_type}/secrets/public-key")
+    return PublicKey(repo._requester, headers, data, completed=True)
 
 
 def create_secret(repo: Repository, secret_name: str, unencrypted_value: str, is_dependabot: bool = False) -> bool:
@@ -20,7 +31,7 @@ def create_secret(repo: Repository, secret_name: str, unencrypted_value: str, is
     :param unencrypted_value: string
     :rtype: bool
     """
-    public_key = repo.get_public_key()
+    public_key = get_public_key(repo, is_dependabot)
     payload = public_key.encrypt(unencrypted_value)
     put_parameters = {
         "key_id": public_key.key_id,
@@ -28,8 +39,10 @@ def create_secret(repo: Repository, secret_name: str, unencrypted_value: str, is
     }
     secret_type = "actions" if not is_dependabot else "dependabot"
     status, headers, data = repo._requester.requestJson(
-        "PUT", f"{repo.url}/actions/{secret_type}/{secret_name}", input=put_parameters
+        "PUT", f"{repo.url}/{secret_type}/secrets/{secret_name}", input=put_parameters
     )
+    if status != 201:
+        raise Exception(f"Unable to create {secret_type} secret {status}")
     return status == 201
 
 
