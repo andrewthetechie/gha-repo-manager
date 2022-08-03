@@ -32,6 +32,18 @@ def create_secret(repo: Repository, secret_name: str, unencrypted_value: str, is
     return status == 201
 
 
+def delete_secret(repo: Repository, secret_name: str, is_dependabot: bool = False) -> bool:
+    """
+    Copied from https://github.com/PyGithub/PyGithub/blob/master/github/Repository.py#L1448 to add support for dependabot
+    :calls: `DELETE /repos/{owner}/{repo}/actions/secrets/{secret_name} <https://docs.github.com/en/rest/reference/actions#delete-a-repository-secret>`_
+    :param secret_name: string
+    :rtype: bool
+    """
+    secret_type = "actions" if not is_dependabot else "dependabot"
+    status, headers, data = repo._requester.requestJson("DELETE", f"{repo.url}/{secret_type}/secrets/{secret_name}")
+    return status == 204
+
+
 def check_repo_secrets(
     repo: Repository, secrets: List[Secret]
 ) -> Tuple[bool, Dict[str, Union[List[str], Dict[str, Any]]]]:

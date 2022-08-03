@@ -15,6 +15,7 @@ from repo_manager.github.labels import check_repo_labels
 from repo_manager.github.labels import update_label
 from repo_manager.github.secrets import check_repo_secrets
 from repo_manager.github.secrets import create_secret
+from repo_manager.github.secrets import delete_secret
 from repo_manager.github.settings import check_repo_settings
 from repo_manager.github.settings import update_settings
 from repo_manager.schemas import load_config
@@ -80,7 +81,7 @@ def main():  # noqa: C901
                         )
                 else:
                     try:
-                        inputs["repo_object"].delete_secret(secret.key)
+                        delete_secret(inputs["repo_object"], secret.key, secret.type == "dependabot")
                         actions_toolkit.info(f"Deleted {secret.key}")
                     except Exception as exc:  # this should be tighter
                         errors.append(
