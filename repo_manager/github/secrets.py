@@ -41,9 +41,9 @@ def create_secret(repo: Repository, secret_name: str, unencrypted_value: str, is
     status, headers, data = repo._requester.requestJson(
         "PUT", f"{repo.url}/{secret_type}/secrets/{secret_name}", input=put_parameters
     )
-    if status != 201:
-        raise Exception(f"Unable to create {secret_type} secret {status}")
-    return status == 201
+    if status not in (201, 204):
+        raise Exception(f"Unable to create {secret_type} secret. Status code: {status}")
+    return True
 
 
 def delete_secret(repo: Repository, secret_name: str, is_dependabot: bool = False) -> bool:
