@@ -1,12 +1,8 @@
 name: "CodeQL"
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    # The branches below must be a subset of the branches above
-    branches: [ main ]
   schedule:
-    - cron: '0 0 * * 1'
+    - cron: "0 0 * * 1"
   workflow_dispatch:
 jobs:
   analyze:
@@ -17,19 +13,19 @@ jobs:
       contents: read
       security-events: write
     steps:
-    - name: Cancel Workflow Action
-      uses: styfle/cancel-workflow-action@0.9.1
-      with:
-        all_but_latest: true
-        access_token: ${{ secrets.THIS_PAT }}
-    - name: Checkout repository
-      uses: actions/checkout@v3
-      with:
+      - name: Cancel Workflow Action
+        uses: styfle/cancel-workflow-action@0.9.1
+        with:
+          all_but_latest: true
+          access_token: ${{ secrets.THIS_PAT }}
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
           token: ${{ secrets.GITHUB_TOKEN }}
-    # Initializes the CodeQL tools for scanning.
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v2
-      with:
-        languages: Python
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v2
+      # Initializes the CodeQL tools for scanning.
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: Python
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
