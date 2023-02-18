@@ -10,7 +10,7 @@ OptStr = Optional[str]
 
 class Label(BaseModel):
     name: OptStr = Field(None, description="Label's name.")
-    color: Optional[Color] = Field(None, description="Color of this label")
+    color: Color | None = Field(None, description="Color of this label")
     description: OptStr = Field(None, description="Description of the label")
     new_name: OptStr = Field(None, description="If set, rename a label from name to new_name.")
     exists: OptBool = Field(True, description="Set to false to delete a label")

@@ -1,10 +1,5 @@
 import json
 from typing import Any
-from typing import Dict
-from typing import List
-from typing import Set
-from typing import Tuple
-from typing import Union
 
 from github.PublicKey import PublicKey
 from github.Repository import Repository
@@ -58,9 +53,7 @@ def delete_secret(repo: Repository, secret_name: str, is_dependabot: bool = Fals
     return status == 204
 
 
-def check_repo_secrets(
-    repo: Repository, secrets: List[Secret]
-) -> Tuple[bool, Dict[str, Union[List[str], Dict[str, Any]]]]:
+def check_repo_secrets(repo: Repository, secrets: list[Secret]) -> tuple[bool, dict[str, list[str] | dict[str, Any]]]:
     """Checks a repo's secrets vs our expected settings
 
     Args:
@@ -101,7 +94,7 @@ def check_repo_secrets(
     return checked, diff
 
 
-def _get_repo_secret_names(repo: Repository, type: str = "actions") -> Set[str]:
+def _get_repo_secret_names(repo: Repository, type: str = "actions") -> set[str]:
     status, headers, raw_data = repo._requester.requestJson("GET", f"{repo.url}/{type}/secrets")
     if status != 200:
         raise Exception(f"Unable to get repo's secrets {status}")

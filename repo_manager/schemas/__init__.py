@@ -1,6 +1,3 @@
-from typing import List
-from typing import Optional
-
 import yaml
 from pydantic import BaseModel  # pylint: disable=E0611
 
@@ -12,11 +9,11 @@ from .settings import Settings
 
 
 class RepoManagerConfig(BaseModel):
-    settings: Optional[Settings]
-    branch_protections: Optional[List[BranchProtection]]
-    secrets: Optional[List[Secret]]
-    labels: Optional[List[Label]]
-    files: Optional[List[FileConfig]]
+    settings: Settings | None
+    branch_protections: list[BranchProtection] | None
+    secrets: list[Secret] | None
+    labels: list[Label] | None
+    files: list[FileConfig] | None
 
     @property
     def secrets_dict(self):

@@ -1,7 +1,4 @@
 from typing import Any
-from typing import List
-from typing import Optional
-from typing import Tuple
 
 from github.Repository import Repository
 
@@ -42,7 +39,7 @@ def update_settings(repo: Repository, settings: Settings):
         repo.replace_topics(settings.topics)
 
 
-def check_repo_settings(repo: Repository, settings: Settings) -> Tuple[bool, List[Optional[str]]]:
+def check_repo_settings(repo: Repository, settings: Settings) -> tuple[bool, list[str | None]]:
     """Checks a repo's settings vs our expected settings
 
     Args:
@@ -53,7 +50,7 @@ def check_repo_settings(repo: Repository, settings: Settings) -> Tuple[bool, Lis
         Tuple[bool, Optional[List[str]]]: [description]
     """
 
-    def get_repo_value(setting_name: str, repo: Repository) -> Optional[Any]:
+    def get_repo_value(setting_name: str, repo: Repository) -> Any | None:
         """Get a value from the repo object"""
         getter_val = SETTINGS[setting_name].get("get", setting_name)
         if getter_val is None:

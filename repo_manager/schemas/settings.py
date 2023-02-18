@@ -1,23 +1,16 @@
-from typing import List
-from typing import Optional
-from typing import Union
-
 from pydantic import BaseModel  # pylint: disable=E0611
 from pydantic import Field
 from pydantic import HttpUrl  # pylint: disable=E0611
 
-OptBool = Optional[bool]
-OptStr = Optional[str]
+
+OptBool = bool | None
+OptStr = str | None
 
 
 class Settings(BaseModel):
     description: OptStr = Field(None, description="A short description of the repository that will show up on GitHub.")
-    homepage: Optional[Union[str, HttpUrl]] = Field(
-        None, description="A URL with more information about the repository."
-    )
-    topics: Optional[Union[str, List[str]]] = Field(
-        None, description="A list of strings to apply as topics on the repo"
-    )
+    homepage: str | HttpUrl | None = Field(None, description="A URL with more information about the repository.")
+    topics: str | list[str] | None = Field(None, description="A list of strings to apply as topics on the repo")
     private: OptBool = Field(
         None, description="Either `true` to make the repository private, or `false` to make it public."
     )
