@@ -1,0 +1,17 @@
+name: Unit Test
+on:
+  push:
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4.0.0
+        with:
+          python-version: "3.11"
+      - run: pip install -r Docker/builder/rootfs/requirements.txt
+      - run: pip install -r requirements-dev.txt
+      - name: Run pytest
+        run: pytest

@@ -1,6 +1,3 @@
-from typing import Optional
-from typing import Tuple
-
 from github import Github
 from github.Repository import Repository
 
@@ -9,7 +6,7 @@ class BadTokenError(Exception):
     ...
 
 
-def get_repo(client: Github, repo: str) -> Tuple[bool, Optional[Repository]]:
+def get_repo(client: Github, repo: str) -> tuple[bool, Repository | None]:
     """Gets a repo"""
     try:
         repo = client.get_repo(repo)

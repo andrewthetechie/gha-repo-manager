@@ -1,6 +1,5 @@
 import os
 from typing import Any
-from typing import Dict
 
 from actions_toolkit import core as actions_toolkit
 
@@ -28,7 +27,7 @@ INPUTS = {
 VALID_ACTIONS = {"validate": None, "check": None, "apply": None}
 
 
-def get_inputs() -> Dict[str, Any]:
+def get_inputs() -> dict[str, Any]:
     """Get inputs from our workflow, valudate them, and return as a dict
     Reads inputs from the dict INPUTS. This dict is generated from the actions.yml file.
     Non required inputs that are not set are returned as None
@@ -55,7 +54,7 @@ def get_inputs() -> Dict[str, Any]:
     return validate_inputs(parsed_inputs)
 
 
-def validate_inputs(parsed_inputs: Dict[str, Any]) -> Dict[str, Any]:
+def validate_inputs(parsed_inputs: dict[str, Any]) -> dict[str, Any]:
     """Validate inputs
     Args:
         inputs (Dict[str, Any]): [description]

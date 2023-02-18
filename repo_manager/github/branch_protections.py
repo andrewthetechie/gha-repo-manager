@@ -1,10 +1,5 @@
 from copy import deepcopy
 from typing import Any
-from typing import Dict
-from typing import List
-from typing import Optional
-from typing import Tuple
-from typing import Union
 
 from github.Consts import mediaTypeRequireMultipleApprovingReviews
 from github.GithubException import GithubException
@@ -16,7 +11,7 @@ from repo_manager.schemas.branch_protection import ProtectionOptions
 from repo_manager.utils import attr_to_kwarg
 
 
-def diff_option(key: str, expected: Any, repo_value: Any) -> Optional[str]:
+def diff_option(key: str, expected: Any, repo_value: Any) -> str | None:
     if expected is not None:
         if expected != repo_value:
             return f"{key} -- Expected: {expected} Found: {repo_value}"
@@ -251,8 +246,8 @@ def update_branch_protection(repo: Repository, branch: str, protection_config: P
 
 
 def check_repo_branch_protections(
-    repo: Repository, config_branch_protections: List[BranchProtection]
-) -> Tuple[bool, Dict[str, Union[List[str], Dict[str, Any]]]]:
+    repo: Repository, config_branch_protections: list[BranchProtection]
+) -> tuple[bool, dict[str, list[str] | dict[str, Any]]]:
     """Checks a repo's branch protections vs our expected settings
 
     Args:

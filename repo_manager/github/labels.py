@@ -1,9 +1,5 @@
 from copy import deepcopy
 from typing import Any
-from typing import Dict
-from typing import List
-from typing import Tuple
-from typing import Union
 
 from github.Repository import Repository
 
@@ -18,8 +14,8 @@ def update_label(repo: Repository, label: Label):
 
 
 def check_repo_labels(
-    repo: Repository, config_labels: List[Label]
-) -> Tuple[bool, Dict[str, Union[List[str], Dict[str, Any]]]]:
+    repo: Repository, config_labels: list[Label]
+) -> tuple[bool, dict[str, list[str] | dict[str, Any]]]:
     """Checks a repo's labels vs our expected settings
 
     Args:

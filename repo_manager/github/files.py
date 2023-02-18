@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Tuple
 
 from github.GithubException import UnknownObjectException
 from github.Repository import Repository
@@ -49,7 +48,7 @@ def get_remote_file_contents(repo: Repository, path: Path, target_branch: str) -
     return contents.decoded_content.decode("utf-8")
 
 
-def move_file(repo: Repository, file_config: FileConfig) -> Tuple[str, str]:
+def move_file(repo: Repository, file_config: FileConfig) -> tuple[str, str]:
     """Move a file from a repository"""
     return copy_file(repo, file_config), delete_file(repo, file_config)
 
