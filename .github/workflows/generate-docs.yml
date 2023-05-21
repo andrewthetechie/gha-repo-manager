@@ -5,10 +5,10 @@ jobs:
   docs:
     name: Generate Docs
     runs-on: ubuntu-latest
+    if: github.repository_owner == 'andrewthetechie'
     steps:
       - name: Set up Node
         uses: actions/setup-node@v3
-        if: github.repository_owner == 'andrewthetechie'
         with:
           node-version: 16
       - uses: actions/checkout@v3
