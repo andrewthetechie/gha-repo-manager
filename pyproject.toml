@@ -1,0 +1,63 @@
+[tool.poetry]
+name = "gha-repo-manager"
+version = "0.1.0"
+description = "Manage your Github repo(s) settings and secrets using Github Actions and a yaml file"
+authors = ["Andrew Herrington <andrew.the.techie@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "repo_manager"}]
+
+[tool.poetry.scripts]
+repo-manager = "repo_manager.main:main"
+
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pydantic = "^1.10.7"
+actions-toolkit = "^0.1.15"
+pygithub = "^1.58.2"
+pyyaml = "^6.0"
+
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^3.3.2"
+ruff = "^0.0.269"
+pytest = "^7.3.1"
+pytest-mock = "^3.10.0"
+pytest-cov = "^4.0.0"
+pytest-asyncio = "^0.21.0"
+bandit = "^1.7.5"
+mypy = "^1.1.1"
+pre-commit-hooks = "^4.4.0"
+reorder-python-imports = "^3.9.0"
+pytest-xdist = "^3.2.1"
+pyupgrade = "^3.3.1"
+pyflakes = "^3.0.1"
+black = "^23.3.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.bandit]
+exclude_dirs = ["tests", "noxfile.py", ".github/scripts"]
+
+[tool.bandit.assert_used]
+skips = ["repo_manager/github/branch_protections.py"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.mypy]
+warn_unreachable = true
+pretty = true
+show_column_numbers = true
+show_error_codes = true
+show_error_context = true
+
+[tool.pytest.ini_options]
+python_paths = "./"
+norecursedirs = ".github ci .git .idea"
+addopts = "--cov=repo_manager --cov-report xml:.coverage.xml --cov-report=term-missing"

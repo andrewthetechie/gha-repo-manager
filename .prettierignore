@@ -1,0 +1,5 @@
+.github/*
+CHANGELOG.md
+tests/fixtures/*
+.release-please-manifest.json
+README.md

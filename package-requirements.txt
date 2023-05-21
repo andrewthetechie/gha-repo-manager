@@ -1,0 +1,10 @@
+pip==23.1.2
+nox==2023.4.22
+nox-poetry==1.0.2
+poetry==1.4.2
+# newest version of virtualenv until poetry updates
+virtualenv==20.21.1
+poetry-dynamic-versioning==0.21.5
+toml==0.10.2
+pyinstaller==5.11.0
+staticx==0.13.9

@@ -19,7 +19,8 @@ class Settings(BaseModel):
     )
     has_projects: OptBool = Field(
         None,
-        description="Either `true` to enable projects for this repository, or `false` to disable them. If projects are disabled for the organization, passing `true` will cause an API error.",
+        description="Either `true` to enable projects for this repository, or `false` to disable them. "
+        + "If projects are disabled for the organization, passing `true` will cause an API error.",
     )
     has_wiki: OptBool = Field(
         None, description="Either `true` to enable the wiki for this repository, `false` to disable it."
@@ -33,7 +34,8 @@ class Settings(BaseModel):
     )
     allow_merge_commit: OptBool = Field(
         None,
-        description="Either `true` to allow merging pull requests with a merge commit, or `false` to prevent merging pull requests with merge commits.",
+        description="Either `true` to allow merging pull requests with a merge commit, or `false` to prevent "
+        + "merging pull requests with merge commits.",
     )
     allow_rebase_merge: OptBool = Field(
         None,

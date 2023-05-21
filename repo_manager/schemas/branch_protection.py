@@ -51,7 +51,8 @@ class ProtectionOptions(BaseModel):
     )
     enforce_admins: OptBool = Field(
         None,
-        description="Enforce all configured restrictions for administrators. Set to true to enforce required status checks for repository administrators. Set to null to disable.",
+        description="Enforce all configured restrictions for administrators. Set to true to enforce required status "
+        + "checks for repository administrators. Set to null to disable.",
     )
     require_linear_history: OptBool = Field(
         None, description="Prevent merge commits from being pushed to matching branches"
@@ -63,7 +64,9 @@ class ProtectionOptions(BaseModel):
     allow_deletions: OptBool = Field(None, description="Allow users with push access to delete matching branches.")
     block_creations: OptBool = Field(
         None,
-        description="If set to true, the restrictions branch protection settings which limits who can push will also block pushes which create new branches, unless the push is initiated by a user, team, or app which has the ability to push. Set to true to restrict new branch creation.",
+        description="If set to true, the restrictions branch protection settings which limits who can push "
+        + "will also block pushes which create new branches, unless the push is initiated by a user, team, or "
+        + "app which has the ability to push. Set to true to restrict new branch creation.",
     )
 
     require_conversation_resolution: OptBool = Field(

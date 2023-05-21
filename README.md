@@ -13,7 +13,9 @@ Manage your Github repo(s) settings and secrets using Github Actions and a yaml 
 <!-- action-docs-description -->
 
 ## Usage
+
 This action manages your repo from a yaml file. You can manage:
+
 * branch protection
 * labels
 * repos
@@ -24,6 +26,7 @@ This action manages your repo from a yaml file. You can manage:
 See [examples/settings.yml](./examples/settings.yml) for an example config file. The schemas for this file are in [repo_manager.schemas](./repo_magager/schemas).
 
 ### File Management -- Experimental
+
 File management can copy files from your local environment to a target repo, copy files from one location to another in the target repo, move files in the target repo, and delete files in the target repo.
 
 File operations are performed using the Github BLOB API and your PAT. Each file operation is a separate commit.
@@ -53,13 +56,16 @@ jobs:
 
 ```
 
-
 <!-- action-docs-inputs -->
 ## Inputs
 
 | parameter | description | required | default |
 | - | - | - | - |
-| action | What action to take with this action. One of validate, check, or apply. Validate will validate your settings file, but not touch your repo. Check will check your repo with your settings file and output a report of any drift. Apply will apply the settings in your settings file to your repo | `false` | check |
+| action | What action to take with this action. One of validate, check, or apply.
+Validate will validate your settings file, but not touch your repo.
+Check will check your repo with your settings file and output a report of any drift.
+Apply will apply the settings in your settings file to your repo
+ | `false` | check |
 | settings_file | What yaml file to use as your settings. This is local to runner running this action. | `false` | .github/settings.yml |
 | repo | What repo to perform this action on. Default is self, as in the repo this action is running in | `false` | self |
 | token | What github token to use with this action. | `true` |  |
@@ -87,3 +93,23 @@ This action is a `docker` action.
 
 
 <!-- action-docs-runs -->
+
+## Contributors
+
+Please see our [Contribution Guide](./CONTRIBUTING.md) for more info on how you can contribute. All contributors and participants in this repo must follow our [Code of Conduct](./CODE_OF_CONDUCT.md).
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->

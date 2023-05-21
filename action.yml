@@ -3,7 +3,11 @@ description: "Manage your Github repo(s) settings and secrets using Github Actio
 author: "Andrew Herrington"
 inputs:
   action:
-    description: "What action to take with this action. One of validate, check, or apply. Validate will validate your settings file, but not touch your repo. Check will check your repo with your settings file and output a report of any drift. Apply will apply the settings in your settings file to your repo"
+    description: |
+      What action to take with this action. One of validate, check, or apply.
+      Validate will validate your settings file, but not touch your repo.
+      Check will check your repo with your settings file and output a report of any drift.
+      Apply will apply the settings in your settings file to your repo
     default: "check"
   settings_file:
     description: What yaml file to use as your settings. This is local to runner running this action.
@@ -21,7 +25,7 @@ outputs:
     description: "Diff of this action, dumped to a json string"
 runs:
   using: "docker"
-  image: "Dockerfile"
+  image: "docker://ghcr.io/andrewthetechie/gha-repo-manager:v1.4.0" # x-release-please-version
 branding:
-  icon: 'settings'
-  color: 'blue'
+  icon: "settings"
+  color: "blue"

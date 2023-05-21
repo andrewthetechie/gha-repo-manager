@@ -1,6 +1,3 @@
-from copy import deepcopy
-from pathlib import Path
-
 import pytest
 from github.GithubException import UnknownObjectException
 

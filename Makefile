@@ -5,33 +5,9 @@
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-40s\033[0m %s\n", $$1, $$2}'
 
-setup-dev:  pyenv-install pyenv-setup install-requirements setup-pre-commit ## Uses pyenv to setup a virtualenv and install requirements
-
-pyenv-install:
-	pyenv install 3.9.2
-
-pyenv-setup:
-	pyenv virtualenv 3.9.2 gha-repo-manager
-	pyenv local gha-repo-manager
-
-install-requirements:  ## Pip installs our requirements
-	pip install -r Docker/builder/rootfs/requirements.txt -r requirements-dev.txt
-
-setup-pre-commit:
-	pre-commit install
 
 build: ## build a docker image locally
-	docker build -t gha-repo-manager -f Docker/Dockerfile .
+	docker build -t gha-repo-manager -f Dockerfile .
 
 generate-inputs: ## Generate a dict of inputs from actions.yml into repo_manager/utils/__init__.py
 	./.github/scripts/replace_inputs.sh
-
-install-action-lint-mac: ## Install actionlint (used in pre-commit) on a mac using homebrew
-	brew install actionlint
-
-install-action-lint: ## Install actionlint (used in pre-commit) using go install
-	go install github.com/rhysd/actionlint/cmd/actionlint@latest
-
-actionlint: ## run actionlint with our ignores
-	# https://github.com/rhysd/actionlint/issues/152
-	actionlint -ignore 'property \".+\" is not defined in object type {}'

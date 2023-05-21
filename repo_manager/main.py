@@ -187,8 +187,15 @@ def main():  # noqa: C901
                         commits.append(delete_file(inputs["repo_object"], file_config))
                         actions_toolkit.info(f"Deleted {str(file_config.dest_file)}")
                     except UnknownObjectException:
+                        target_branch = (
+                            file_config.target_branch
+                            if file_config.target_branch is not None
+                            else inputs["repo_object"].default_branch
+                        )
                         actions_toolkit.warning(
-                            f"{str(file_config.dest_file)} does not exist in {file_config.target_branch if file_config.target_branch is not None else inputs['repo_object'].default_branch} branch. Because this is a delete, not failing run"
+                            f"{str(file_config.dest_file)} does not exist in "
+                            + f"{target_branch}"
+                            + " branch. Because this is a delete, not failing run"
                         )
                     except Exception as exc:
                         errors.append({"type": "file-delete", "file": str(file_config.dest_file), "error": f"{exc}"})
@@ -199,8 +206,15 @@ def main():  # noqa: C901
                         commits.append(delete_commit)
                         actions_toolkit.info(f"Moved {str(file_config.src_file)} to {str(file_config.dest_file)}")
                     except RemoteSrcNotFoundError:
+                        target_branch = (
+                            file_config.target_branch
+                            if file_config.target_branch is not None
+                            else inputs["repo_object"].default_branch
+                        )
                         actions_toolkit.warning(
-                            f"{str(file_config.src_file)} does not exist in {file_config.target_branch if file_config.target_branch is not None else inputs['repo_object'].default_branch} branch. Because this is a move, not failing run"
+                            f"{str(file_config.src_file)} does not exist in "
+                            + f"{target_branch}"
+                            + " branch. Because this is a move, not failing run"
                         )
                     except Exception as exc:
                         errors.append(
@@ -215,7 +229,8 @@ def main():  # noqa: C901
                     try:
                         commits.append(copy_file(inputs["repo_object"], file_config))
                         actions_toolkit.info(
-                            f"Copied{' remote ' if file_config.remote_src else ' '}{str(file_config.src_file)} to {str(file_config.dest_file)}"
+                            f"Copied{' remote ' if file_config.remote_src else ' '}{str(file_config.src_file)}"
+                            + f" to {str(file_config.dest_file)}"
                         )
                     except Exception as exc:
                         errors.append(
