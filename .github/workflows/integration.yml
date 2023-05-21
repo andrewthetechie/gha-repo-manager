@@ -5,6 +5,7 @@ jobs:
   integration-testing:
     name: Integration Testing
     runs-on: ubuntu-latest
+    if: github.repository_owner == 'andrewthetechie'
     steps:
       - uses: actions/checkout@v3
         name: Checkout
