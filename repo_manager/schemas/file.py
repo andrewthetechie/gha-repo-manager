@@ -16,22 +16,26 @@ class FileConfig(BaseModel):
     remote_src: OptBool = Field(False, description="If true, src_file is a remote file")
     src_file: Path | None = Field(
         None,
-        description="Sourrce file to copy from. Can me a local file path, or if you prefix with remote://, a path inside the target_repo. Can be relative to the GHA workspace",
+        description="Sourrce file to copy from. Can me a local file path, or if you prefix with remote://, "
+        + "a path inside the target_repo. Can be relative to the GHA workspace",
     )
     dest_file: Path = Field(
         None, description="Dest file path in the dest_repo for src_file. Relative to root of the target repo"
     )
     move: OptBool = Field(
         False,
-        description="If true and dealing with a remote src_file, repo_manager will move the file instead of copying it, by removing src_file after copy. If src_file is a local file, this option is ignored.",
+        description="If true and dealing with a remote src_file, repo_manager will move the file instead of "
+        + "copying it, by removing src_file after copy. If src_file is a local file, this option is ignored.",
     )
     commit_msg: str = Field(
         "repo_manager file commit",
-        description="Commit message to commit the file with. Files with the same commit message and target_branch will be commited in one commit.",
+        description="Commit message to commit the file with. Files with the same commit message "
+        + "and target_branch will be commited in one commit.",
     )
     target_branch: OptStr = Field(
         None,
-        description="Target branch to commit this file to. Default(None) means to lookup the default branch of the repo",
+        description="Target branch to commit this file to. Default(None) "
+        + "means to lookup the default branch of the repo",
     )
 
     @validator("src_file", pre=True)

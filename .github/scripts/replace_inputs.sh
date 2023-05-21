@@ -1,7 +1,7 @@
 #!/bin/bash
 
 mytmpdir=$(mktemp -d 2>/dev/null || mktemp -d -t 'mytmpdir')
-export INPUT_FILE="repo_manager/utils/__init__.py"
+export INPUT_FILE="repo_manager/utils/_inputs.py"
 export REPLACEMENT=$(python .github/scripts/generate_inputs.py)
 
 NEW_INIT=$(.github/scripts/replace.sed $INPUT_FILE | envsubst)
