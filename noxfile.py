@@ -22,7 +22,7 @@ except ImportError:
     raise SystemExit(dedent(message)) from None
 
 
-package = "gha_clone_releases"
+package = "repo_manager"
 python_versions = [
     "3.11",
 ]

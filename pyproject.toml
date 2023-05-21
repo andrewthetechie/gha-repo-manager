@@ -43,6 +43,9 @@ build-backend = "poetry.core.masonry.api"
 [tool.bandit]
 exclude_dirs = ["tests", "noxfile.py", ".github/scripts"]
 
+[tool.bandit.assert_used]
+skips = ["repo_manager/github/branch_protections.py"]
+
 [tool.ruff]
 line-length = 120
 target-version = "py311"

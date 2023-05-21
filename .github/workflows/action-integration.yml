@@ -21,5 +21,8 @@ jobs:
         # test with the local checkout of the action
         uses: ./
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          src_repo: andrewthetechie/gha-clone-releases
+          token: ${{ secrets.THIS_PAT }}
+          action: "check"
+      - name: Check outputs
+        run: |
+          test "${{ steps.test-action.outputs.result }}" == "Check passed"
