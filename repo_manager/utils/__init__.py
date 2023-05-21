@@ -85,7 +85,7 @@ def validate_inputs(parsed_inputs: dict[str, Any]) -> dict[str, Any]:
         api_url = parsed_inputs["github_server_url"] + "/api/v3"
 
     try:
-        repo = get_github_client(parsed_inputs["token"]).get_repo(parsed_inputs["repo"], api_url=api_url)
+        repo = get_github_client(parsed_inputs["token"], api_url=api_url).get_repo(parsed_inputs["repo"])
     except Exception as exc:  # this should be tighter
         actions_toolkit.set_failed(f"Error while retriving {parsed_inputs['repo']} from Github. {exc}")
 
