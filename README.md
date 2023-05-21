@@ -59,7 +59,11 @@ jobs:
 
 | parameter | description | required | default |
 | - | - | - | - |
-| action | What action to take with this action. One of validate, check, or apply. Validate will validate your settings file, but not touch your repo. Check will check your repo with your settings file and output a report of any drift. Apply will apply the settings in your settings file to your repo | `false` | check |
+| action | What action to take with this action. One of validate, check, or apply.
+Validate will validate your settings file, but not touch your repo.
+Check will check your repo with your settings file and output a report of any drift.
+Apply will apply the settings in your settings file to your repo
+ | `false` | check |
 | settings_file | What yaml file to use as your settings. This is local to runner running this action. | `false` | .github/settings.yml |
 | repo | What repo to perform this action on. Default is self, as in the repo this action is running in | `false` | self |
 | token | What github token to use with this action. | `true` |  |
