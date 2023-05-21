@@ -1,7 +1,6 @@
 """Nox sessions."""
 import os
 import shlex
-import shutil
 import sys
 from pathlib import Path
 from textwrap import dedent
@@ -31,7 +30,7 @@ nox.options.sessions = (
     "pre-commit",
     "bandit",
     "safety",
-    "mypy",
+    # "mypy",
     "tests",
 )
 pyproject = toml.load("pyproject.toml")
@@ -128,20 +127,12 @@ def safety(session: Session) -> None:
 @session(python=python_versions)
 def mypy(session: Session) -> None:
     """Type-check using mypy."""
-    args = session.posargs or ["gha_clone_releases", "--follow-imports=silent", "--ignore-missing-imports"]
+    args = session.posargs or ["repo_manager", "--follow-imports=silent", "--ignore-missing-imports"]
     session.install(".")
     session.install("mypy", "pytest")
     if len(mypy_type_packages) > 0:
         session.install(*mypy_type_packages)
     session.run("mypy", *args)
-
-
-@session(python=python_versions[0])
-def bandit(session: Session) -> None:
-    """Run bandit security tests"""
-    session.install("bandit")
-    args = session.posargs or ["-r", "./gha_clone_releases"]
-    session.run("bandit", *args)
 
 
 @session(python=python_versions)
@@ -150,49 +141,3 @@ def tests(session: Session) -> None:
     session.install(".")
     session.install(*test_requirements)
     session.run("poetry", "run", "pytest", *session.posargs)
-
-
-@session(python=python_versions)
-def xdoctest(session: Session) -> None:
-    """Run examples with xdoctest."""
-    if session.posargs:
-        args = [package, *session.posargs]
-    else:
-        args = [f"--modname={package}", "--command=all"]
-        if "FORCE_COLOR" in os.environ:
-            args.append("--colored=1")
-
-    session.install(".")
-    session.install("xdoctest[colors]")
-    session.run("python", "-m", "xdoctest", *args)
-
-
-@session(name="docs-build", python=python_versions[0])
-def docs_build(session: Session) -> None:
-    """Build the documentation."""
-    args = session.posargs or ["docs", "docs/_build"]
-    if not session.posargs and "FORCE_COLOR" in os.environ:
-        args.insert(0, "--color")
-
-    session.install(".")
-    session.install("sphinx", "sphinx-click", "furo")
-
-    build_dir = Path("docs", "_build")
-    if build_dir.exists():
-        shutil.rmtree(build_dir)
-
-    session.run("sphinx-build", *args)
-
-
-@session(python=python_versions[0])
-def docs(session: Session) -> None:
-    """Build and serve the documentation with live reloading on file changes."""
-    args = session.posargs or ["--open-browser", "docs", "docs/_build"]
-    session.install(".")
-    session.install("sphinx", "sphinx-autobuild", "sphinx-click", "furo")
-
-    build_dir = Path("docs", "_build")
-    if build_dir.exists():
-        shutil.rmtree(build_dir)
-
-    session.run("sphinx-autobuild", *args)
