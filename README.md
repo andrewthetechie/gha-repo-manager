@@ -9,6 +9,7 @@
 
 Manage your Github repo(s) settings and secrets using Github Actions and a yaml file
 
+
 <!-- action-docs-description -->
 
 ## Usage
@@ -69,6 +70,8 @@ Apply will apply the settings in your settings file to your repo
 | repo | What repo to perform this action on. Default is self, as in the repo this action is running in | `false` | self |
 | token | What github token to use with this action. | `true` |  |
 
+
+
 <!-- action-docs-inputs -->
 
 <!-- action-docs-outputs -->
@@ -79,12 +82,15 @@ Apply will apply the settings in your settings file to your repo
 | result | Result of the action |
 | diff | Diff of this action, dumped to a json string |
 
+
+
 <!-- action-docs-outputs -->
 
 <!-- action-docs-runs -->
 ## Runs
 
 This action is a `docker` action.
+
 
 <!-- action-docs-runs -->
 
