@@ -3,10 +3,6 @@
 [![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
-[![Action Template](https://img.shields.io/badge/Action%20Template-Python%20Container%20Action-blue.svg?colorA=24292e&colorB=0366d6&style=flat&longCache=true&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAM6wAADOsB5dZE0gAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAERSURBVCiRhZG/SsMxFEZPfsVJ61jbxaF0cRQRcRJ9hlYn30IHN/+9iquDCOIsblIrOjqKgy5aKoJQj4O3EEtbPwhJbr6Te28CmdSKeqzeqr0YbfVIrTBKakvtOl5dtTkK+v4HfA9PEyBFCY9AGVgCBLaBp1jPAyfAJ/AAdIEG0dNAiyP7+K1qIfMdonZic6+WJoBJvQlvuwDqcXadUuqPA1NKAlexbRTAIMvMOCjTbMwl1LtI/6KWJ5Q6rT6Ht1MA58AX8Apcqqt5r2qhrgAXQC3CZ6i1+KMd9TRu3MvA3aH/fFPnBodb6oe6HM8+lYHrGdRXW8M9bMZtPXUji69lmf5Cmamq7quNLFZXD9Rq7v0Bpc1o/tp0fisAAAAASUVORK5CYII=)](https://github.com/andrewthetechie/gha-repo-manager)
-[![Actions Status](https://github.com/andrewthetechie/gha-repo-manager/workflows/Lint/badge.svg)](https://github.com/andrewthetechie/gha-repo-manager/actions)
-[![Actions Status](https://github.com/andrewthetechie/gha-repo-manager/workflows/Integration%20Test/badge.svg)](https://github.com/andrewthetechie/gha-repo-manager/actions)
-
 <!-- action-docs-description -->
 ## Description
 
@@ -64,13 +60,10 @@ jobs:
 
 | parameter | description | required | default |
 | - | - | - | - |
-| action | What action to take with this action. One of validate, check, or apply.
-Validate will validate your settings file, but not touch your repo.
-Check will check your repo with your settings file and output a report of any drift.
-Apply will apply the settings in your settings file to your repo
- | `false` | check |
+| action | What action to take with this action. One of validate, check, or apply. Validate will validate your settings file, but not touch your repo. Check will check your repo with your settings file and output a report of any drift. Apply will apply the settings in your settings file to your repo | `false` | check |
 | settings_file | What yaml file to use as your settings. This is local to runner running this action. | `false` | .github/settings.yml |
 | repo | What repo to perform this action on. Default is self, as in the repo this action is running in | `false` | self |
+| github_server_url | Set a custom github server url for github api operations. Useful if you're running on GHE. Will try to autodiscover from env.GITHUB_SERVER_URL if left at default | `false` | none |
 | token | What github token to use with this action. | `true` |  |
 
 

@@ -58,6 +58,5 @@ show_error_codes = true
 show_error_context = true
 
 [tool.pytest.ini_options]
-python_paths = "./"
 norecursedirs = ".github ci .git .idea"
 addopts = "--cov=repo_manager --cov-report xml:.coverage.xml --cov-report=term-missing"

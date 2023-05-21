@@ -3,7 +3,7 @@
 ###START_INPUT_AUTOMATION###
 INPUTS = {
     "action": {
-        "description": "What action to take with this action. One of validate, check, or apply.\nValidate will validate your settings file, but not touch your repo.\nCheck will check your repo with your settings file and output a report of any drift.\nApply will apply the settings in your settings file to your repo\n",
+        "description": "What action to take with this action. One of validate, check, or apply. Validate will validate your settings file, but not touch your repo. Check will check your repo with your settings file and output a report of any drift. Apply will apply the settings in your settings file to your repo",
         "default": "check",
     },
     "settings_file": {
@@ -13,6 +13,10 @@ INPUTS = {
     "repo": {
         "description": "What repo to perform this action on. Default is self, as in the repo this action is running in",
         "default": "self",
+    },
+    "github_server_url": {
+        "description": "Set a custom github server url for github api operations. Useful if you're running on GHE. Will try to autodiscover from env.GITHUB_SERVER_URL if left at default",
+        "default": "none",
     },
     "token": {"description": "What github token to use with this action.", "required": True},
 }
