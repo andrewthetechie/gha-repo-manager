@@ -1,11 +1,8 @@
-import os
 import random
 import string
 from copy import deepcopy
 
-import pytest
 import yaml
-from pydantic import ValidationError
 
 from repo_manager.schemas import Label
 

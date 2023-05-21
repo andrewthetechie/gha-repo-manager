@@ -188,7 +188,9 @@ def main():  # noqa: C901
                         actions_toolkit.info(f"Deleted {str(file_config.dest_file)}")
                     except UnknownObjectException:
                         actions_toolkit.warning(
-                            f"{str(file_config.dest_file)} does not exist in {file_config.target_branch if file_config.target_branch is not None else inputs['repo_object'].default_branch} branch. Because this is a delete, not failing run"
+                            f"{str(file_config.dest_file)} does not exist in "
+                            + f"{file_config.target_branch if file_config.target_branch is not None else inputs['repo_object'].default_branch}"
+                            + " branch. Because this is a delete, not failing run"
                         )
                     except Exception as exc:
                         errors.append({"type": "file-delete", "file": str(file_config.dest_file), "error": f"{exc}"})
@@ -200,7 +202,9 @@ def main():  # noqa: C901
                         actions_toolkit.info(f"Moved {str(file_config.src_file)} to {str(file_config.dest_file)}")
                     except RemoteSrcNotFoundError:
                         actions_toolkit.warning(
-                            f"{str(file_config.src_file)} does not exist in {file_config.target_branch if file_config.target_branch is not None else inputs['repo_object'].default_branch} branch. Because this is a move, not failing run"
+                            f"{str(file_config.src_file)} does not exist in "
+                            + f"{file_config.target_branch if file_config.target_branch is not None else inputs['repo_object'].default_branch}"
+                            + " branch. Because this is a move, not failing run"
                         )
                     except Exception as exc:
                         errors.append(

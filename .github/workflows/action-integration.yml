@@ -1,0 +1,25 @@
+# Tests athe github action on each push
+name: Action Integration Test
+on:
+  push:
+jobs:
+  action-integration-testing:
+    name: Action Integration Testing
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        name: Checkout
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Update action.yml to use dockerfile
+        uses: rmeneely/update-yaml@v1
+        with:
+          infile: action.yml
+          varlist: "runs.image=Dockerfile"
+      - name: Test action
+        id: test-action
+        # test with the local checkout of the action
+        uses: ./
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          src_repo: andrewthetechie/gha-clone-releases

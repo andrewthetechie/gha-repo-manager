@@ -9,7 +9,8 @@ from repo_manager.schemas.secret import Secret
 
 def get_public_key(repo: Repository, is_dependabot: bool = False) -> PublicKey:
     """
-    :calls: `GET /repos/{owner}/{repo}/actions/secrets/public-key <https://docs.github.com/en/rest/reference/actions#get-a-repository-public-key>`_
+    :calls: `GET /repos/{owner}/{repo}/actions/secrets/public-key
+    <https://docs.github.com/en/rest/reference/actions#get-a-repository-public-key>`_
     :rtype: :class:`github.PublicKey.PublicKey`
     """
     secret_type = "actions" if not is_dependabot else "dependabot"
@@ -19,9 +20,11 @@ def get_public_key(repo: Repository, is_dependabot: bool = False) -> PublicKey:
 
 def create_secret(repo: Repository, secret_name: str, unencrypted_value: str, is_dependabot: bool = False) -> bool:
     """
-    :calls: `PUT /repos/{owner}/{repo}/actions/secrets/{secret_name} <https://docs.github.com/en/rest/reference/actions#get-a-repository-secret>`_
+    :calls: `PUT /repos/{owner}/{repo}/actions/secrets/{secret_name}
+    <https://docs.github.com/en/rest/reference/actions#get-a-repository-secret>`_
 
-    Copied from https://github.com/PyGithub/PyGithub/blob/master/github/Repository.py#L1428 in order to support dependabot
+    Copied from https://github.com/PyGithub/PyGithub/blob/master/github/Repository.py#L1428 in order to
+    support dependabot
     :param secret_name: string
     :param unencrypted_value: string
     :rtype: bool
@@ -43,8 +46,10 @@ def create_secret(repo: Repository, secret_name: str, unencrypted_value: str, is
 
 def delete_secret(repo: Repository, secret_name: str, is_dependabot: bool = False) -> bool:
     """
-    Copied from https://github.com/PyGithub/PyGithub/blob/master/github/Repository.py#L1448 to add support for dependabot
-    :calls: `DELETE /repos/{owner}/{repo}/actions/secrets/{secret_name} <https://docs.github.com/en/rest/reference/actions#delete-a-repository-secret>`_
+    Copied from https://github.com/PyGithub/PyGithub/blob/master/github/Repository.py#L1448
+    to add support for dependabot
+    :calls: `DELETE /repos/{owner}/{repo}/actions/secrets/{secret_name}
+        <https://docs.github.com/en/rest/reference/actions#delete-a-repository-secret>`_
     :param secret_name: string
     :rtype: bool
     """

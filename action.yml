@@ -23,5 +23,5 @@ runs:
   using: "docker"
   image: "Dockerfile"
 branding:
-  icon: 'settings'
-  color: 'blue'
+  icon: "settings"
+  color: "blue"
