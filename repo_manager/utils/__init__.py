@@ -16,6 +16,10 @@ INPUTS = {
         "description": "What yaml file to use as your settings. This is local to runner running this action.",
         "default": ".github/settings.yml",
     },
+    "github_url": {
+        "description": "URL for Github site to connect to; normally in form of 'https://{hostname}/api/v3'",
+        "default": "https://github.com/api/v3",
+    },
     "repo": {
         "description": "What repo to perform this action on. Default is self, as in the repo this action is running in",
         "default": "self",
@@ -86,7 +90,7 @@ def validate_inputs(parsed_inputs: dict[str, Any]) -> dict[str, Any]:
             )
 
     try:
-        repo = get_github_client(parsed_inputs["token"]).get_repo(parsed_inputs["repo"])
+        repo = get_github_client(parsed_inputs["github_url"], parsed_inputs["token"]).get_repo(parsed_inputs["repo"])
     except Exception as exc:  # this should be tighter
         actions_toolkit.set_failed(f"Error while retriving {parsed_inputs['repo']} from Github. {exc}")
 
