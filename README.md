@@ -8,6 +8,7 @@
 
 Manage your Github repo(s) settings and secrets using Github Actions and a yaml file
 
+
 <!-- action-docs-description -->
 
 ## Usage
@@ -66,7 +67,12 @@ Apply will apply the settings in your settings file to your repo
  | `false` | check |
 | settings_file | What yaml file to use as your settings. This is local to runner running this action. | `false` | .github/settings.yml |
 | repo | What repo to perform this action on. Default is self, as in the repo this action is running in | `false` | self |
+| github_server_url | Set a custom github server url for github api operations. Useful if you're running on GHE.
+Will try to autodiscover from env.GITHUB_SERVER_URL if left at default
+ | `false` | none |
 | token | What github token to use with this action. | `true` |  |
+
+
 
 <!-- action-docs-inputs -->
 
@@ -78,12 +84,15 @@ Apply will apply the settings in your settings file to your repo
 | result | Result of the action |
 | diff | Diff of this action, dumped to a json string |
 
+
+
 <!-- action-docs-outputs -->
 
 <!-- action-docs-runs -->
 ## Runs
 
 This action is a `docker` action.
+
 
 <!-- action-docs-runs -->
 
