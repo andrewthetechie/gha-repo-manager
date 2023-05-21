@@ -28,7 +28,7 @@ jobs:
           # Apply your settings to the repo, can also be check to just check repo settings vs your file or validate, to validate your
           # file is valid
           action: apply
-          settings_file: example/settings.yml
+          settings_file: examples/settings.yml
           github_url: "https://github.com/api/v3"
           # need a PAT that can edit repo settings
           token: ${{ secrets.GITHUB_TOKEN }}
