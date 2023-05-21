@@ -31,7 +31,7 @@ nox.options.sessions = (
     "pre-commit",
     "bandit",
     "safety",
-    # "mypy",
+    "mypy",
     "tests",
 )
 pyproject = toml.load("pyproject.toml")
