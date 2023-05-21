@@ -4,6 +4,6 @@ from github import Github
 
 
 @lru_cache
-def get_github_client(token: str) -> Github:
+def get_github_client(token: str, api_url: str) -> Github:
     """ """
-    return Github(token)
+    return Github(token, base_url=api_url)

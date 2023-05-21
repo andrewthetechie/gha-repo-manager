@@ -71,8 +71,21 @@ def validate_inputs(parsed_inputs: dict[str, Any]) -> dict[str, Any]:
                 + "GITHUB_REPOSITORY env var is not set. Please set INPUT_REPO or GITHUB_REPOSITORY in the env"
             )
 
+    if parsed_inputs["github_server_url"].lower() == "none":
+        parsed_inputs["github_server_url"] = os.environ.get("GITHUB_SERVER_URL", None)
+        if parsed_inputs["github_server_url"] is None:
+            actions_toolkit.set_failed(
+                "Error getting inputs. github_server_url is 'none' and "
+                + "GITHUB_SERVER_URL env var is not set. Please set "
+                + "INPUT_GITHUB_SERVER_URL or GITHUB_SERVER_URL in the env"
+            )
+    if parsed_inputs["github_server_url"] == "https://github.com":
+        api_url = "https://api.github.com"
+    else:
+        api_url = parsed_inputs["github_server_url"] + "/api/v3"
+
     try:
-        repo = get_github_client(parsed_inputs["token"]).get_repo(parsed_inputs["repo"])
+        repo = get_github_client(parsed_inputs["token"]).get_repo(parsed_inputs["repo"], api_url=api_url)
     except Exception as exc:  # this should be tighter
         actions_toolkit.set_failed(f"Error while retriving {parsed_inputs['repo']} from Github. {exc}")
 

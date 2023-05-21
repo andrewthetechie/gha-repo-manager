@@ -14,6 +14,10 @@ INPUTS = {
         "description": "What repo to perform this action on. Default is self, as in the repo this action is running in",
         "default": "self",
     },
+    "github_server_url": {
+        "description": "Set a custom github server url for github api operations. Useful if you're running on GHE.\nWill try to autodiscover from env.GITHUB_SERVER_URL if left at default\n",
+        "default": "none",
+    },
     "token": {"description": "What github token to use with this action.", "required": True},
 }
 ###END_INPUT_AUTOMATION###
