@@ -79,10 +79,13 @@ def validate_inputs(parsed_inputs: dict[str, Any]) -> dict[str, Any]:
                 + "GITHUB_SERVER_URL env var is not set. Please set "
                 + "INPUT_GITHUB_SERVER_URL or GITHUB_SERVER_URL in the env"
             )
+    actions_toolkit.debug(f"github_server_url: {parsed_inputs['github_server_url']}")
     if parsed_inputs["github_server_url"] == "https://github.com":
         api_url = "https://api.github.com"
     else:
         api_url = parsed_inputs["github_server_url"] + "/api/v3"
+
+    actions_toolkit.debug(f"api_url: {api_url}")
 
     try:
         repo = get_github_client(parsed_inputs["token"], api_url=api_url).get_repo(parsed_inputs["repo"])
