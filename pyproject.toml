@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gha-repo-manager"
-version = "1.5.0"
+version = "1.6.0"
 description = "Manage your Github repo(s) settings and secrets using Github Actions and a yaml file"
 authors = ["Andrew Herrington <andrew.the.techie@gmail.com>"]
 license = "MIT"
