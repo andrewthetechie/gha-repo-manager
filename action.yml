@@ -10,10 +10,10 @@ inputs:
     default: ".github/settings.yml"
   github_url:
     description: URL for Github site to connect to; normally in form of 'https://{hostname}/api/v3'
-    default: "self"
+    default: "https://github.com/api/v3"
   repo:
     description: What repo to perform this action on. Default is self, as in the repo this action is running in
-    default: "https://github.com/api/v3"
+    default: "self"
   token:
     description: What github token to use with this action.
     required: true
