@@ -69,6 +69,7 @@ def update_branch_protection(repo: Repository, branch: str, protection_config: P
             required_approving_review_count, int
         ), required_approving_review_count
 
+        post_parameters = {}
         if required_status_checks is not NotSet:
             post_parameters["required_status_checks"] = required_status_checks
 
