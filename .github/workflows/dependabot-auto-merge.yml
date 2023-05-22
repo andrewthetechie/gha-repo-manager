@@ -5,6 +5,7 @@ on:
 
 jobs:
   auto-merge:
+    if: github.repository_owner == 'andrewthetechie'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
