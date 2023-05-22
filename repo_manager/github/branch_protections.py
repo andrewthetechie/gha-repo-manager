@@ -9,7 +9,7 @@ from github.Repository import Repository
 from repo_manager.schemas.branch_protection import BranchProtection
 from repo_manager.schemas.branch_protection import ProtectionOptions
 from repo_manager.utils import attr_to_kwarg
-
+from repo_manager.utils import objary_to_list
 
 def diff_option(key: str, expected: Any, repo_value: Any) -> str | None:
     if expected is not None:
@@ -23,8 +23,7 @@ def update_branch_protection(repo: Repository, branch: str, protection_config: P
     # Until pygithub supports this, we need to do it manually
     def edit_protection(  # nosec
         branch,
-        strict=NotSet,
-        contexts=NotSet,
+        required_status_checks=NotSet,
         enforce_admins=NotSet,
         dismissal_users=NotSet,
         dismissal_teams=NotSet,
@@ -40,9 +39,8 @@ def update_branch_protection(repo: Repository, branch: str, protection_config: P
         required_conversation_resolution=NotSet,
     ):  # nosec
         """
-        :calls: `PUT /repos/{owner}/{repo}/branches/{branch}/protection <https://docs.github.com/en/rest/reference/repos#get-branch-protection>`_
-        :strict: bool
-        :contexts: list of strings
+        :calls: `PUT /repos/{owner}/{repo}/branches/{branch}/protection <https://docs.github.com/en/rest/branches/branch-protection?apiVersion=2022-11-28#update-branch-protection>`_
+        :required_status_checks: dict
         :enforce_admins: bool
         :dismissal_users: list of strings
         :dismissal_teams: list of strings
@@ -72,18 +70,8 @@ def update_branch_protection(repo: Repository, branch: str, protection_config: P
             required_approving_review_count, int
         ), required_approving_review_count
 
-        post_parameters = {}
-        if strict is not NotSet or contexts is not NotSet:
-            if strict is NotSet:
-                strict = False
-            if contexts is NotSet:
-                contexts = []
-            post_parameters["required_status_checks"] = {
-                "strict": strict,
-                "contexts": contexts,
-            }
-        else:
-            post_parameters["required_status_checks"] = None
+        if required_status_checks is not NotSet:
+            post_parameters["required_status_checks"] = required_status_checks
 
         if enforce_admins is not NotSet:
             post_parameters["enforce_admins"] = enforce_admins
@@ -208,6 +196,7 @@ def update_branch_protection(repo: Repository, branch: str, protection_config: P
         status_check_kwargs,
         transform_key="contexts",
     )
+    extra_kwargs["required_status_checks"] = required_status_checks_kwargs
 
     # these are not handled by edit_protection, so we have to use the custom api
     attr_to_kwarg(
@@ -230,12 +219,13 @@ def update_branch_protection(repo: Repository, branch: str, protection_config: P
         edit_protection(branch=this_branch, **kwargs, **extra_kwargs)
     except GithubException as exc:
         raise ValueError(f"{exc.data['message']} {exc.data['documentation_url']}")
-
-    if status_check_kwargs != {}:
-        try:
-            this_branch.edit_required_status_checks(**status_check_kwargs)
-        except GithubException as exc:
-            raise ValueError(f"{exc.data['message']} {exc.data['documentation_url']}")
+    # This errors out because the underlying method does a UPDATE instead of a POST as stated by GitHub documentation
+    # was able to fix this issue by adding the additional key to kwargs above; signed commits could maybe be done too..
+    # if status_check_kwargs != {}:
+    #     try:
+    #         this_branch.edit_required_status_checks(**status_check_kwargs)
+    #     except GithubException as exc:
+    #         raise ValueError(f"{exc.data['message']} {exc.data['documentation_url']}")
 
     # signed commits has its own method
     if protection_config.require_signed_commits is not None:
@@ -285,21 +275,24 @@ def check_repo_branch_protections(
                 diff_option(
                     "required_approving_review_count",
                     config_bp.protection.pr_options.required_approving_review_count,
-                    this_protection.required_pull_request_reviews.required_approving_review_count,
+                    ## Had issues when the YAML defines this but the Repo has none (e.g. it's null in the cloud)
+                    this_protection.required_pull_request_reviews.required_approving_review_count if (this_protection.required_pull_request_reviews != None) else None,
                 )
             )
             diffs.append(
                 diff_option(
                     "dismiss_stale_reviews",
                     config_bp.protection.pr_options.dismiss_stale_reviews,
-                    this_protection.required_pull_request_reviews.dismiss_stale_reviews,
+                    ## Had issues when the YAML defines this but the Repo has none (e.g. it's null in the cloud)
+                    this_protection.required_pull_request_reviews.dismiss_stale_reviews if (this_protection.required_pull_request_reviews != None) else None,
                 )
             )
             diffs.append(
                 diff_option(
                     "require_code_owner_reviews",
                     config_bp.protection.pr_options.require_code_owner_reviews,
-                    this_protection.required_pull_request_reviews.require_code_owner_reviews,
+                    ## Had issues when the YAML defines this but the Repo has none (e.g. it's null in the cloud)
+                    this_protection.required_pull_request_reviews.require_code_owner_reviews if (this_protection.required_pull_request_reviews != None) else None,
                 )
             )
             # for now, not checking dismissal options. Will note that in the docs
@@ -315,6 +308,9 @@ def check_repo_branch_protections(
                     this_protection.required_status_checks.strict,
                 )
             )
+            # Without sorting, they sometimes get flagged as different just due to the ordinality of them
+            config_bp.protection.required_status_checks.checks.sort()
+            this_protection.required_status_checks.contexts.sort()
             diffs.append(
                 diff_option(
                     "required_status_checks::checks",
@@ -374,6 +370,27 @@ def check_repo_branch_protections(
         )
 
         # TODO: Figure out how to diff Restriction options
+        # I figured out some of them....
+        dismissal_teams = objary_to_list("slug", this_protection.required_pull_request_reviews.dismissal_teams) if (this_protection.required_pull_request_reviews != None) else []
+        dismissal_teams.sort()
+        config_bp.protection.pr_options.dismissal_restrictions.teams.sort()
+        diffs.append(
+            diff_option(
+                "dismissal_teams",
+                config_bp.protection.pr_options.dismissal_restrictions.teams,
+                dismissal_teams,
+            )
+        )
+        dismissal_users = objary_to_list("name", this_protection.required_pull_request_reviews.dismissal_users) if (this_protection.required_pull_request_reviews != None) else []
+        dismissal_users.sort()
+        config_bp.protection.pr_options.dismissal_restrictions.users.sort()
+        diffs.append(
+            diff_option(
+                "dismissal_users",
+                config_bp.protection.pr_options.dismissal_restrictions.users,
+                dismissal_users,
+            )
+        )
 
         diffs = [i for i in diffs if i is not None]
         if len(diffs) > 0:
