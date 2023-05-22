@@ -276,7 +276,8 @@ def check_repo_branch_protections(
                     "required_approving_review_count",
                     config_bp.protection.pr_options.required_approving_review_count,
                     ## Had issues when the YAML defines this but the Repo has none (e.g. it's null in the cloud)
-                    this_protection.required_pull_request_reviews.required_approving_review_count if (this_protection.required_pull_request_reviews != None) else None,
+                    None if (this_protection.required_pull_request_reviews is None) else \
+                        this_protection.required_pull_request_reviews.required_approving_review_count,
                 )
             )
             diffs.append(
@@ -284,7 +285,8 @@ def check_repo_branch_protections(
                     "dismiss_stale_reviews",
                     config_bp.protection.pr_options.dismiss_stale_reviews,
                     ## Had issues when the YAML defines this but the Repo has none (e.g. it's null in the cloud)
-                    this_protection.required_pull_request_reviews.dismiss_stale_reviews if (this_protection.required_pull_request_reviews != None) else None,
+                    None if (this_protection.required_pull_request_reviews is None) else \
+                        this_protection.required_pull_request_reviews.dismiss_stale_reviews,
                 )
             )
             diffs.append(
@@ -292,7 +294,8 @@ def check_repo_branch_protections(
                     "require_code_owner_reviews",
                     config_bp.protection.pr_options.require_code_owner_reviews,
                     ## Had issues when the YAML defines this but the Repo has none (e.g. it's null in the cloud)
-                    this_protection.required_pull_request_reviews.require_code_owner_reviews if (this_protection.required_pull_request_reviews != None) else None,
+                    None if (this_protection.required_pull_request_reviews is None) else \
+                        this_protection.required_pull_request_reviews.require_code_owner_reviews,
                 )
             )
             # for now, not checking dismissal options. Will note that in the docs
@@ -371,7 +374,8 @@ def check_repo_branch_protections(
 
         # TODO: Figure out how to diff Restriction options
         # I figured out some of them....
-        dismissal_teams = objary_to_list("slug", this_protection.required_pull_request_reviews.dismissal_teams) if (this_protection.required_pull_request_reviews != None) else []
+        dismissal_teams = [] if (this_protection.required_pull_request_reviews is None) else \
+                        objary_to_list("slug", this_protection.required_pull_request_reviews.dismissal_teams)
         dismissal_teams.sort()
         config_bp.protection.pr_options.dismissal_restrictions.teams.sort()
         diffs.append(
@@ -381,7 +385,8 @@ def check_repo_branch_protections(
                 dismissal_teams,
             )
         )
-        dismissal_users = objary_to_list("name", this_protection.required_pull_request_reviews.dismissal_users) if (this_protection.required_pull_request_reviews != None) else []
+        dismissal_users = [] if (this_protection.required_pull_request_reviews is None) else \
+                        objary_to_list("name", this_protection.required_pull_request_reviews.dismissal_users)
         dismissal_users.sort()
         config_bp.protection.pr_options.dismissal_restrictions.users.sort()
         diffs.append(
