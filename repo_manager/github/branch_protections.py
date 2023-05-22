@@ -53,8 +53,7 @@ def update_branch_protection(repo: Repository, branch: str, protection_config: P
         be submitted. Take care to pass both as arguments even if only one is
         changing. Use edit_required_status_checks() to avoid this.
         """
-        assert strict is NotSet or isinstance(strict, bool), strict
-        assert contexts is NotSet or all(isinstance(element, str) for element in contexts), contexts
+        assert required_status_checks is NotSet or isinstance(required_status_checks, dict), required_status_checks
         assert enforce_admins is NotSet or isinstance(enforce_admins, bool), enforce_admins
         assert dismissal_users is NotSet or all(
             isinstance(element, str) for element in dismissal_users
@@ -196,7 +195,7 @@ def update_branch_protection(repo: Repository, branch: str, protection_config: P
         status_check_kwargs,
         transform_key="contexts",
     )
-    extra_kwargs["required_status_checks"] = required_status_checks_kwargs
+    extra_kwargs["required_status_checks"] = status_check_kwargs
 
     # these are not handled by edit_protection, so we have to use the custom api
     attr_to_kwarg(
