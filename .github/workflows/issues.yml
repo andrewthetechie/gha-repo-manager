@@ -9,6 +9,7 @@ on:
 jobs:
   issue-to-discord:
     name: issue-to-discord
+    if: github.repository_owner == 'andrewthetechie'
     runs-on: ubuntu-latest
     steps:
       - name: Post to discord
