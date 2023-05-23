@@ -315,6 +315,11 @@ def check_repo_branch_protections(
                     this_protection.required_status_checks.strict,
                 )
             )
+            # Without sorting, they sometimes get flagged as different just due to the ordinality of them
+            if (config_bp.protection.required_status_checks.checks is not None):
+                config_bp.protection.required_status_checks.checks.sort()
+            if (this_protection.required_status_checks.contexts is not None):
+                this_protection.required_status_checks.contexts.sort()
             diffs.append(
                 diff_option(
                     "required_status_checks::checks",
