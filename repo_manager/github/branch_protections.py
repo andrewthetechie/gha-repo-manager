@@ -345,8 +345,10 @@ def check_repo_branch_protections(
                 )
             )
             # Without sorting, they sometimes get flagged as different just due to the ordinality of them
-            config_bp.protection.required_status_checks.checks.sort()
-            this_protection.required_status_checks.contexts.sort()
+            if (config_bp.protection.required_status_checks.checks is not None):
+                config_bp.protection.required_status_checks.checks.sort()
+            if (this_protection.required_status_checks.contexts is not None):
+                this_protection.required_status_checks.contexts.sort()
             diffs.append(
                 diff_option(
                     "required_status_checks::checks",
@@ -410,7 +412,8 @@ def check_repo_branch_protections(
         dismissal_teams = [] if (this_protection.required_pull_request_reviews is None) else \
                         objary_to_list("slug", this_protection.required_pull_request_reviews.dismissal_teams)
         dismissal_teams.sort()
-        config_bp.protection.pr_options.dismissal_restrictions.teams.sort()
+        if (config_bp.protection.pr_options.dismissal_restrictions.teams is not None):
+            config_bp.protection.pr_options.dismissal_restrictions.teams.sort()
         diffs.append(
             diff_option(
                 "dismissal_teams",
@@ -421,7 +424,8 @@ def check_repo_branch_protections(
         dismissal_users = [] if (this_protection.required_pull_request_reviews is None) else \
                         objary_to_list("name", this_protection.required_pull_request_reviews.dismissal_users)
         dismissal_users.sort()
-        config_bp.protection.pr_options.dismissal_restrictions.users.sort()
+        if (config_bp.protection.pr_options.dismissal_restrictions.teams is not None):
+            config_bp.protection.pr_options.dismissal_restrictions.teams.sort()
         diffs.append(
             diff_option(
                 "dismissal_users",
