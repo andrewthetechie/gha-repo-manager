@@ -13,7 +13,7 @@ repo-manager = "repo_manager.main:main"
 
 [tool.poetry.dependencies]
 python = "^3.11"
-pydantic = "^1.10.7"
+pydantic = "^1.10.8"
 actions-toolkit = "^0.1.15"
 pygithub = "^1.58.2"
 pyyaml = "^6.0"
