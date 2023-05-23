@@ -223,12 +223,15 @@ def update_branch_protection(repo: Repository, branch: str, protection_config: P
 
     # these are going to be used by edit_required_status_checks
     attr_to_kwarg("strict", protection_config.required_status_checks, status_check_kwargs)
-    attr_to_kwarg(
-        "checks",
-        protection_config.required_status_checks,
-        status_check_kwargs,
-        transform_key="contexts",
-    )
+    if protection_config.required_status_checks.checks is None:
+        status_check_kwargs["contexts"] = []
+    else:
+        attr_to_kwarg(
+            "checks",
+            protection_config.required_status_checks,
+            status_check_kwargs,
+            transform_key="contexts",
+        )
     extra_kwargs["required_status_checks"] = status_check_kwargs
 
     # these are not handled by edit_protection, so we have to use the custom api
