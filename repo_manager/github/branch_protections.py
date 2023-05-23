@@ -292,14 +292,18 @@ def check_repo_branch_protections(
                 diff_option(
                     "dismiss_stale_reviews",
                     config_bp.protection.pr_options.dismiss_stale_reviews,
-                    this_protection.required_pull_request_reviews.dismiss_stale_reviews,
+                    ## Had issues when the YAML defines this but the Repo has none (e.g. it's null in the cloud)
+                    None if (this_protection.required_pull_request_reviews is None) else \
+                        this_protection.required_pull_request_reviews.dismiss_stale_reviews,
                 )
             )
             diffs.append(
                 diff_option(
                     "require_code_owner_reviews",
                     config_bp.protection.pr_options.require_code_owner_reviews,
-                    this_protection.required_pull_request_reviews.require_code_owner_reviews,
+                    ## Had issues when the YAML defines this but the Repo has none (e.g. it's null in the cloud)
+                    None if (this_protection.required_pull_request_reviews is None) else \
+                        this_protection.required_pull_request_reviews.require_code_owner_reviews,
                 )
             )
             # for now, not checking dismissal options. Will note that in the docs
