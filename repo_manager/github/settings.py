@@ -76,7 +76,7 @@ def check_repo_settings(repo: Repository, settings: Settings) -> tuple[bool, lis
             settings_value = []
         if repo_value != settings_value:
             drift.append(f"{setting_name} -- Expected: '{settings_value}' Found: '{repo_value}'")
-            checked &= False if (settings_value != None) else True
+            checked &= False if (settings_value is not None) else True
     return checked, drift
 
 
