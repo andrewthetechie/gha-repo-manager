@@ -32,6 +32,8 @@ def update_branch_protection(repo: Repository, branch: str, protection_config: P
         required_approving_review_count=NotSet,
         user_push_restrictions=NotSet,
         team_push_restrictions=NotSet,
+        user_bypass_pull_request_allowances=NotSet,
+        team_bypass_pull_request_allowances=NotSet,
         required_linear_history=NotSet,
         allow_force_pushes=NotSet,
         allow_deletions=NotSet,
@@ -49,6 +51,8 @@ def update_branch_protection(repo: Repository, branch: str, protection_config: P
         :required_approving_review_count: int
         :user_push_restrictions: list of strings
         :team_push_restrictions: list of strings
+        :user_bypass_pull_request_allowances: list of strings
+        :team_bypass_pull_request_allowances: list of strings
         NOTE: The GitHub API groups strict and contexts together, both must
         be submitted. Take care to pass both as arguments even if only one is
         changing. Use edit_required_status_checks() to avoid this.
@@ -84,6 +88,8 @@ def update_branch_protection(repo: Repository, branch: str, protection_config: P
             or dismiss_stale_reviews is not NotSet
             or require_code_owner_reviews is not NotSet
             or required_approving_review_count is not NotSet
+            or user_bypass_pull_request_allowances is not NotSet
+            or team_bypass_pull_request_allowances is not NotSet
         ):
             post_parameters["required_pull_request_reviews"] = {}
             if dismiss_stale_reviews is not NotSet:
@@ -96,14 +102,25 @@ def update_branch_protection(repo: Repository, branch: str, protection_config: P
                 post_parameters["required_pull_request_reviews"][
                     "required_approving_review_count"
                 ] = required_approving_review_count
-            if dismissal_users is not NotSet:
-                post_parameters["required_pull_request_reviews"]["dismissal_restrictions"] = {"users": dismissal_users}
-            if dismissal_teams is not NotSet:
-                if "dismissal_restrictions" not in post_parameters["required_pull_request_reviews"]:
-                    post_parameters["required_pull_request_reviews"]["dismissal_restrictions"] = {}
-                post_parameters["required_pull_request_reviews"]["dismissal_restrictions"]["teams"] = dismissal_teams
+            if dismissal_users is not NotSet or dismissal_teams is not NotSet:
+                if dismissal_users is NotSet:
+                    dismissal_teams = []
+                if dismissal_teams is NotSet:
+                    dismissal_teams = []
+                post_parameters["required_pull_request_reviews"]["dismissal_restrictions"] = {"users": dismissal_users,
+                                                                                                "teams": dismissal_teams,
+                                                                                                }
+            if user_bypass_pull_request_allowances is not NotSet or team_bypass_pull_request_allowances is not NotSet:
+                if user_bypass_pull_request_allowances is NotSet:
+                    user_bypass_pull_request_allowances = []
+                if team_bypass_pull_request_allowances is NotSet:
+                    team_bypass_pull_request_allowances = []
+                post_parameters["required_pull_request_reviews"]["bypass_pull_request_allowances"] = {"users": user_bypass_pull_request_allowances,
+                                                                                                    "teams": team_bypass_pull_request_allowances,
+                                                                                                    }
         else:
             post_parameters["required_pull_request_reviews"] = None
+
         if user_push_restrictions is not NotSet or team_push_restrictions is not NotSet:
             if user_push_restrictions is NotSet:
                 user_push_restrictions = []
@@ -170,6 +187,18 @@ def update_branch_protection(repo: Repository, branch: str, protection_config: P
                 protection_config.pr_options.dismissal_restrictions,
                 kwargs,
                 transform_key="dismissal_teams",
+            )
+            attr_to_kwarg(
+                "users",
+                protection_config.pr_options.dismissal_restrictions,
+                kwargs,
+                transform_key="user_bypass_pull_request_allowances",
+            )
+            attr_to_kwarg(
+                "teams",
+                protection_config.pr_options.dismissal_restrictions,
+                kwargs,
+                transform_key="team_bypass_pull_request_allowances",
             )
 
     if repo.organization is not None:
