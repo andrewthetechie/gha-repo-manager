@@ -107,17 +107,21 @@ def update_branch_protection(repo: Repository, branch: str, protection_config: P
                     dismissal_teams = []
                 if dismissal_teams is NotSet:
                     dismissal_teams = []
-                post_parameters["required_pull_request_reviews"]["dismissal_restrictions"] = {"users": dismissal_users,
-                                                                                                "teams": dismissal_teams,
-                                                                                                }
+                post_parameters["required_pull_request_reviews"]["dismissal_restrictions"] \
+                    = {
+                        "users": dismissal_users,
+                        "teams": dismissal_teams,
+                }
             if user_bypass_pull_request_allowances is not NotSet or team_bypass_pull_request_allowances is not NotSet:
                 if user_bypass_pull_request_allowances is NotSet:
                     user_bypass_pull_request_allowances = []
                 if team_bypass_pull_request_allowances is NotSet:
                     team_bypass_pull_request_allowances = []
-                post_parameters["required_pull_request_reviews"]["bypass_pull_request_allowances"] = {"users": user_bypass_pull_request_allowances,
-                                                                                                    "teams": team_bypass_pull_request_allowances,
-                                                                                                    }
+                post_parameters["required_pull_request_reviews"]["bypass_pull_request_allowances"] \
+                    = {
+                        "users": user_bypass_pull_request_allowances,
+                        "teams": team_bypass_pull_request_allowances,
+                }
         else:
             post_parameters["required_pull_request_reviews"] = None
 
