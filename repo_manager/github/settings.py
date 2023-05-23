@@ -65,12 +65,18 @@ def check_repo_settings(repo: Repository, settings: Settings) -> tuple[bool, lis
     checked = True
     for setting_name in settings.dict().keys():
         repo_value = get_repo_value(setting_name, repo)
-        if repo_value is None:
-            continue
         settings_value = getattr(settings, setting_name)
+        # Skip settings that are managed by organization
+        if ((setting_name == "enable_automated_security_fixes") | (setting_name == "enable_vulnerability_alerts")):
+            continue
+        # We don't want to flag description being different if the YAML is None
+        if (setting_name == "description") & (not settings_value):
+            continue
+        elif (setting_name == "topics") & (settings_value is None):
+            settings_value = []
         if repo_value != settings_value:
             drift.append(f"{setting_name} -- Expected: '{settings_value}' Found: '{repo_value}'")
-            checked = False
+            checked &= False if (settings_value != None) else True
     return checked, drift
 
 
