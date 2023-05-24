@@ -3,6 +3,9 @@ from typing import Any
 
 from actions_toolkit import core as actions_toolkit
 
+# Needed to handle extracting certain attributes/fields from nested objects and lists
+from itertools import repeat
+
 from repo_manager.github import get_github_client
 
 from ._inputs import INPUTS
@@ -104,3 +107,7 @@ def attr_to_kwarg(attr_name: str, obj: Any, kwargs: dict, transform_key: str = N
             kwargs[attr_name] = value
         else:
             kwargs[transform_key] = value
+
+# Allows use to extract a certain field on a list of objects into a list of strings etc.
+def objary_to_list(attr_name: str, obj: Any):
+    return list(map(getattr, obj, repeat(attr_name)))
