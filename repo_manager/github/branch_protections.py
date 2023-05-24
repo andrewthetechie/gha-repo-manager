@@ -285,7 +285,9 @@ def check_repo_branch_protections(
                 diff_option(
                     "required_approving_review_count",
                     config_bp.protection.pr_options.required_approving_review_count,
-                    this_protection.required_pull_request_reviews.required_approving_review_count,
+                    ## Had issues when the YAML defines this but the Repo has none (e.g. it's null in the cloud)
+                    None if (this_protection.required_pull_request_reviews is None) else \
+                        this_protection.required_pull_request_reviews.required_approving_review_count,
                 )
             )
             diffs.append(
