@@ -113,6 +113,8 @@ branch_protections:
       #   - lint
       #   - test
       #   - docker
+      # Blocks merge until all conversations on a pull request have been resolved
+      # require_conversation_resolution: true
       # Enforce all configured restrictions for administrators. Set to true to enforce required status checks for repository administrators. Set to null to disable.
       enforce_admins: true
       # Prevent merge commits from being pushed to matching branches
