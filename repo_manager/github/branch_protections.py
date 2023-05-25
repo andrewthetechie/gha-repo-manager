@@ -11,6 +11,7 @@ from repo_manager.schemas.branch_protection import ProtectionOptions
 from repo_manager.utils import attr_to_kwarg
 from repo_manager.utils import objary_to_list
 
+
 def diff_option(key: str, expected: Any, repo_value: Any) -> str | None:
     if expected is not None:
         if expected != repo_value:
@@ -112,20 +113,18 @@ def update_branch_protection(repo: Repository, branch: str, protection_config: P
                     dismissal_teams = []
                 if dismissal_teams is NotSet:
                     dismissal_teams = []
-                post_parameters["required_pull_request_reviews"]["dismissal_restrictions"] \
-                    = {
-                        "users": dismissal_users,
-                        "teams": dismissal_teams,
+                post_parameters["required_pull_request_reviews"]["dismissal_restrictions"] = {
+                    "users": dismissal_users,
+                    "teams": dismissal_teams,
                 }
             if user_bypass_pull_request_allowances is not NotSet or team_bypass_pull_request_allowances is not NotSet:
                 if user_bypass_pull_request_allowances is NotSet:
                     user_bypass_pull_request_allowances = []
                 if team_bypass_pull_request_allowances is NotSet:
                     team_bypass_pull_request_allowances = []
-                post_parameters["required_pull_request_reviews"]["bypass_pull_request_allowances"] \
-                    = {
-                        "users": user_bypass_pull_request_allowances,
-                        "teams": team_bypass_pull_request_allowances,
+                post_parameters["required_pull_request_reviews"]["bypass_pull_request_allowances"] = {
+                    "users": user_bypass_pull_request_allowances,
+                    "teams": team_bypass_pull_request_allowances,
                 }
         else:
             post_parameters["required_pull_request_reviews"] = None
@@ -417,10 +416,13 @@ def check_repo_branch_protections(
 
         # TODO: Figure out how to diff Restriction options
         # I figured out some of them....
-        dismissal_teams = [] if (this_protection.required_pull_request_reviews is None) else \
-                        objary_to_list("slug", this_protection.required_pull_request_reviews.dismissal_teams)
+        try:
+            dismissal_teams = objary_to_list("slug", this_protection.required_pull_request_reviews.dismissal_teams)
+        except TypeError:
+            dismissal_teams = []
+
         dismissal_teams.sort()
-        if (config_bp.protection.pr_options.dismissal_restrictions.teams is not None):
+        if config_bp.protection.pr_options.dismissal_restrictions.teams is not None:
             config_bp.protection.pr_options.dismissal_restrictions.teams.sort()
         diffs.append(
             diff_option(
@@ -429,10 +431,12 @@ def check_repo_branch_protections(
                 dismissal_teams,
             )
         )
-        dismissal_users = [] if (this_protection.required_pull_request_reviews is None) else \
-                        objary_to_list("name", this_protection.required_pull_request_reviews.dismissal_users)
+        try:
+            dismissal_users = objary_to_list("name", this_protection.required_pull_request_reviews.dismissal_users)
+        except TypeError:
+            dismissal_users = []
         dismissal_users.sort()
-        if (config_bp.protection.pr_options.dismissal_restrictions.teams is not None):
+        if config_bp.protection.pr_options.dismissal_restrictions.teams is not None:
             config_bp.protection.pr_options.dismissal_restrictions.teams.sort()
         diffs.append(
             diff_option(
