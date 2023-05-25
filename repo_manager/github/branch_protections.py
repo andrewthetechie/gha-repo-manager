@@ -23,8 +23,7 @@ def update_branch_protection(repo: Repository, branch: str, protection_config: P
     # Until pygithub supports this, we need to do it manually
     def edit_protection(  # nosec
         branch,
-        strict=NotSet,
-        contexts=NotSet,
+        required_status_checks=NotSet,
         enforce_admins=NotSet,
         dismissal_users=NotSet,
         dismissal_teams=NotSet,
@@ -40,9 +39,8 @@ def update_branch_protection(repo: Repository, branch: str, protection_config: P
         required_conversation_resolution=NotSet,
     ):  # nosec
         """
-        :calls: `PUT /repos/{owner}/{repo}/branches/{branch}/protection <https://docs.github.com/en/rest/reference/repos#get-branch-protection>`_
-        :strict: bool
-        :contexts: list of strings
+        :calls: `PUT /repos/{owner}/{repo}/branches/{branch}/protection <https://docs.github.com/en/rest/branches/branch-protection?apiVersion=2022-11-28#update-branch-protection>`_
+        :required_status_checks: dict
         :enforce_admins: bool
         :dismissal_users: list of strings
         :dismissal_teams: list of strings
@@ -55,8 +53,7 @@ def update_branch_protection(repo: Repository, branch: str, protection_config: P
         be submitted. Take care to pass both as arguments even if only one is
         changing. Use edit_required_status_checks() to avoid this.
         """
-        assert strict is NotSet or isinstance(strict, bool), strict
-        assert contexts is NotSet or all(isinstance(element, str) for element in contexts), contexts
+        assert required_status_checks is NotSet or isinstance(required_status_checks, dict), required_status_checks
         assert enforce_admins is NotSet or isinstance(enforce_admins, bool), enforce_admins
         assert dismissal_users is NotSet or all(
             isinstance(element, str) for element in dismissal_users
@@ -73,17 +70,13 @@ def update_branch_protection(repo: Repository, branch: str, protection_config: P
         ), required_approving_review_count
 
         post_parameters = {}
-        if strict is not NotSet or contexts is not NotSet:
-            if strict is NotSet:
-                strict = False
-            if contexts is NotSet:
-                contexts = []
-            post_parameters["required_status_checks"] = {
-                "strict": strict,
-                "contexts": contexts,
-            }
+        if required_status_checks is not NotSet:
+            post_parameters["required_status_checks"] = required_status_checks
         else:
-            post_parameters["required_status_checks"] = None
+            post_parameters["required_status_checks"] = {
+                "strict": false,
+                "contexts": [],
+            }
 
         if enforce_admins is not NotSet:
             post_parameters["enforce_admins"] = enforce_admins
@@ -116,6 +109,7 @@ def update_branch_protection(repo: Repository, branch: str, protection_config: P
                 post_parameters["required_pull_request_reviews"]["dismissal_restrictions"]["teams"] = dismissal_teams
         else:
             post_parameters["required_pull_request_reviews"] = None
+
         if user_push_restrictions is not NotSet or team_push_restrictions is not NotSet:
             if user_push_restrictions is NotSet:
                 user_push_restrictions = []
@@ -208,6 +202,7 @@ def update_branch_protection(repo: Repository, branch: str, protection_config: P
         status_check_kwargs,
         transform_key="contexts",
     )
+    extra_kwargs["required_status_checks"] = status_check_kwargs
 
     # these are not handled by edit_protection, so we have to use the custom api
     attr_to_kwarg(
@@ -230,12 +225,13 @@ def update_branch_protection(repo: Repository, branch: str, protection_config: P
         edit_protection(branch=this_branch, **kwargs, **extra_kwargs)
     except GithubException as exc:
         raise ValueError(f"{exc.data['message']} {exc.data['documentation_url']}")
-
-    if status_check_kwargs != {}:
-        try:
-            this_branch.edit_required_status_checks(**status_check_kwargs)
-        except GithubException as exc:
-            raise ValueError(f"{exc.data['message']} {exc.data['documentation_url']}")
+    # This errors out because the underlying method does a UPDATE instead of a POST as stated by GitHub documentation
+    # was able to fix this issue by adding the additional key to kwargs above; signed commits could maybe be done too..
+    # if status_check_kwargs != {}:
+    #     try:
+    #         this_branch.edit_required_status_checks(**status_check_kwargs)
+    #     except GithubException as exc:
+    #         raise ValueError(f"{exc.data['message']} {exc.data['documentation_url']}")
 
     # signed commits has its own method
     if protection_config.require_signed_commits is not None:
