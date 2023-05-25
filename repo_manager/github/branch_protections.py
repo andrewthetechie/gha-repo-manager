@@ -422,29 +422,31 @@ def check_repo_branch_protections(
             dismissal_teams = []
 
         dismissal_teams.sort()
-        if config_bp.protection.pr_options.dismissal_restrictions.teams is not None:
-            config_bp.protection.pr_options.dismissal_restrictions.teams.sort()
-        diffs.append(
-            diff_option(
-                "dismissal_teams",
-                config_bp.protection.pr_options.dismissal_restrictions.teams,
-                dismissal_teams,
+        if config_bp.protection.pr_options.dismissal_restrictions is not None:
+            if config_bp.protection.pr_options.dismissal_restrictions.teams is not None:
+                config_bp.protection.pr_options.dismissal_restrictions.teams.sort()
+            diffs.append(
+                diff_option(
+                    "dismissal_teams",
+                    config_bp.protection.pr_options.dismissal_restrictions.teams,
+                    dismissal_teams,
+                )
             )
-        )
         try:
             dismissal_users = objary_to_list("name", this_protection.required_pull_request_reviews.dismissal_users)
         except TypeError:
             dismissal_users = []
         dismissal_users.sort()
-        if config_bp.protection.pr_options.dismissal_restrictions.teams is not None:
-            config_bp.protection.pr_options.dismissal_restrictions.teams.sort()
-        diffs.append(
-            diff_option(
-                "dismissal_users",
-                config_bp.protection.pr_options.dismissal_restrictions.users,
-                dismissal_users,
+        if config_bp.protection.pr_options.dismissal_restrictions is not None:
+            if config_bp.protection.pr_options.dismissal_restrictions.teams is not None:
+                config_bp.protection.pr_options.dismissal_restrictions.teams.sort()
+            diffs.append(
+                diff_option(
+                    "dismissal_users",
+                    config_bp.protection.pr_options.dismissal_restrictions.users,
+                    dismissal_users,
+                )
             )
-        )
 
         diffs = [i for i in diffs if i is not None]
         if len(diffs) > 0:
