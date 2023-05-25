@@ -8,6 +8,7 @@ on:
 jobs:
   build-and-push-dockerimage:
     name: Buld and push dockerimage
+    if: github.repository_owner == 'andrewthetechie'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
