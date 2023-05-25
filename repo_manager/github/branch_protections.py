@@ -74,7 +74,7 @@ def update_branch_protection(repo: Repository, branch: str, protection_config: P
             post_parameters["required_status_checks"] = required_status_checks
         else:
             post_parameters["required_status_checks"] = {
-                "strict": false,
+                "strict": False,
                 "contexts": [],
             }
 
@@ -282,8 +282,9 @@ def check_repo_branch_protections(
                     "required_approving_review_count",
                     config_bp.protection.pr_options.required_approving_review_count,
                     ## Had issues when the YAML defines this but the Repo has none (e.g. it's null in the cloud)
-                    None if (this_protection.required_pull_request_reviews is None) else \
-                        this_protection.required_pull_request_reviews.required_approving_review_count,
+                    None
+                    if (this_protection.required_pull_request_reviews is None)
+                    else this_protection.required_pull_request_reviews.required_approving_review_count,
                 )
             )
             diffs.append(
@@ -291,8 +292,9 @@ def check_repo_branch_protections(
                     "dismiss_stale_reviews",
                     config_bp.protection.pr_options.dismiss_stale_reviews,
                     ## Had issues when the YAML defines this but the Repo has none (e.g. it's null in the cloud)
-                    None if (this_protection.required_pull_request_reviews is None) else \
-                        this_protection.required_pull_request_reviews.dismiss_stale_reviews,
+                    None
+                    if (this_protection.required_pull_request_reviews is None)
+                    else this_protection.required_pull_request_reviews.dismiss_stale_reviews,
                 )
             )
             diffs.append(
@@ -300,8 +302,9 @@ def check_repo_branch_protections(
                     "require_code_owner_reviews",
                     config_bp.protection.pr_options.require_code_owner_reviews,
                     ## Had issues when the YAML defines this but the Repo has none (e.g. it's null in the cloud)
-                    None if (this_protection.required_pull_request_reviews is None) else \
-                        this_protection.required_pull_request_reviews.require_code_owner_reviews,
+                    None
+                    if (this_protection.required_pull_request_reviews is None)
+                    else this_protection.required_pull_request_reviews.require_code_owner_reviews,
                 )
             )
             # for now, not checking dismissal options. Will note that in the docs
@@ -318,9 +321,9 @@ def check_repo_branch_protections(
                 )
             )
             # Without sorting, they sometimes get flagged as different just due to the ordinality of them
-            if (config_bp.protection.required_status_checks.checks is not None):
+            if config_bp.protection.required_status_checks.checks is not None:
                 config_bp.protection.required_status_checks.checks.sort()
-            if (this_protection.required_status_checks.contexts is not None):
+            if this_protection.required_status_checks.contexts is not None:
                 this_protection.required_status_checks.contexts.sort()
             diffs.append(
                 diff_option(
