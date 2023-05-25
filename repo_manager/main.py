@@ -29,7 +29,8 @@ def main():  # noqa: C901
     actions_toolkit.debug(f"Inputs: {inputs}")
     if inputs["action"] == "validate":
         actions_toolkit.set_output("result", f"Validated {inputs['settings_file']}")
-        actions_toolkit.set_output("diff", json.dumps({}))
+        actions_toolkit.debug(json_diff := json.dumps({}))
+        actions_toolkit.set_output("diff", json_diff)
         sys.exit(0)
     actions_toolkit.info(f"Config from {inputs['settings_file']} validated.")
 
@@ -50,7 +51,8 @@ def main():  # noqa: C901
             check_result &= this_check
             diffs[check_name] = this_diffs
 
-    actions_toolkit.set_output("diff", json.dumps(diffs))
+    actions_toolkit.debug(json_diff := json.dumps({}))
+    actions_toolkit.set_output("diff", json_diff)
 
     if inputs["action"] == "check":
         if not check_result:

@@ -21,7 +21,7 @@ jobs:
         # test with the local checkout of the action
         uses: ./
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.THIS_PAT }}
           action: "check"
       - name: Check outputs
         run: |
