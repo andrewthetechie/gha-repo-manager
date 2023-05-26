@@ -18,7 +18,6 @@ def diff_option(key: str, expected: Any, repo_value: Any) -> str | None:
             return f"{key} -- Expected: {expected} Found: {repo_value}"
     return None
 
-
 def update_branch_protection(repo: Repository, branch: str, protection_config: ProtectionOptions):  # noqa: C901
     # Copied from https://github.com/PyGithub/PyGithub/blob/001970d4a828017f704f6744a5775b4207a6523c/github/Branch.py#L112
     # Until pygithub supports this, we need to do it manually
@@ -227,12 +226,15 @@ def update_branch_protection(repo: Repository, branch: str, protection_config: P
 
     # these are going to be used by edit_required_status_checks
     attr_to_kwarg("strict", protection_config.required_status_checks, status_check_kwargs)
-    attr_to_kwarg(
-        "checks",
-        protection_config.required_status_checks,
-        status_check_kwargs,
-        transform_key="contexts",
-    )
+    if protection_config.required_status_checks.checks is None:
+        status_check_kwargs["contexts"] = []
+    else:
+        attr_to_kwarg(
+            "checks",
+            protection_config.required_status_checks,
+            status_check_kwargs,
+            transform_key="contexts",
+        )
     extra_kwargs["required_status_checks"] = status_check_kwargs
 
     # these are not handled by edit_protection, so we have to use the custom api
