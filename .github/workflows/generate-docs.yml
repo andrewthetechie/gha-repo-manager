@@ -1,6 +1,7 @@
 name: Generate Docs
 on:
   push:
+  pull_request:
 jobs:
   docs:
     name: Generate Docs

@@ -1,7 +1,8 @@
 name: Test Docker Image Build
 
 on:
-  - push
+  push:
+  pull_request:
 
 jobs:
   test-docker-image:
