@@ -16,9 +16,9 @@ class RestrictionOptions(BaseModel):
 
 
 class StatusChecksOptions(BaseModel):
-    strict: OptBool = Field(None, description="Require branches to be up to date before merging.")
+    strict: OptBool = Field(False, description="Require branches to be up to date before merging.")
     checks: list[str] | None = Field(
-        None, description="The list of status checks to require in order to merge into this branch"
+        [], description="The list of status checks to require in order to merge into this branch"
     )
 
 
@@ -47,7 +47,7 @@ class PROptions(BaseModel):
 class ProtectionOptions(BaseModel):
     pr_options: PROptions | None = Field(None, description="Options related to PR reviews")
     required_status_checks: StatusChecksOptions | None = Field(
-        None, description="Options related to required status checks"
+        StatusChecksOptions(), description="Options related to required status checks"
     )
     enforce_admins: OptBool = Field(
         None,
