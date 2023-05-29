@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.1](https://github.com/andrewthetechie/gha-repo-manager/compare/v1.7.0...v1.7.1) (2023-05-29)
+
+
+### Bug Fixes
+
+* **nulls:** Minor fixes to address null values ([#52](https://github.com/andrewthetechie/gha-repo-manager/issues/52)) ([ec5c9be](https://github.com/andrewthetechie/gha-repo-manager/commit/ec5c9be75600f37953800dc8a4d2ad25d1099521))
+
 ## [1.7.0](https://github.com/andrewthetechie/gha-repo-manager/compare/v1.6.0...v1.7.0) (2023-05-25)
 
 
