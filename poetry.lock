@@ -974,13 +974,13 @@ testing = ["filelock"]
 
 [[package]]
 name = "pyupgrade"
-version = "3.6.0"
+version = "3.7.0"
 description = "A tool to automatically upgrade syntax for newer versions."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "pyupgrade-3.6.0-py2.py3-none-any.whl", hash = "sha256:747d7eb64534c88d775df67b6e4134680d7eed942495193c053240b329693d2d"},
-    {file = "pyupgrade-3.6.0.tar.gz", hash = "sha256:6e888c168f0684babdb6b820a2d70138435eaf43402b42291c789091dd247fba"},
+    {file = "pyupgrade-3.7.0-py2.py3-none-any.whl", hash = "sha256:696c1e6ebec6697297d3e45ae511ecedb5b17d31e5212a20bc892ba51b1c0b6d"},
+    {file = "pyupgrade-3.7.0.tar.gz", hash = "sha256:94841f8550547349aec108ad03fcdb19b64e4ef68fd21f5d0038826eb6dbe5f3"},
 ]
 
 [package.dependencies]
@@ -1365,4 +1365,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "fa41ebbd45f1ba4d267d86e22b2cad3b8d1d4b6b1cada906aaedd1119dc8b8b8"
+content-hash = "d0d2f505e2b7c987dc7fe97e13c7ee31eebb2f2515b93dce1cbe013ee0682d98"
