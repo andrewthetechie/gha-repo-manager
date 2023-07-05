@@ -1,8 +1,8 @@
-FROM python:3.11-slim AS builder
+FROM python:3.11-slim-bullseye AS builder
 WORKDIR /app
 
 # install build requirements
-RUN apt-get update && apt-get install -y binutils patchelf build-essential scons
+RUN apt-get update && apt-get install -y binutils patchelf build-essential scons upx
 
 # copy the app
 COPY ./ /app
