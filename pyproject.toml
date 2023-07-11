@@ -33,7 +33,7 @@ reorder-python-imports = "^3.10.0"
 pytest-xdist = "^3.2.1"
 pyupgrade = "^3.9.0"
 pyflakes = "^3.0.1"
-black = "^23.3.0"
+black = "^23.7.0"
 
 
 [build-system]
