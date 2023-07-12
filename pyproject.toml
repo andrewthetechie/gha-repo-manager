@@ -21,7 +21,7 @@ pyyaml = "^6.0"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.3.3"
-ruff = "^0.0.277"
+ruff = "^0.0.278"
 pytest = "^7.4.0"
 pytest-mock = "^3.11.1"
 pytest-cov = "^4.1.0"
