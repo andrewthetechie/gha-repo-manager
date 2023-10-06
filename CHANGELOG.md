@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.2](https://github.com/andrewthetechie/gha-repo-manager/compare/v1.7.1...v1.7.2) (2023-10-06)
+
+
+### Bug Fixes
+
+* pin to bullseye docker image ([#69](https://github.com/andrewthetechie/gha-repo-manager/issues/69)) ([863bf6b](https://github.com/andrewthetechie/gha-repo-manager/commit/863bf6b257c6b32cb1284f19f604102d45abc499))
+
 ## [1.7.1](https://github.com/andrewthetechie/gha-repo-manager/compare/v1.7.0...v1.7.1) (2023-05-29)
 
 
