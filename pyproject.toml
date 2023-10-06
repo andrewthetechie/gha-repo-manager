@@ -31,7 +31,7 @@ mypy = "^1.5.1"
 pre-commit-hooks = "^4.4.0"
 reorder-python-imports = "^3.10.0"
 pytest-xdist = "^3.2.1"
-pyupgrade = "^3.10.1"
+pyupgrade = "^3.14.0"
 pyflakes = "^3.1.0"
 black = "^23.7.0"
 
