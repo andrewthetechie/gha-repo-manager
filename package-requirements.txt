@@ -5,5 +5,5 @@ poetry==1.6.1
 virtualenv==20.24.5
 poetry-dynamic-versioning==1.1.0
 toml==0.10.2
-pyinstaller==6.0.0
+pyinstaller==6.1.0
 staticx==0.14.1
