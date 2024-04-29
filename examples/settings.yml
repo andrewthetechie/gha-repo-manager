@@ -159,6 +159,14 @@ secrets:
     # setting exists to false will delete a secret. A delete that results in "not found" won't fail a run, so you can use this to make sure a secret is always deleted
     exists: false
 
+variables:
+  # Largely the same as secrets, except it can actually check the values to see if there is a difference
+  # Secrets get applied / updated evertime this action runs because it cannot determine if the value changed
+  - key: VARIABLE1
+    value: change
+    # set to false in order to remove a variable
+    exists: false
+
 # Can copy files from your local context to the repo.
 # Manipulate files in the target repo
 # * move files around
@@ -188,3 +196,48 @@ files:
     exists: false
     branch: dev
     commit_msg: "remove OLDDOC.md from dev"
+
+# For users, it is the login id
+# For teams, it is the slug id
+# permission can be 'push','pull','triage','admin','maintain', or any custom role you have defined
+# for either users or teams, set exists to false to remove their permissions
+collaborators:
+  # - name: andrewthetechie
+  #   type: user
+  #   permission: admin
+  #   exists: false
+  # - name: <org>/<team>
+  #   type: team
+  #   permission: admin
+  #   exists: false
+
+# For users, it is the login id
+# For teams, it is the slug id
+# permission can be 'push','pull','triage','admin','maintain', or any custom role you have defined
+# set exists to false to remove an environment
+environments:
+  - name: production
+    # exists: false
+    # same rules for secrets within the environment that are used for repo level secrets
+    secrets:
+      # - key: PRODUCTION_SECRET
+      #   value: PRODUCTION_SECRET
+      #   type: environments/production
+      #   exists: false
+    # same rules for variables within the environment that are used for repo level variables
+    variables:
+      # - key: PROD_VARIABLE
+      #   value: change
+    # wait_timer can be set for a deployment environment, but it can not be cleared with this tool
+    # you will need to manually clear it if you want to remove it after setting it
+    # wait_timer: 30
+    # for reviewers, it will add or remove teams and users such that the list matches the one below
+    reviewers:
+    #   - name: andrewthetechie
+    #     type: user
+    # omit deployment_branch_policy if you do not want any set
+    # deployment_branch_policy:
+    #   protected_branches: false
+    #   custom_branch_policies: true
+    # branch_name_patterns:
+    #   - releases

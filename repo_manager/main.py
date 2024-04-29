@@ -14,8 +14,13 @@ from repo_manager.github.files import RemoteSrcNotFoundError
 from repo_manager.github.labels import check_repo_labels
 from repo_manager.github.labels import update_label
 from repo_manager.github.secrets import check_repo_secrets
-from repo_manager.github.secrets import create_secret
-from repo_manager.github.secrets import delete_secret
+from repo_manager.github.secrets import update_secrets
+from repo_manager.github.variables import check_variables
+from repo_manager.github.variables import update_variables
+from repo_manager.github.environments import check_repo_environments
+from repo_manager.github.environments import update_environments
+from repo_manager.github.collaborators import check_collaborators
+from repo_manager.github.collaborators import update_collaborators
 from repo_manager.github.settings import check_repo_settings
 from repo_manager.github.settings import update_settings
 from repo_manager.schemas import load_config
@@ -39,17 +44,27 @@ def main():  # noqa: C901
     for check, to_check in {
         check_repo_settings: ("settings", config.settings),
         check_repo_secrets: ("secrets", config.secrets),
+        check_variables: ("variables", config.variables),
         check_repo_labels: ("labels", config.labels),
         check_repo_branch_protections: (
             "branch_protections",
             config.branch_protections,
+        ),
+        check_repo_environments: (
+            "environments",
+            config.environments
+        ),
+        check_collaborators: (
+            "collaborators",
+            config.collaborators
         ),
     }.items():
         check_name, to_check = to_check
         if to_check is not None:
             this_check, this_diffs = check(inputs["repo_object"], to_check)
             check_result &= this_check
-            diffs[check_name] = this_diffs
+            if this_diffs is not None:
+                diffs[check_name] = this_diffs
 
     actions_toolkit.debug(json_diff := json.dumps({}))
     actions_toolkit.set_output("diff", json_diff)
@@ -63,36 +78,49 @@ def main():  # noqa: C901
 
     if inputs["action"] == "apply":
         errors = []
+        for update, to_update in {
+            # TODO: Implement these functions to reduce length and complexity of code
+            # update_settings: ("settings", config.settings),
+            # update_secrets: ("secrets", config.secrets),
+            # check_repo_labels: ("labels", config.labels),
+            # check_repo_branch_protections: (
+            #     "branch_protections",
+            #     config.branch_protections,
+            # ),
+            update_variables: ("variables", config.variables, diffs.get("variables", None)),
+            update_environments: (
+                "environments",
+                config.environments,
+                diffs.get("environments", None)
+            ),
+            update_collaborators: (
+                "collaborators",
+                config.collaborators,
+                diffs.get("collaborators", None)
+            ),
+        }.items():
+            update_name, to_update, categorical_diffs = to_update
+            if categorical_diffs is not None:
+                try:
+                    application_errors = update(inputs["repo_object"], to_update, categorical_diffs)
+                    if len(application_errors) > 0:
+                        errors.append(application_errors)
+                    else:
+                        actions_toolkit.info(f"Synced {update_name}")
+                except Exception as exc:
+                    errors.append({"type": f"{update_name}-update", "error": f"{exc}"})
 
-        # Because we cannot diff secrets, just apply it every time
+
         if config.secrets is not None:
-            for secret in config.secrets:
-                if secret.exists:
-                    try:
-                        create_secret(
-                            inputs["repo_object"], secret.key, secret.expected_value, secret.type == "dependabot"
-                        )
-                        actions_toolkit.info(f"Set {secret.key} to expected value")
-                    except Exception as exc:  # this should be tighter
-                        errors.append(
-                            {
-                                "type": "secret-update",
-                                "key": secret.key,
-                                "error": f"{exc}",
-                            }
-                        )
+            try:
+                variableErrors = update_secrets(inputs["repo_object"], config.secrets)
+                if len(variableErrors) > 0:
+                    errors.append(variableErrors)
                 else:
-                    try:
-                        delete_secret(inputs["repo_object"], secret.key, secret.type == "dependabot")
-                        actions_toolkit.info(f"Deleted {secret.key}")
-                    except Exception as exc:  # this should be tighter
-                        errors.append(
-                            {
-                                "type": "secret-delete",
-                                "key": secret.key,
-                                "error": f"{exc}",
-                            }
-                        )
+                    actions_toolkit.info("Synced Secrets")
+            except Exception as exc:
+                errors.append({"type": "secrets-update", "error": f"{exc}"})
+
 
         labels_diff = diffs.get("labels", None)
         if labels_diff is not None:
