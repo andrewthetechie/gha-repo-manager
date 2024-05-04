@@ -6,8 +6,7 @@ from github.Repository import Repository
 from repo_manager.schemas import FileConfig
 
 
-class RemoteSrcNotFoundError(Exception):
-    ...
+class RemoteSrcNotFoundError(Exception): ...
 
 
 def copy_file(repo: Repository, file_config: FileConfig) -> str:

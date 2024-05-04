@@ -9,8 +9,7 @@ OptBool = Optional[bool]
 OptStr = Optional[str]
 
 
-class SecretEnvError(Exception):
-    ...
+class SecretEnvError(Exception): ...
 
 
 class Secret(BaseModel):

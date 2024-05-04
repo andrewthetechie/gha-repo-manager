@@ -1,7 +1,5 @@
 {
-  "files": [
-    "README.md"
-  ],
+  "files": ["README.md"],
   "imageSize": 100,
   "commit": false,
   "commitConvention": "angular",
@@ -11,21 +9,14 @@
       "name": "Andrew",
       "avatar_url": "https://avatars.githubusercontent.com/u/1377314?v=4",
       "profile": "https://github.com/andrewthetechie",
-      "contributions": [
-        "ideas",
-        "test",
-        "code"
-      ]
+      "contributions": ["ideas", "test", "code"]
     },
     {
       "login": "actuarysailor",
       "name": "shiro",
       "avatar_url": "https://avatars.githubusercontent.com/u/24359398?v=4",
       "profile": "https://github.com/actuarysailor",
-      "contributions": [
-        "bug",
-        "code"
-      ]
+      "contributions": ["bug", "code"]
     }
   ],
   "contributorsPerLine": 7,

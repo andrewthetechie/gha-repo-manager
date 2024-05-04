@@ -108,6 +108,7 @@ def attr_to_kwarg(attr_name: str, obj: Any, kwargs: dict, transform_key: str = N
         else:
             kwargs[transform_key] = value
 
+
 # Allows use to extract a certain field on a list of objects into a list of strings etc.
 def objary_to_list(attr_name: str, obj: Any):
     return list(map(getattr, obj, repeat(attr_name)))

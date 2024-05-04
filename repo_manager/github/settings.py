@@ -67,7 +67,7 @@ def check_repo_settings(repo: Repository, settings: Settings) -> tuple[bool, lis
         repo_value = get_repo_value(setting_name, repo)
         settings_value = getattr(settings, setting_name)
         # These don't seem to update if changed; may need to explore a different API call
-        if ((setting_name == "enable_automated_security_fixes") | (setting_name == "enable_vulnerability_alerts")):
+        if (setting_name == "enable_automated_security_fixes") | (setting_name == "enable_vulnerability_alerts"):
             continue
         # We don't want to flag description being different if the YAML is None
         if (setting_name == "description") & (not settings_value):
@@ -78,6 +78,7 @@ def check_repo_settings(repo: Repository, settings: Settings) -> tuple[bool, lis
             drift.append(f"{setting_name} -- Expected: '{settings_value}' Found: '{repo_value}'")
             checked &= False if (settings_value is not None) else True
     return checked, drift
+
 
 def update(repo: Repository, setting_name: str, new_value: Any):
     """[summary]

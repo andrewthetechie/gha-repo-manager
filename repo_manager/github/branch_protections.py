@@ -18,6 +18,7 @@ def diff_option(key: str, expected: Any, repo_value: Any) -> str | None:
             return f"{key} -- Expected: {expected} Found: {repo_value}"
     return None
 
+
 def update_branch_protection(repo: Repository, branch: str, protection_config: ProtectionOptions):  # noqa: C901
     # Copied from https://github.com/PyGithub/PyGithub/blob/001970d4a828017f704f6744a5775b4207a6523c/github/Branch.py#L112
     # Until pygithub supports this, we need to do it manually
@@ -57,19 +58,19 @@ def update_branch_protection(repo: Repository, branch: str, protection_config: P
         be submitted. Take care to pass both as arguments even if only one is
         changing. Use edit_required_status_checks() to avoid this.
         """
-        assert required_status_checks is NotSet or isinstance(required_status_checks, dict), required_status_checks
-        assert enforce_admins is NotSet or isinstance(enforce_admins, bool), enforce_admins
-        assert dismissal_users is NotSet or all(
+        assert required_status_checks is NotSet or isinstance(required_status_checks, dict), required_status_checks  # nosec assert_used
+        assert enforce_admins is NotSet or isinstance(enforce_admins, bool), enforce_admins  # nosec assert_used
+        assert dismissal_users is NotSet or all(  # nosec assert_used
             isinstance(element, str) for element in dismissal_users
         ), dismissal_users
-        assert dismissal_teams is NotSet or all(
+        assert dismissal_teams is NotSet or all(  # nosec assert_used
             isinstance(element, str) for element in dismissal_teams
         ), dismissal_teams
-        assert dismiss_stale_reviews is NotSet or isinstance(dismiss_stale_reviews, bool), dismiss_stale_reviews
-        assert require_code_owner_reviews is NotSet or isinstance(
+        assert dismiss_stale_reviews is NotSet or isinstance(dismiss_stale_reviews, bool), dismiss_stale_reviews  # nosec assert_used
+        assert require_code_owner_reviews is NotSet or isinstance(  # nosec assert_used
             require_code_owner_reviews, bool
         ), require_code_owner_reviews
-        assert required_approving_review_count is NotSet or isinstance(
+        assert required_approving_review_count is NotSet or isinstance(  # nosec assert_used
             required_approving_review_count, int
         ), required_approving_review_count
 
@@ -100,13 +101,13 @@ def update_branch_protection(repo: Repository, branch: str, protection_config: P
             if dismiss_stale_reviews is not NotSet:
                 post_parameters["required_pull_request_reviews"]["dismiss_stale_reviews"] = dismiss_stale_reviews
             if require_code_owner_reviews is not NotSet:
-                post_parameters["required_pull_request_reviews"][
-                    "require_code_owner_reviews"
-                ] = require_code_owner_reviews
+                post_parameters["required_pull_request_reviews"]["require_code_owner_reviews"] = (
+                    require_code_owner_reviews
+                )
             if required_approving_review_count is not NotSet:
-                post_parameters["required_pull_request_reviews"][
-                    "required_approving_review_count"
-                ] = required_approving_review_count
+                post_parameters["required_pull_request_reviews"]["required_approving_review_count"] = (
+                    required_approving_review_count
+                )
             if dismissal_users is not NotSet or dismissal_teams is not NotSet:
                 if dismissal_users is NotSet:
                     dismissal_teams = []

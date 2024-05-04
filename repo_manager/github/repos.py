@@ -2,8 +2,7 @@ from github import Github
 from github.Repository import Repository
 
 
-class BadTokenError(Exception):
-    ...
+class BadTokenError(Exception): ...
 
 
 def get_repo(client: Github, repo: str) -> tuple[bool, Repository | None]:
