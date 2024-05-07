@@ -76,4 +76,3 @@ class FileConfig(BaseModel):
 
     class Config:
         use_enum_values = True
-    
