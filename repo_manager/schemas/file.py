@@ -4,7 +4,7 @@ from typing import Optional
 
 from pydantic import BaseModel  # pylint: disable=E0611
 from pydantic import Field
-from pydantic import validator
+from pydantic import field_validator
 
 OptBool = Optional[bool]
 OptStr = Optional[str]
@@ -38,7 +38,7 @@ class FileConfig(BaseModel):
         + "means to lookup the default branch of the repo",
     )
 
-    @validator("src_file", pre=True)
+    @field_validator("src_file", mode="before")
     def validate_src_file(cls, v, values) -> Path:
         if v is None and values["exists"]:
             raise ValueError("Missing src_file")
@@ -48,7 +48,7 @@ class FileConfig(BaseModel):
             v = v.replace("remote://", "")
         return Path(v)
 
-    @validator("dest_file")
+    @field_validator("dest_file")
     def validate_dest_file(cls, v) -> Path:
         if v is None:
             raise ValueError("Missing dest_file")
