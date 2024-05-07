@@ -2,7 +2,7 @@ pip==24.0
 nox==2024.4.15
 nox-poetry==1.0.3
 poetry==1.8.2
-virtualenv==20.24.6
+virtualenv==20.26.1
 poetry-dynamic-versioning==1.3.0
 toml==0.10.2
 pyinstaller==6.1.0
