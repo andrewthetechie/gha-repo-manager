@@ -2,9 +2,12 @@ import os
 from pathlib import Path
 from typing import Optional
 
-from pydantic import BaseModel  # pylint: disable=E0611
-from pydantic import Field
-from pydantic import field_validator
+from pydantic import (
+    BaseModel,  # pylint: disable=E0611
+    Field,
+    ValidationInfo,
+    field_validator
+)
 
 OptBool = Optional[bool]
 OptStr = Optional[str]
@@ -39,12 +42,12 @@ class FileConfig(BaseModel):
     )
 
     @field_validator("src_file", mode="before")
-    def validate_src_file(cls, v, values) -> Path:
-        if v is None and values["exists"]:
+    def validate_src_file(cls, v, info: ValidationInfo) -> Path:
+        if v is None and info.data["exists"]:
             raise ValueError("Missing src_file")
         v = str(v)
         if v.startswith("remote:"):
-            values["remote_src"] = True
+            info.data["remote_src"] = True
             v = v.replace("remote://", "")
         return Path(v)
 
