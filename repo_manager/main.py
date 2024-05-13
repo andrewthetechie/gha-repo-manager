@@ -46,6 +46,10 @@ def main():  # noqa: C901
             "branch_protections",
             config.branch_protections,
         ),
+        check_repo_environments: (
+            "environments",
+            config.environments
+        ),
     }.items():
         check_name, to_check = to_check
         if to_check is not None:
