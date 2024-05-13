@@ -2,7 +2,7 @@
 name: Action Integration Test
 on:
   push:
-  pull_request:
+  pull_request_target:
 jobs:
   action-integration-testing:
     name: Action Integration Testing
@@ -22,7 +22,7 @@ jobs:
         # test with the local checkout of the action
         uses: ./
         with:
-          token: ${{ secrets.THIS_PAT }}
+          token: ${{ secrets.THIS_PAT || github.token }}
           action: "check"
       - name: Check outputs
         run: |
