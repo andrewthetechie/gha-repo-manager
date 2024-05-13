@@ -6,6 +6,7 @@ from .file import FileConfig
 from .label import Label
 from .secret import Secret
 from .settings import Settings
+from .collaborator import Collaborator
 
 
 class RepoManagerConfig(BaseModel):
@@ -14,6 +15,7 @@ class RepoManagerConfig(BaseModel):
     secrets: list[Secret] | None
     labels: list[Label] | None
     files: list[FileConfig] | None
+    collaborators: list[Collaborator] | None
 
     @property
     def secrets_dict(self):
@@ -28,6 +30,14 @@ class RepoManagerConfig(BaseModel):
         return (
             {branch_protection.name: branch_protection for branch_protection in self.branch_protections}
             if self.branch_protections is not None
+            else {}
+        )
+
+    @property
+    def collaborators_dict(self):
+        return (
+            {collaborator.name: collaborator for collaborator in self.collaborators}
+            if self.collaborators is not None
             else {}
         )
 
