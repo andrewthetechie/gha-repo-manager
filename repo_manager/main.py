@@ -46,10 +46,7 @@ def main():  # noqa: C901
             "branch_protections",
             config.branch_protections,
         ),
-        check_collaborators: (
-            "collaborators",
-            config.collaborators
-        ),
+        check_collaborators: ("collaborators", config.collaborators),
     }.items():
         check_name, to_check = to_check
         if to_check is not None:
@@ -78,11 +75,7 @@ def main():  # noqa: C901
             #     "branch_protections",
             #     config.branch_protections,
             # ),
-            update_collaborators: (
-                "collaborators",
-                config.collaborators,
-                diffs.get("collaborators", None)
-            ),
+            update_collaborators: ("collaborators", config.collaborators, diffs.get("collaborators", None)),
         }.items():
             update_name, to_update, categorical_diffs = to_update
             if categorical_diffs is not None:
