@@ -9,7 +9,7 @@ from github.Repository import Repository
 from repo_manager.schemas.secret import Secret
 
 
-def get_public_key(repo: Repository, secret_type: str = "actions") -> PublicKey:
+def get_public_key(repo: Repository, type: str = "actions") -> PublicKey:
     """
     :calls: `GET /repos/{owner}/{repo}/actions/secrets/public-key
     <https://docs.github.com/en/rest/reference/actions#get-a-repository-public-key>`_
@@ -17,9 +17,9 @@ def get_public_key(repo: Repository, secret_type: str = "actions") -> PublicKey:
     """
     # can only access dependabot secrets with admin:org scope
     # https://docs.github.com/en/rest/dependabot/secrets?apiVersion=2022-11-28
-    if "admin:org" not in repo._requester.oauth_scopes and secret_type == "dependabot":
+    if "admin:org" not in repo._requester.oauth_scopes and type == "dependabot":
         raise Exception("dependabot secrets require admin:org scope for the token used to access them.")
-    headers, data = repo._requester.requestJsonAndCheck("GET", f"{repo.url}/{secret_type}/secrets/public-key")
+    headers, data = repo._requester.requestJsonAndCheck("GET", f"{repo.url}/{type}/secrets/public-key")
     return PublicKey(repo._requester, headers, data, completed=True)
 
 
@@ -27,7 +27,7 @@ def create_secret(
     repo: Repository,
     secret_name: str,
     unencrypted_value: str,
-    secret_type: str = "actions",
+    type: str = "actions",
 ) -> bool:
     """
     :calls: `PUT /repos/{owner}/{repo}/actions/secrets/{secret_name}
@@ -39,7 +39,7 @@ def create_secret(
     :param unencrypted_value: string
     :rtype: bool
     """
-    public_key = get_public_key(repo, secret_type)
+    public_key = get_public_key(repo, type)
     payload = public_key.encrypt(unencrypted_value)
     put_parameters = {
         "key_id": public_key.key_id,
@@ -47,17 +47,17 @@ def create_secret(
     }
     # can only access dependabot secrets with admin:org scope
     # https://docs.github.com/en/rest/dependabot/secrets?apiVersion=2022-11-28
-    if "admin:org" not in repo._requester.oauth_scopes and secret_type == "dependabot":
+    if "admin:org" not in repo._requester.oauth_scopes and type == "dependabot":
         raise Exception("dependabot secrets require admin:org scope for the token used to access them.")
     status, headers, data = repo._requester.requestJson(
-        "PUT", f"{repo.url}/{secret_type}/secrets/{secret_name}", input=put_parameters
+        "PUT", f"{repo.url}/{type}/secrets/{secret_name}", input=put_parameters
     )
     if status not in (201, 204):
-        raise Exception(f"Unable to create {secret_type} secret. Status code: {status}")
+        raise Exception(f"Unable to create {type} secret. Status code: {status}")
     return True
 
 
-def delete_secret(repo: Repository, secret_name: str, secret_type: str = "actions") -> bool:
+def delete_secret(repo: Repository, secret_name: str, type: str = "actions") -> bool:
     """
     Copied from https://github.com/PyGithub/PyGithub/blob/master/github/Repository.py#L1448
     to add support for dependabot
@@ -68,9 +68,9 @@ def delete_secret(repo: Repository, secret_name: str, secret_type: str = "action
     """
     # can only access dependabot secrets with admin:org scope
     # https://docs.github.com/en/rest/dependabot/secrets?apiVersion=2022-11-28
-    if "admin:org" not in repo._requester.oauth_scopes and secret_type == "dependabot":
+    if "admin:org" not in repo._requester.oauth_scopes and type == "dependabot":
         raise Exception("dependabot secrets require admin:org scope for the token used to access them.")
-    status, headers, data = repo._requester.requestJson("DELETE", f"{repo.url}/{secret_type}/secrets/{secret_name}")
+    status, headers, data = repo._requester.requestJson("DELETE", f"{repo.url}/{type}/secrets/{secret_name}")
     return status == 204
 
 
