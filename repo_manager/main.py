@@ -41,11 +41,14 @@ def main():  # noqa: C901
     for check, to_check in {
         check_repo_settings: ("settings", config.settings),
         check_repo_secrets: ("secrets", config.secrets),
-        check_variables: ("variables", config.variables),
         check_repo_labels: ("labels", config.labels),
         check_repo_branch_protections: (
             "branch_protections",
             config.branch_protections,
+        ),
+        check_collaborators: (
+            "collaborators",
+            config.collaborators
         ),
     }.items():
         check_name, to_check = to_check
