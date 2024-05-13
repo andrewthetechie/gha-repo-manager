@@ -69,6 +69,31 @@ def main():  # noqa: C901
 
     if inputs["action"] == "apply":
         errors = []
+        for update, to_update in {
+            # TODO: Implement these functions to reduce length and complexity of code
+            # update_settings: ("settings", config.settings),
+            # update_secrets: ("secrets", config.secrets),
+            # check_repo_labels: ("labels", config.labels),
+            # check_repo_branch_protections: (
+            #     "branch_protections",
+            #     config.branch_protections,
+            # ),
+            update_collaborators: (
+                "collaborators",
+                config.collaborators,
+                diffs.get("collaborators", None)
+            ),
+        }.items():
+            update_name, to_update, categorical_diffs = to_update
+            if categorical_diffs is not None:
+                try:
+                    application_errors = update(inputs["repo_object"], to_update, categorical_diffs)
+                    if len(application_errors) > 0:
+                        errors.append(application_errors)
+                    else:
+                        actions_toolkit.info(f"Synced {update_name}")
+                except Exception as exc:
+                    errors.append({"type": f"{update_name}-update", "error": f"{exc}"})
 
         # Because we cannot diff secrets, just apply it every time
         if config.secrets is not None:
