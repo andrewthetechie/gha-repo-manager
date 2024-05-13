@@ -1,8 +1,12 @@
 import os
 from typing import Optional
 
-from pydantic import BaseModel  # pylint: disable=E0611
-from pydantic import Field, field_validator
+from pydantic import (
+    BaseModel,  # pylint: disable=E0611
+    Field,
+    ValidationInfo,
+    field_validator,
+)
 
 OptBool = Optional[bool]
 OptStr = Optional[str]
@@ -26,11 +30,11 @@ class Secret(BaseModel):
     exists: OptBool = Field(True, description="Set to false to delete a secret")
 
     @field_validator("value")
-    def validate_value(cls, v, values) -> OptStr:
+    def validate_value(cls, v, info: ValidationInfo) -> OptStr:
         if v is None:
             return None
 
-        if values.data["env"] is not None:
+        if info.data["env"] is not None:
             raise ValueError("Cannot set an env and a value in the same secret, remove one.")
 
         return v
