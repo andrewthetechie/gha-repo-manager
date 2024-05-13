@@ -12,12 +12,17 @@ class RepoManagerConfig(BaseModel):
     settings: Settings | None
     branch_protections: list[BranchProtection] | None
     secrets: list[Secret] | None
+    variables: list[Secret] | None
     labels: list[Label] | None
     files: list[FileConfig] | None
 
     @property
     def secrets_dict(self):
         return {secret.key: secret for secret in self.secrets} if self.secrets is not None else {}
+
+    @property
+    def variables_dict(self):
+        return {variable.key: variable for variable in self.variables} if self.variables is not None else {}
 
     @property
     def labels_dict(self):
