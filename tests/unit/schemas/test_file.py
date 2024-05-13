@@ -49,11 +49,11 @@ def test_file_src_file_exists():
 def test_file_args_validation():
     invalid_config = deepcopy(VALID_CONFIG)
     invalid_config["src_file"] = None
-    with pytest.raises(ValueError):
+    with pytest.raises(ValidationError
         FileConfig(**invalid_config)
     invalid_config = deepcopy(VALID_CONFIG)
     invalid_config["dest_file"] = None
-    with pytest.raises(ValueError):
+    with pytest.raises(ValidationError):
         FileConfig(**invalid_config)
 
 
