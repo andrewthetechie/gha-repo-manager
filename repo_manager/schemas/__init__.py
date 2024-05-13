@@ -6,6 +6,7 @@ from .file import FileConfig
 from .label import Label
 from .secret import Secret
 from .settings import Settings
+from .environment import Environment
 
 
 class RepoManagerConfig(BaseModel):
@@ -14,6 +15,7 @@ class RepoManagerConfig(BaseModel):
     secrets: list[Secret] | None
     labels: list[Label] | None
     files: list[FileConfig] | None
+    environments: list[Environment] | None
 
     @property
     def secrets_dict(self):
@@ -28,6 +30,14 @@ class RepoManagerConfig(BaseModel):
         return (
             {branch_protection.name: branch_protection for branch_protection in self.branch_protections}
             if self.branch_protections is not None
+            else {}
+        )
+
+    @property
+    def environments_dict(self):
+        return (
+            {environment.name: environment for environment in self.environments}
+            if self.environments is not None
             else {}
         )
 
