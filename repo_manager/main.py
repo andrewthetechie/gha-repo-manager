@@ -46,10 +46,7 @@ def main():  # noqa: C901
             "branch_protections",
             config.branch_protections,
         ),
-        check_repo_environments: (
-            "environments",
-            config.environments
-        ),
+        check_repo_environments: ("environments", config.environments),
     }.items():
         check_name, to_check = to_check
         if to_check is not None:
@@ -78,11 +75,7 @@ def main():  # noqa: C901
             #     "branch_protections",
             #     config.branch_protections,
             # ),
-            update_environments: (
-                "environments",
-                config.environments,
-                diffs.get("environments", None)
-            ),
+            update_environments: ("environments", config.environments, diffs.get("environments", None)),
         }.items():
             update_name, to_update, categorical_diffs = to_update
             if categorical_diffs is not None:
