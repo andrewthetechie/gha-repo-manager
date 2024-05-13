@@ -60,13 +60,11 @@ class DeploymentBranchPolicy(BaseModel):
     @model_validator(mode="after")
     def initialize_branch_name_patterns(self) -> Self:
         if self.protected_branches == self.custom_branch_policies:
-            raise ValueError(
-                "You must specify either protected branches or custom branch policies, not both."
-            )
+            raise ValueError("You must specify either protected branches or custom branch policies, not both.")
         return self
 
 
-class environment(BaseModel):
+class Environment(BaseModel):
     name: str = Field(..., description="Name of the environment")
     secrets: list[Secret] | None = Field(None, description="Environment Secrets.")
     variables: list[Secret] | None = Field(None, description="Environment Variables.")
@@ -77,7 +75,7 @@ class environment(BaseModel):
         ge=0,
         le=43200,
         description="The amount of time to delay a job after the job is initially triggered. "
-            + "The time (in minutes) must be an integer between 0 and 43,200 (30 days)",
+        + "The time (in minutes) must be an integer between 0 and 43,200 (30 days)",
     )
     prevent_self_review: bool = Field(
         True,
@@ -86,39 +84,29 @@ class environment(BaseModel):
     reviewers: list[Reviewer] = Field(
         [],
         description="The people or teams that may review jobs that reference the environment. "
-            + "You can list up to six users or teams as reviewers. "
-            + "The reviewers must have at least read access to the repository. "
-            + "Only one of the required reviewers needs to approve the job for it to proceed.",
+        + "You can list up to six users or teams as reviewers. "
+        + "The reviewers must have at least read access to the repository. "
+        + "Only one of the required reviewers needs to approve the job for it to proceed.",
     )
     deployment_branch_policy: DeploymentBranchPolicy | None = Field(
         None,
         description="The type of deployment branch policy for this environment. "
-            + "To allow all branches to deploy, set to null.",
+        + "To allow all branches to deploy, set to null.",
     )
     branch_name_patterns: set[str] = Field(
         [],
         description="List of branch name patterns deployments to this environment are restricted to; "
-            + "if list is empty the restriction is either None or protected branches.",
+        + "if list is empty the restriction is either None or protected branches.",
     )
 
     @model_validator(mode="after")
     def initialize_branch_name_patterns(self) -> Self:
         if self.deployment_branch_policy is None:
             return self
-        if (
-            len(self.branch_name_patterns) == 0
-            and self.deployment_branch_policy.custom_branch_policies
-        ):
-            raise ValueError(
-                "You must specify branch name patterns if custom branch policies are enabled."
-            )
-        if (
-            len(self.branch_name_patterns) > 0
-            and not self.deployment_branch_policy.custom_branch_policies
-        ):
-            raise ValueError(
-                "You must enable custom branch policies to specify branch name patterns."
-            )
+        if len(self.branch_name_patterns) == 0 and self.deployment_branch_policy.custom_branch_policies:
+            raise ValueError("You must specify branch name patterns if custom branch policies are enabled.")
+        if len(self.branch_name_patterns) > 0 and not self.deployment_branch_policy.custom_branch_policies:
+            raise ValueError("You must enable custom branch policies to specify branch name patterns.")
         return self
 
     @field_validator("reviewers")
