@@ -77,13 +77,9 @@ def delete_variable(repo: Repository, variable_name: str, path: str = "actions")
     :param variable_name: string
     :path: string
     """
-    status, headers, data = repo._requester.requestJson(
-        "DELETE", f"{repo.url}/{path}/variables/{variable_name}"
-    )
+    status, headers, data = repo._requester.requestJson("DELETE", f"{repo.url}/{path}/variables/{variable_name}")
     if status not in {204}:
-        raise Exception(
-            f"Unable to delete variable: {variable_name}. Error: {json.loads(data)['message']}"
-        )
+        raise Exception(f"Unable to delete variable: {variable_name}. Error: {json.loads(data)['message']}")
     return status == 204
 
 
