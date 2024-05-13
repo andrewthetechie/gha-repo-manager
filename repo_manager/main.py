@@ -15,7 +15,9 @@ from repo_manager.github.labels import check_repo_labels
 from repo_manager.github.labels import update_label
 from repo_manager.github.secrets import check_repo_secrets
 from repo_manager.github.secrets import create_secret
-from repo_manager.github.secrets import delete_secret
+from repo_manager.github.secrets import update_secrets
+from repo_manager.github.variables import check_variables
+from repo_manager.github.variables import update_variables
 from repo_manager.github.settings import check_repo_settings
 from repo_manager.github.settings import update_settings
 from repo_manager.schemas import load_config
