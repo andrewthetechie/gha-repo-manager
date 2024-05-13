@@ -21,7 +21,7 @@ def update_team_permissions(repo: Repository, team: Collaborator) -> None:
     if status not in {204}:
         raise Exception(
             f"Unable to update team {team.name} for organization: {repo.organization.name}. "
-                + "Status: {status}. Error: {json.loads(raw_data)['message']}"
+            + "Status: {status}. Error: {json.loads(raw_data)['message']}"
         )
     pass
 
@@ -33,13 +33,11 @@ def remove_team_permissions(repo: Repository, team: Collaborator) -> None:
         repo (Repository): [description]
         team (str): [description]
     """
-    status, headers, raw_data = repo._requester.requestJson(
-        "DELETE", f"{team.repositories_url}/{repo.full_name}"
-    )
+    status, headers, raw_data = repo._requester.requestJson("DELETE", f"{team.repositories_url}/{repo.full_name}")
     if status not in {204}:
         raise Exception(
             f"Unable to update team {team.name} for organization: {repo.organization.name}. "
-                + "Status: {status}. Error: {json.loads(raw_data)['message']}"
+            + "Status: {status}. Error: {json.loads(raw_data)['message']}"
         )
     pass
 
@@ -98,8 +96,7 @@ def check_collaborators(
         repo_collab_usernames.intersection(
             collaborator.name
             for collaborator in filter(
-                lambda collaborator: collaborator.type == "User"
-                and not collaborator.exists,
+                lambda collaborator: collaborator.type == "User" and not collaborator.exists,
                 collaborators,
             )
         )
@@ -108,8 +105,7 @@ def check_collaborators(
         repo_collab_teamnames.intersection(
             collaborator.name
             for collaborator in filter(
-                lambda collaborator: collaborator.type == "Team"
-                and not collaborator.exists,
+                lambda collaborator: collaborator.type == "Team" and not collaborator.exists,
                 collaborators,
             )
         )
@@ -122,22 +118,12 @@ def check_collaborators(
             diff["extra"]["Teams"] = extra_teams
 
     collaborators_to_check_values_on = {}
-    collaborators_to_check_values_on["Users"] = list(
-        expected_collab_usernames.intersection(repo_collab_usernames)
-    )
-    collaborators_to_check_values_on["Teams"] = list(
-        expected_collab_teamnames.intersection(repo_collab_teamnames)
-    )
-    config_collaborator_dict = {
-        collaborator.name: collaborator for collaborator in collaborators
-    }
+    collaborators_to_check_values_on["Users"] = list(expected_collab_usernames.intersection(repo_collab_usernames))
+    collaborators_to_check_values_on["Teams"] = list(expected_collab_teamnames.intersection(repo_collab_teamnames))
+    config_collaborator_dict = {collaborator.name: collaborator for collaborator in collaborators}
     repo_collab_dict = {"Users": {}, "Teams": {}}
-    repo_collab_dict["Users"] = {
-        collaborator.login: collaborator for collaborator in repo_collab_users
-    }
-    repo_collab_dict["Teams"] = {
-        collaborator.slug: collaborator for collaborator in repo_collab_teams
-    }
+    repo_collab_dict["Users"] = {collaborator.login: collaborator for collaborator in repo_collab_users}
+    repo_collab_dict["Teams"] = {collaborator.slug: collaborator for collaborator in repo_collab_teams}
     perm_diffs = {"Users": {}, "Teams": {}}
     for collaborator_type in collaborators_to_check_values_on.keys():
         for collaborator_name in collaborators_to_check_values_on[collaborator_type]:
@@ -178,9 +164,7 @@ def check_collaborators(
     return True, None
 
 
-def update_collaborators(
-    repo: Repository, collaborators: list[Collaborator], diffs: dict[str, Any]
-) -> set[str]:
+def update_collaborators(repo: Repository, collaborators: list[Collaborator], diffs: dict[str, Any]) -> set[str]:
     """Updates a repo's environments to match the expected settings
 
     Args:
@@ -213,18 +197,14 @@ def update_collaborators(
                 repo.add_to_collaborators(collaborator.name, collaborator.permission)
             elif collaborator.type == "Team":
                 update_team_permissions(repo, collaborator)
-            actions_toolkit.info(
-                f"Added collaborator {collaborator.name} with permission {collaborator.permission}."
-            )
+            actions_toolkit.info(f"Added collaborator {collaborator.name} with permission {collaborator.permission}.")
         elif diff_type == "extra":
             if collaborator.type == "User":
                 repo.remove_from_collaborators(collaborator.name)
             elif collaborator.type == "Team":
                 remove_team_permissions(repo, collaborator)
             else:
-                raise Exception(
-                    f"Modifying collaborators of type {collaborator.type} not currently supported"
-                )
+                raise Exception(f"Modifying collaborators of type {collaborator.type} not currently supported")
             actions_toolkit.info(f"Removed collaborator {collaborator.name}.")
         elif diff_type == "diff":
             if collaborator.type == "User":
@@ -232,16 +212,10 @@ def update_collaborators(
             elif collaborator.type == "Team":
                 update_team_permissions(repo, collaborator)
             else:
-                raise Exception(
-                    f"Modifying collaborators of type {collaborator.type} not currently supported"
-                )
-            actions_toolkit.info(
-                f"Updated collaborator {collaborator.name} with permission {collaborator.permission}."
-            )
+                raise Exception(f"Modifying collaborators of type {collaborator.type} not currently supported")
+            actions_toolkit.info(f"Updated collaborator {collaborator.name} with permission {collaborator.permission}.")
         else:
-            errors.append(
-                f"Collaborator {collaborator} not found in expected collaborators"
-            )
+            errors.append(f"Collaborator {collaborator} not found in expected collaborators")
 
     for diff_type in diffs.keys():
         for collaborator_type in diffs[diff_type]:
@@ -251,8 +225,6 @@ def update_collaborators(
                 elif collaborator_type == "Teams":
                     switch(teams_dict[collaborator], diff_type)
                 else:
-                    raise Exception(
-                        f"Modifying collaborators of type {collaborator_type} not currently supported"
-                    )
+                    raise Exception(f"Modifying collaborators of type {collaborator_type} not currently supported")
 
     return errors
