@@ -17,9 +17,7 @@ from .variables import check_variables
 from .variables import update_variables
 
 
-def __get_environment_deployment_branch_policies(
-    repo: Repository, environment: str
-) -> set[str]:
+def __get_environment_deployment_branch_policies(repo: Repository, environment: str) -> set[str]:
     """:calls: `GET /repos/{owner}/{repo}/environments/{environment_name}/deployment-branch-policies
     <https://docs.github.com/en/rest/deployments/branch-policies?apiVersion=2022-11-28>`_
 
@@ -32,7 +30,7 @@ def __get_environment_deployment_branch_policies(
     if status != 200:
         raise Exception(
             f"Unable to list deployment branch policies for environment: {environment}. "
-                + "Status: {status}. Error: {json.loads(raw_data)['message']}"
+            + "Status: {status}. Error: {json.loads(raw_data)['message']}"
         )
 
     try:
@@ -41,18 +39,13 @@ def __get_environment_deployment_branch_policies(
         raise Exception(f"Github apu returned invalid json {exc}")
 
     return (
-        {
-            policy["name"]
-            for policy in deployment_branch_policies_data["branch_policies"]
-        }
+        {policy["name"] for policy in deployment_branch_policies_data["branch_policies"]}
         if deployment_branch_policies_data["branch_policies"]
         else set()
     )
 
 
-def __create_environment_branch_policy(
-    repo: Repository, environment_name: str, branch_name_pattern: str
-) -> bool:
+def __create_environment_branch_policy(repo: Repository, environment_name: str, branch_name_pattern: str) -> bool:
     """:calls: `PUT /repos/{owner}/{repo}/environments/{environment_name}/deployment-branch-policies
     <https://docs.github.com/en/rest/deployments/branch-policies?apiVersion=2022-11-28#create-or-update-a-branch-protection-policy>`_
 
@@ -69,15 +62,13 @@ def __create_environment_branch_policy(
     if status not in {200}:
         raise Exception(
             f"Unable to create deployment branch policy for environment {environment_name} "
-                + "with branch pattern {branch_name_pattern}. Status: {status}. Error: {json.loads(data)['message']}"
+            + "with branch pattern {branch_name_pattern}. Status: {status}. Error: {json.loads(data)['message']}"
         )
 
     return True
 
 
-def __delete_environment_branch_policy(
-    repo: Repository, environment_name: str, branch_name_pattern: str
-) -> bool:
+def __delete_environment_branch_policy(repo: Repository, environment_name: str, branch_name_pattern: str) -> bool:
     """:calls:
     `DELETE /repos/{owner}/{repo}/environments/{environment_name}/deployment-branch-policies/{branch_name_pattern}
     <https://docs.github.com/en/rest/deployments/branch-policies?apiVersion=2022-11-28#delete-a-branch-protection-policy>`_
@@ -91,7 +82,7 @@ def __delete_environment_branch_policy(
     if status != 200:
         raise Exception(
             f"Unable to list deployment branch policies for environment: {environment_name}. "
-                + "Status: {status}. Error: {json.loads(raw_data)['message']}"
+            + "Status: {status}. Error: {json.loads(raw_data)['message']}"
         )
 
     try:
@@ -114,7 +105,7 @@ def __delete_environment_branch_policy(
     if status not in {204}:
         raise Exception(
             f"Unable to delete deployment branch policy for environment {environment_name} "
-                + "with branch policy id {branch_policy_id}. Status: {status}. Error: {json.loads(data)['message']}"
+            + "with branch policy id {branch_policy_id}. Status: {status}. Error: {json.loads(data)['message']}"
         )
 
     return True
@@ -126,9 +117,7 @@ def delete_environment(repo: Repository, environment_name: str) -> bool:
     :param environment_name: string
     :rtype: bool
     """
-    status, headers, data = repo._requester.requestJson(
-        "DELETE", f"{repo.url}/environments/{environment_name}"
-    )
+    status, headers, data = repo._requester.requestJson("DELETE", f"{repo.url}/environments/{environment_name}")
     return status == 204
 
 
@@ -174,13 +163,10 @@ def create_environment(repo: Repository, env: environment) -> bool:
     return True
 
 
-def check_environment_settings(
-    repo: Repository, config_env: environment
-) -> tuple[bool, dict[str, Any]]:
+def check_environment_settings(repo: Repository, config_env: environment) -> tuple[bool, dict[str, Any]]:
     repo_env = repo.get_environment(config_env.name)
     repo_protection_rules_dict = {
-        protection_rule.type: protection_rule
-        for protection_rule in repo_env.protection_rules
+        protection_rule.type: protection_rule for protection_rule in repo_env.protection_rules
     }
     diffs = {
         "wait_timer": None,
@@ -194,36 +180,23 @@ def check_environment_settings(
     }  # can't use keys() because it's changes during iterator
     for protection_rule in keys:
         if protection_rule == "required_reviewers":
-            config_reviewers = {
-                reviewer.name: reviewer for reviewer in config_env.reviewers
-            }
+            config_reviewers = {reviewer.name: reviewer for reviewer in config_env.reviewers}
             repo_reviewers = repo_protection_rules_dict.get("required_reviewers", None)
             if repo_reviewers is None:
                 repo_reviewers = {}
             else:
                 repo_reviewers = {
-                    reviewer.reviewer.login: Reviewer(
-                        type=reviewer.type, name=reviewer.reviewer.login
-                    )
+                    reviewer.reviewer.login: Reviewer(type=reviewer.type, name=reviewer.reviewer.login)
                     for reviewer in repo_reviewers.reviewers
                 }
             if len(config_reviewers.keys() - repo_reviewers.keys()) > 0:
-                diffs[protection_rule]["missing"] = [
-                    config_reviewers.keys() - repo_reviewers.keys()
-                ]
+                diffs[protection_rule]["missing"] = [config_reviewers.keys() - repo_reviewers.keys()]
             if len(repo_reviewers.keys() - config_reviewers.keys()) > 0:
-                diffs[protection_rule]["extra"] = [
-                    repo_reviewers.keys() - config_reviewers.keys()
-                ]
+                diffs[protection_rule]["extra"] = [repo_reviewers.keys() - config_reviewers.keys()]
             diff_reviewers = {}
-            reviewers_to_check_values_on = list(
-                config_reviewers.keys() & repo_reviewers.keys()
-            )
+            reviewers_to_check_values_on = list(config_reviewers.keys() & repo_reviewers.keys())
             for reviewer_name in reviewers_to_check_values_on:
-                if (
-                    config_reviewers[reviewer_name].type
-                    != repo_reviewers[reviewer_name].type
-                ):
+                if config_reviewers[reviewer_name].type!= repo_reviewers[reviewer_name].type:
                     diff_reviewers[reviewer_name] = diff_option(
                         reviewer_name,
                         config_reviewers[reviewer_name].type,
@@ -242,18 +215,12 @@ def check_environment_settings(
                 else None
             )
             if config_value != repo_value:
-                diffs[protection_rule]["rules"] = diff_option(
-                    protection_rule, config_value, repo_value
-                )
+                diffs[protection_rule]["rules"] = diff_option(protection_rule, config_value, repo_value)
         else:
             config_value = getattr(config_env, protection_rule)
-            repo_value = getattr(
-                repo_protection_rules_dict.get(protection_rule, None), protection_rule
-            )
+            repo_value = getattr(repo_protection_rules_dict.get(protection_rule, None), protection_rule)
             if config_value != repo_value:
-                diffs[protection_rule] = diff_option(
-                    protection_rule, config_value, repo_value
-                )
+                diffs[protection_rule] = diff_option(protection_rule, config_value, repo_value)
 
         if diffs[protection_rule] is None or len(diffs[protection_rule]) == 0:
             diffs.pop(protection_rule)
@@ -264,27 +231,18 @@ def check_environment_settings(
     return True, None
 
 
-def check_branch_policies(
-    repo: Repository, env: environment
-) -> tuple[bool, dict[str, Any]]:
-    if (
-        env.deployment_branch_policy is not None
-        and env.deployment_branch_policy.custom_branch_policies
-    ):
+def check_branch_policies(repo: Repository, env: environment) -> tuple[bool, dict[str, Any]]:
+    if (env.deployment_branch_policy is not None and env.deployment_branch_policy.custom_branch_policies):
         branch_patterns = {}
         repo_branch_name_patterns = __get_environment_deployment_branch_policies(
             repo, env.name
         )
         config_branch_name_patterns = env.branch_name_patterns
         if config_branch_name_patterns != repo_branch_name_patterns:
-            missing_patterns = list(
-                config_branch_name_patterns - repo_branch_name_patterns
-            )
+            missing_patterns = list(config_branch_name_patterns - repo_branch_name_patterns)
             if len(missing_patterns) > 0:
                 branch_patterns["missing"] = missing_patterns
-            extra_patterns = list(
-                repo_branch_name_patterns - config_branch_name_patterns
-            )
+            extra_patterns = list(repo_branch_name_patterns - config_branch_name_patterns)
             if len(extra_patterns) > 0:
                 branch_patterns["extra"] = extra_patterns
         if len(branch_patterns) > 0:
@@ -310,8 +268,7 @@ def check_repo_environments(
     repo_environment_names = {environment.name for environment in repo_environments}
 
     expected_environment_names = {
-        environment.name
-        for environment in filter(lambda environment: environment.exists, environments)
+        environment.name for environment in filter(lambda environment: environment.exists, environments)
     }
     diff = {}
     if len(expected_environment_names - repo_environment_names) > 0:
@@ -321,16 +278,12 @@ def check_repo_environments(
             repo_environment_names.intersection(
                 {
                     environment.name
-                    for environment in filter(
-                        lambda environment: environment.exists is False, environments
-                    )
+                    for environment in filter(lambda environment: environment.exists is False, environments)
                 }
             )
         )
 
-    environments_to_check_values_on = list(
-        expected_environment_names.intersection(repo_environment_names)
-    )
+    environments_to_check_values_on = list(expected_environment_names.intersection(repo_environment_names))
     config_env_dict = {environment.name: environment for environment in environments}
     env_diffs = {}
     for env_name in environments_to_check_values_on:
@@ -362,9 +315,7 @@ def check_repo_environments(
     return True, None
 
 
-def update_environments(
-    repo: Repository, environments: list[environment], diffs: dict[str, Any]
-) -> set[str]:
+def update_environments(repo: Repository, environments: list[environment], diffs: dict[str, Any]) -> set[str]:
     """Updates a repo's environments to match the expected settings
 
     Args:
@@ -394,45 +345,30 @@ def update_environments(
                         if issue_type == "missing":
                             branch_policy_issue_types = {issue_type}
                         else:
-                            branch_policy_issue_types = diffs[issue_type][env_name][
-                                env_component
-                            ].keys()
+                            branch_policy_issue_types = diffs[issue_type][env_name][env_component].keys()
                         for branch_policy_issue_type in branch_policy_issue_types:
                             if branch_policy_issue_type == "missing":
-                                for branch_name_pattern in diffs[issue_type][env_name][
-                                    env_component
-                                ][branch_policy_issue_type]:
+                                for branch_name_pattern in diffs[issue_type][env_name][env_component][
+                                    branch_policy_issue_type
+                                ]:
                                     pErrors.append(
                                         f"Unable to link deployment environment {env_name} "
-                                            + f"to branches {branch_name_pattern}. "
-                                            + "Currently the GitHub API does not support "
-                                            + "creating branch policies for environments; get error 404..."
+                                        + f"to branches {branch_name_pattern}. "
+                                        + "Currently the GitHub API does not support "
+                                        + "creating branch policies for environments; get error 404..."
                                     )
                                     # __create_environment_branch_policy(repo, env_name, branch_name_pattern)
                             if branch_policy_issue_type == "extra":
                                 for branch_name_pattern in diffs[issue_type][env_name][
                                     env_component
                                 ][branch_policy_issue_type]:
-                                    __delete_environment_branch_policy(
-                                        repo, env_name, branch_name_pattern
-                                    )
-                    elif (
-                        env_component == "secrets"
-                        and config_env_dict[env_name].secrets is not None
-                    ):
-                        pErrors = update_secrets(
-                            repo, config_env_dict[env_name].secrets
-                        )
-                    elif (
-                        env_component == "variables"
-                        and config_env_dict[env_name].variables is not None
-                    ):
+                                    __delete_environment_branch_policy(repo, env_name, branch_name_pattern)
+                    elif env_component == "secrets" and config_env_dict[env_name].secrets is not None:
+                        pErrors = update_secrets(repo, config_env_dict[env_name].secrets)
+                    elif env_component == "variables" and config_env_dict[env_name].variables is not None:
                         if issue_type == "missing":
                             diffs[issue_type][env_name][env_component] = {
-                                "missing": [
-                                    variable.key
-                                    for variable in config_env_dict[env_name].variables
-                                ]
+                                "missing": [variable.key for variable in config_env_dict[env_name].variables]
                             }
                         pErrors = update_variables(
                             repo,
@@ -442,9 +378,7 @@ def update_environments(
                     if len(pErrors) > 0:
                         errors.append(pErrors)
                     else:
-                        actions_toolkit.info(
-                            f"Synced {env_component} for environment {env_name}"
-                        )
+                        actions_toolkit.info(f"Synced {env_component} for environment {env_name}")
             if issue_type == "extra":
                 if delete_environment(repo, env_name):
                     actions_toolkit.info(f"Deleted {environment.name}")
