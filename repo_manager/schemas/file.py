@@ -6,7 +6,7 @@ from pydantic import (
     BaseModel,  # pylint: disable=E0611
     Field,
     ValidationInfo,
-    field_validator
+    field_validator,
 )
 
 OptBool = Optional[bool]
