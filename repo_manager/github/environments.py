@@ -196,7 +196,7 @@ def check_environment_settings(repo: Repository, config_env: environment) -> tup
             diff_reviewers = {}
             reviewers_to_check_values_on = list(config_reviewers.keys() & repo_reviewers.keys())
             for reviewer_name in reviewers_to_check_values_on:
-                if config_reviewers[reviewer_name].type!= repo_reviewers[reviewer_name].type:
+                if config_reviewers[reviewer_name].type != repo_reviewers[reviewer_name].type:
                     diff_reviewers[reviewer_name] = diff_option(
                         reviewer_name,
                         config_reviewers[reviewer_name].type,
@@ -232,11 +232,9 @@ def check_environment_settings(repo: Repository, config_env: environment) -> tup
 
 
 def check_branch_policies(repo: Repository, env: environment) -> tuple[bool, dict[str, Any]]:
-    if (env.deployment_branch_policy is not None and env.deployment_branch_policy.custom_branch_policies):
+    if env.deployment_branch_policy is not None and env.deployment_branch_policy.custom_branch_policies:
         branch_patterns = {}
-        repo_branch_name_patterns = __get_environment_deployment_branch_policies(
-            repo, env.name
-        )
+        repo_branch_name_patterns = __get_environment_deployment_branch_policies(repo, env.name)
         config_branch_name_patterns = env.branch_name_patterns
         if config_branch_name_patterns != repo_branch_name_patterns:
             missing_patterns = list(config_branch_name_patterns - repo_branch_name_patterns)
@@ -359,9 +357,9 @@ def update_environments(repo: Repository, environments: list[environment], diffs
                                     )
                                     # __create_environment_branch_policy(repo, env_name, branch_name_pattern)
                             if branch_policy_issue_type == "extra":
-                                for branch_name_pattern in diffs[issue_type][env_name][
-                                    env_component
-                                ][branch_policy_issue_type]:
+                                for branch_name_pattern in diffs[issue_type][env_name][env_component][
+                                    branch_policy_issue_type
+                                ]:
                                     __delete_environment_branch_policy(repo, env_name, branch_name_pattern)
                     elif env_component == "secrets" and config_env_dict[env_name].secrets is not None:
                         pErrors = update_secrets(repo, config_env_dict[env_name].secrets)
