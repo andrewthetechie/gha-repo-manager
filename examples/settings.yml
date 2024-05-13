@@ -158,7 +158,7 @@ secrets:
   - key: DELETED_SECRET
     # setting exists to false will delete a secret. A delete that results in "not found" won't fail a run, so you can use this to make sure a secret is always deleted
     exists: false
-    
+
 variables:
   # Largely the same as secrets, except it can actually check the values to see if there is a difference
   # Secrets get applied / updated evertime this action runs because it cannot determine if the value changed
