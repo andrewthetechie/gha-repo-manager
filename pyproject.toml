@@ -13,7 +13,8 @@ repo-manager = "repo_manager.main:main"
 
 [tool.poetry.dependencies]
 python = "^3.11"
-pydantic = "^1.10.9"
+pydantic = "^2.7.1"
+typing-extensions = "^4.7.1"
 actions-toolkit = "^0.1.15"
 pygithub = "^2.3.0"
 pyyaml = "^6.0"
@@ -33,7 +34,7 @@ reorder-python-imports = "^3.12.0"
 pytest-xdist = "^3.2.1"
 pyupgrade = "^3.15.0"
 pyflakes = "^3.1.0"
-black = "^24.2.0"
+black = "^24.4.1"
 
 
 [build-system]

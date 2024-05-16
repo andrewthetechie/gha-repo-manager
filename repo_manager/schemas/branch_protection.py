@@ -1,5 +1,5 @@
 from pydantic import BaseModel  # pylint: disable=E0611
-from pydantic import conint
+from typing import Annotated
 from pydantic import Field
 
 OptBool = bool | None
@@ -32,7 +32,7 @@ class DismissalOptions(BaseModel):
 
 
 class PROptions(BaseModel):
-    required_approving_review_count: conint(ge=1, le=6) | None = Field(
+    required_approving_review_count: Annotated[int, Field(strict=True, gt=1, le=6)] | None = Field(
         None, description="The number of approvals required. (1-6)"
     )
     dismiss_stale_reviews: OptBool = Field(

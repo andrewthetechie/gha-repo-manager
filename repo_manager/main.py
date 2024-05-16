@@ -49,7 +49,8 @@ def main():  # noqa: C901
         if to_check is not None:
             this_check, this_diffs = check(inputs["repo_object"], to_check)
             check_result &= this_check
-            diffs[check_name] = this_diffs
+            if this_diffs is not None:
+                diffs[check_name] = this_diffs
 
     actions_toolkit.debug(json_diff := json.dumps({}))
     actions_toolkit.set_output("diff", json_diff)
