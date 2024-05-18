@@ -44,4 +44,4 @@ def load_config(filename: str) -> RepoManagerConfig:
     with open(filename) as fh:
         this_dict = yaml.safe_load(fh)
 
-    return RepoManagerConfig(**this_dict)
+    return RepoManagerConfig.model_validate(this_dict)
