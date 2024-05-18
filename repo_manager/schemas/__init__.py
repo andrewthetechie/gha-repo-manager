@@ -6,14 +6,21 @@ from .file import FileConfig
 from .label import Label
 from .secret import Secret
 from .settings import Settings
+from pydantic import Field
+from copy import copy
+
+
+def empty_list():
+    this_list = list()
+    return copy(this_list)
 
 
 class RepoManagerConfig(BaseModel):
     settings: Settings | None
-    branch_protections: list[BranchProtection] | None
-    secrets: list[Secret] | None
-    labels: list[Label] | None
-    files: list[FileConfig] | None
+    branch_protections: list[BranchProtection] = Field(default_factory=empty_list)
+    secrets: list[Secret] = Field(default_factory=empty_list)
+    labels: list[Label] = Field(default_factory=empty_list)
+    files: list[FileConfig] = Field(default_factory=empty_list)
 
     @property
     def secrets_dict(self):
@@ -37,4 +44,4 @@ def load_config(filename: str) -> RepoManagerConfig:
     with open(filename) as fh:
         this_dict = yaml.safe_load(fh)
 
-    return RepoManagerConfig(**this_dict)
+    return RepoManagerConfig.model_validate(this_dict)
