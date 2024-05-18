@@ -2,30 +2,43 @@ import json
 import sys
 
 from actions_toolkit import core as actions_toolkit
-from github.GithubException import GithubException
-from github.GithubException import UnknownObjectException
 
-from repo_manager.github.branch_protections import check_repo_branch_protections
-from repo_manager.github.branch_protections import update_branch_protection
-from repo_manager.github.files import copy_file
-from repo_manager.github.files import delete_file
-from repo_manager.github.files import move_file
-from repo_manager.github.files import RemoteSrcNotFoundError
-from repo_manager.github.labels import check_repo_labels
-from repo_manager.github.labels import update_label
-from repo_manager.github.secrets import check_repo_secrets
-from repo_manager.github.secrets import create_secret
-from repo_manager.github.secrets import delete_secret
-from repo_manager.github.settings import check_repo_settings
-from repo_manager.github.settings import update_settings
+from repo_manager.gh.branch_protections import check_repo_branch_protections
+from repo_manager.gh.branch_protections import update_branch_protection
+from repo_manager.gh.files import copy_file
+from repo_manager.gh.files import delete_file
+from repo_manager.gh.files import move_file
+from repo_manager.gh.files import RemoteSrcNotFoundError
+from repo_manager.gh.labels import check_repo_labels
+from repo_manager.gh.labels import update_label
+from repo_manager.gh.secrets import check_repo_secrets
+from repo_manager.gh.secrets import create_secret
+from repo_manager.gh.secrets import delete_secret
+from repo_manager.gh.settings import check_repo_settings
+from repo_manager.gh.settings import update_settings
 from repo_manager.schemas import load_config
 from repo_manager.utils import get_inputs
+from yaml import YAMLError
+from pydantic import ValidationError
+from repo_manager.gh import GithubException, UnknownObjectException
 
 
 def main():  # noqa: C901
-    inputs = get_inputs()
+    try:
+        inputs = get_inputs()
+    # actions toolkit has very broad exceptions :(
+    except Exception as exc:
+        actions_toolkit.set_failed(f"Unable to collect inputs {exc}")
     actions_toolkit.debug(f"Loading config from {inputs['settings_file']}")
-    config = load_config(inputs["settings_file"])
+    try:
+        config = load_config(inputs["settings_file"])
+    except FileNotFoundError:
+        actions_toolkit.set_failed(f"{inputs['settings_file']} does not exist or is not readable")
+    except YAMLError as exc:
+        actions_toolkit.set_failed(f"Unable to read {inputs['settings_file']} - {exc}")
+    except ValidationError as exc:
+        actions_toolkit.set_failed(f"{inputs['settings_file']} is invalid - {exc}")
+
     actions_toolkit.debug(f"Inputs: {inputs}")
     if inputs["action"] == "validate":
         actions_toolkit.set_output("result", f"Validated {inputs['settings_file']}")
