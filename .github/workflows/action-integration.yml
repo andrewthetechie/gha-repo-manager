@@ -17,6 +17,8 @@ jobs:
         with:
           infile: action.yml
           varlist: "runs.image=Dockerfile"
+      - name: cat action.yml
+        run: cat action.yml
       - name: Test action
         id: test-action
         # test with the local checkout of the action
