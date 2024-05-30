@@ -10,10 +10,7 @@ from pydantic import Field, field_validator, model_validator
 
 class Collaborator(BaseModel):
     type: str = Field("team", description="Type of reviewer, can be `user` or `team`")
-    name: str = Field(
-        "andrewthetechie",
-        description="Name of the reviewer, either a user or team name",
-    )
+    name: str = Field("user", description="Name of the reviewer, either a user or team name")
     permission: str = Field(
         "pull",
         description="Permission level of the reviewer, can be `pull` `triage`, "
