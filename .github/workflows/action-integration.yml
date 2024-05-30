@@ -2,6 +2,8 @@
 name: Action Integration Test
 on:
   push:
+    branches:
+      - main
   pull_request:
 jobs:
   action-integration-testing:
@@ -17,12 +19,14 @@ jobs:
         with:
           infile: action.yml
           varlist: "runs.image=Dockerfile"
+      - name: cat action.yml
+        run: cat action.yml
       - name: Test action
         id: test-action
         # test with the local checkout of the action
         uses: ./
         with:
-          token: ${{ secrets.THIS_PAT }}
+          token: ${{ secrets.THIS_PAT || github.token }}
           action: "check"
       - name: Check outputs
         run: |

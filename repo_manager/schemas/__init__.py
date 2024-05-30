@@ -1,5 +1,6 @@
 import yaml
-from pydantic import BaseModel  # pylint: disable=E0611
+from pydantic import BaseModel, Field  # pylint: disable=E0611
+from copy import copy
 
 from .branch_protection import BranchProtection
 from .file import FileConfig
@@ -8,14 +9,17 @@ from .secret import Secret
 from .settings import Settings
 from .collaborator import Collaborator
 
+def empty_list():
+    this_list = list()
+    return copy(this_list)
 
 class RepoManagerConfig(BaseModel):
     settings: Settings | None
-    branch_protections: list[BranchProtection] | None
-    secrets: list[Secret] | None
-    labels: list[Label] | None
-    files: list[FileConfig] | None
-    collaborators: list[Collaborator] | None
+    branch_protections: list[BranchProtection] = Field(default_factory=empty_list)
+    secrets: list[Secret] = Field(default_factory=empty_list)
+    labels: list[Label] = Field(default_factory=empty_list)
+    files: list[FileConfig] = Field(default_factory=empty_list)
+    collaborators: list[Collaborator] = Field(default_factory=empty_list)
 
     @property
     def secrets_dict(self):
@@ -41,10 +45,9 @@ class RepoManagerConfig(BaseModel):
             else {}
         )
 
-
 def load_config(filename: str) -> RepoManagerConfig:
     """Loads a yaml file into a RepoManagerconfig"""
     with open(filename) as fh:
         this_dict = yaml.safe_load(fh)
 
-    return RepoManagerConfig(**this_dict)
+    return RepoManagerConfig.model_validate(this_dict)

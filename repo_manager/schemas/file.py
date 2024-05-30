@@ -2,9 +2,12 @@ import os
 from pathlib import Path
 from typing import Optional
 
-from pydantic import BaseModel  # pylint: disable=E0611
-from pydantic import Field
-from pydantic import validator
+from pydantic import (
+    BaseModel,  # pylint: disable=E0611
+    Field,
+    ValidationInfo,
+    field_validator,
+)
 
 OptBool = Optional[bool]
 OptStr = Optional[str]
@@ -38,17 +41,17 @@ class FileConfig(BaseModel):
         + "means to lookup the default branch of the repo",
     )
 
-    @validator("src_file", pre=True)
-    def validate_src_file(cls, v, values) -> Path:
-        if v is None and values["exists"]:
+    @field_validator("src_file", mode="before")
+    def validate_src_file(cls, v, info: ValidationInfo) -> Path:
+        if v is None and info.data["exists"]:
             raise ValueError("Missing src_file")
         v = str(v)
         if v.startswith("remote:"):
-            values["remote_src"] = True
+            info.data["remote_src"] = True
             v = v.replace("remote://", "")
         return Path(v)
 
-    @validator("dest_file")
+    @field_validator("dest_file")
     def validate_dest_file(cls, v) -> Path:
         if v is None:
             raise ValueError("Missing dest_file")
