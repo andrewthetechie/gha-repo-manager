@@ -9,9 +9,11 @@ from .secret import Secret
 from .settings import Settings
 from .collaborator import Collaborator
 
+
 def empty_list():
     this_list = list()
     return copy(this_list)
+
 
 class RepoManagerConfig(BaseModel):
     settings: Settings | None
@@ -44,6 +46,7 @@ class RepoManagerConfig(BaseModel):
             if self.collaborators is not None
             else {}
         )
+
 
 def load_config(filename: str) -> RepoManagerConfig:
     """Loads a yaml file into a RepoManagerconfig"""
