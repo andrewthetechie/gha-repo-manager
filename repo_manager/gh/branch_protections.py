@@ -309,7 +309,10 @@ def check_repo_branch_protections(
             diff_protections[config_bp.name] = ["Branch is not protected"]
             continue
 
-        this_protection = repo_bp.get_protection()
+        try:
+            this_protection = repo_bp.get_protection()
+        except:
+            continue
         if config_bp.protection.pr_options is not None:
             diffs.append(
                 diff_option(
