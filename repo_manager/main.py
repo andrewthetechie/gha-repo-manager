@@ -12,9 +12,9 @@ from repo_manager.gh.files import RemoteSrcNotFoundError
 from repo_manager.gh.labels import check_repo_labels
 from repo_manager.gh.labels import update_label
 from repo_manager.gh.secrets import check_repo_secrets
-from repo_manager.github.secrets import update_secrets
-from repo_manager.github.variables import check_variables
-from repo_manager.github.variables import update_variables
+from repo_manager.gh.secrets import update_secrets
+from repo_manager.gh.variables import check_variables
+from repo_manager.gh.variables import update_variables
 from repo_manager.gh.collaborators import check_collaborators
 from repo_manager.gh.collaborators import update_collaborators
 from repo_manager.gh.settings import check_repo_settings
