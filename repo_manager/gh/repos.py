@@ -1,4 +1,4 @@
-from github import Github
+from gh import Github
 from github.Repository import Repository
 
 
