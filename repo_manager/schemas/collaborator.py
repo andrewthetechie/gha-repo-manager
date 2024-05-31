@@ -2,7 +2,7 @@ from typing import Self
 
 from github import Github
 
-from repo_manager.utils import get_inputs
+from repo_manager.utils import get_client, get_repo
 
 from pydantic import BaseModel  # pylint: disable=E0611
 from pydantic import Field, field_validator, model_validator
@@ -26,15 +26,14 @@ class Collaborator(BaseModel):
 
     @model_validator(mode="after")
     def initialize_id(self) -> Self:
-        inputs = get_inputs()
-        client: Github = inputs["api_client"]
+        client: Github = get_client()
         if self.type == "User":
             self.id = int(client.get_user(self.name).id)
         elif self.type == "Team":
             if self.name.count("/") == 1:
                 org, team = self.name.split("/")
             else:
-                org = inputs["repo_object"].owner.login
+                org = get_repo().owner.login
                 team = self.name
             github_object = client.get_organization(org).get_team_by_slug(team)
             self.repositories_url = github_object.repositories_url

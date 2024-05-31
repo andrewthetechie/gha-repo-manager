@@ -3,43 +3,8 @@ from actions_toolkit import core as actions_toolkit
 
 from github.Repository import Repository
 
+from repo_manager.utils import get_organization
 from repo_manager.schemas.collaborator import Collaborator
-
-
-def update_team_permissions(repo: Repository, team: Collaborator) -> None:
-    """Updates a team's permissions on a repo
-
-    Args:
-        repo (Repository): [description]
-        team (str): [description]
-        permission (str): [description]
-    """
-    put_parameters = {"permission": team.permission}
-    status, headers, raw_data = repo._requester.requestJson(
-        "PUT", f"{team.repositories_url}/{repo.full_name}", input=put_parameters
-    )
-    if status not in {204}:
-        raise Exception(
-            f"Unable to update team {team.name} for organization: {repo.organization.name}. "
-            + "Status: {status}. Error: {json.loads(raw_data)['message']}"
-        )
-    pass
-
-
-def remove_team_permissions(repo: Repository, team: Collaborator) -> None:
-    """Removes a team's permissions on a repo
-
-    Args:
-        repo (Repository): [description]
-        team (str): [description]
-    """
-    status, headers, raw_data = repo._requester.requestJson("DELETE", f"{team.repositories_url}/{repo.full_name}")
-    if status not in {204}:
-        raise Exception(
-            f"Unable to update team {team.name} for organization: {repo.organization.name}. "
-            + "Status: {status}. Error: {json.loads(raw_data)['message']}"
-        )
-    pass
 
 
 def diff_option(key: str, expected: Any, repo_value: Any) -> str | None:
@@ -196,13 +161,15 @@ def update_collaborators(repo: Repository, collaborators: list[Collaborator], di
             if collaborator.type == "User":
                 repo.add_to_collaborators(collaborator.name, collaborator.permission)
             elif collaborator.type == "Team":
-                update_team_permissions(repo, collaborator)
+                get_organization().get_team_by_slug(collaborator.name).update_team_repository(
+                    repo, collaborator.permission
+                )
             actions_toolkit.info(f"Added collaborator {collaborator.name} with permission {collaborator.permission}.")
         elif diff_type == "extra":
             if collaborator.type == "User":
                 repo.remove_from_collaborators(collaborator.name)
             elif collaborator.type == "Team":
-                remove_team_permissions(repo, collaborator)
+                get_organization().get_team_by_slug(collaborator.name).remove_from_repos(repo)
             else:
                 raise Exception(f"Modifying collaborators of type {collaborator.type} not currently supported")
             actions_toolkit.info(f"Removed collaborator {collaborator.name}.")
@@ -210,7 +177,9 @@ def update_collaborators(repo: Repository, collaborators: list[Collaborator], di
             if collaborator.type == "User":
                 repo.add_to_collaborators(collaborator.name, collaborator.permission)
             elif collaborator.type == "Team":
-                update_team_permissions(repo, collaborator)
+                get_organization().get_team_by_slug(collaborator.name).update_team_repository(
+                    repo, collaborator.permission
+                )
             else:
                 raise Exception(f"Modifying collaborators of type {collaborator.type} not currently supported")
             actions_toolkit.info(f"Updated collaborator {collaborator.name} with permission {collaborator.permission}.")
