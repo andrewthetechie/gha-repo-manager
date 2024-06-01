@@ -1,6 +1,7 @@
 # Tests athe github action on each push
 name: Action Integration Test
 on:
+  workflow_dispatch:
   push:
   pull_request:
 jobs:
