@@ -1,5 +1,7 @@
 from typing import Any
 
+from actions_toolkit import core as actions_toolkit
+
 from github.Repository import Repository
 
 from repo_manager.schemas.settings import Settings
@@ -67,12 +69,14 @@ def check_repo_settings(repo: Repository, settings: Settings) -> tuple[bool, lis
         repo_value = get_repo_value(setting_name, repo)
         settings_value = getattr(settings, setting_name)
         # These don't seem to update if changed; may need to explore a different API call
-        if (setting_name == "enable_automated_security_fixes") | (setting_name == "enable_vulnerability_alerts"):
+        if setting_name in ["enable_automated_security_fixes", "enable_vulnerability_alerts"]:
             continue
+        if setting_name in ["allow_squash_merge", "allow_merge_commit", "allow_rebase_merge", "delete_branch_on_merge"]:
+            actions_toolkit.debug(repo._requester.oauth_scopes)
+            if repo._requester.oauth_scopes is None:
+                continue
         # We don't want to flag description being different if the YAML is None
-        if (setting_name == "description") & (not settings_value):
-            continue
-        elif (setting_name == "topics") & (settings_value is None):
+        if (setting_name in ["description", "topics"] & (settings_value is None)):
             settings_value = []
         if repo_value != settings_value:
             drift.append(f"{setting_name} -- Expected: '{settings_value}' Found: '{repo_value}'")
