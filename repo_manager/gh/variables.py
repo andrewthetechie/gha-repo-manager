@@ -112,7 +112,12 @@ def update_variables(
                         if variables_dict[variable].type == "actions":
                             __update_variable__(repo, variable, variables_dict[variable].value)
                         else:
-                            __update_variable__(repo, variable, variables_dict[variable].value, variables_dict[variable].type.replace("environments/", ""))
+                            __update_variable__(
+                                repo,
+                                variable,
+                                variables_dict[variable].value,
+                                variables_dict[variable].type.replace("environments/", ""),
+                            )
                         actions_toolkit.info(f"Updated variable {variable}")
                     else:
                         if variables_dict[variable].type == "actions":

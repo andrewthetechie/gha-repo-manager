@@ -10,11 +10,8 @@ from repo_manager.schemas.secret import Secret
 
 def __get_repo_secret_names__(repo: Repository, path: str = "actions") -> set[str]:
     if "admin:org" not in repo._requester.oauth_scopes and path == "dependabot":
-        raise GithubException(
-            403, None, None,
-            "User token does not have access to dependabot secrets"
-        )
-    if path in ["actions","dependabot"]:
+        raise GithubException(403, None, None, "User token does not have access to dependabot secrets")
+    if path in ["actions", "dependabot"]:
         return {secret.name for secret in repo.get_secrets(path)}
     else:
         return {secret.name for secret in repo.get_environment(path).get_secrets()}
@@ -82,7 +79,9 @@ def update_secrets(
             try:
                 if issue_type in ["missing", "diff"]:
                     if secret_dict[secret_name].type in ["actions", "dependabot"]:
-                        repo.create_secret(secret_name, secret_dict[secret_name].expected_value, secret_dict[secret_name].type)
+                        repo.create_secret(
+                            secret_name, secret_dict[secret_name].expected_value, secret_dict[secret_name].type
+                        )
                     else:
                         repo.get_environment(secret_dict[secret_name].type).create_secret(
                             secret_name, secret_dict[secret_name].expected_value
