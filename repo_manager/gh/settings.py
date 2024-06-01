@@ -68,7 +68,14 @@ def check_repo_settings(repo: Repository, settings: Settings) -> tuple[bool, lis
     for setting_name in settings.dict().keys():
         repo_value = get_repo_value(setting_name, repo)
         settings_value = getattr(settings, setting_name)
-        if setting_name in ["allow_squash_merge", "allow_merge_commit", "allow_rebase_merge", "delete_branch_on_merge", "enable_automated_security_fixes", "enable_vulnerability_alerts"]:
+        if setting_name in [
+            "allow_squash_merge",
+            "allow_merge_commit",
+            "allow_rebase_merge",
+            "delete_branch_on_merge",
+            "enable_automated_security_fixes",
+            "enable_vulnerability_alerts"
+        ]:
             if repo._requester.oauth_scopes is None:
                 continue
             elif repo_value is None:
