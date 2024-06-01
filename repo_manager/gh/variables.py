@@ -8,27 +8,36 @@ from github.Repository import Repository
 from repo_manager.schemas.secret import Secret
 
 
+def __get_repo_variable_dict__(repo: Repository, path: str = "actions") -> dict[str, Any]:
+    if path == "actions":
+        return {variable.name: variable for variable in repo.get_variables()}
+    else:
+        return {variable.name: variable for variable in repo.get_environment(path).get_variables()}
+
+
+def __update_variable__(repo: Repository, variable_name: str, value: str, path: str = "actions") -> bool:
+    """
+    :calls: `PATCH /repos/{owner}/{repo}/{path}/variables/{variable_name}
+    <https://docs.github.com/en/rest/actions/variables?apiVersion=2022-11-28>`_
+
+    :param variable_name: string
+    :param value: string
+    :path: string
+    """
+    put_parameters = {"name": variable_name, "value": value}
+    status, headers, data = repo._requester.requestJson(
+        "PATCH", f"{repo.url}/{path}/variables/{variable_name}", input=put_parameters
+    )
+    if status not in {204}:
+        raise Exception(f"Unable to update variable: {variable_name}. Error: {json.loads(data)['message']}")
+    return True
+
+
 def diff_option(key: str, expected: Any, repo_value: Any) -> str | None:
     if expected is not None:
         if expected != repo_value:
             return f"{key} -- Expected: {expected} Found: {repo_value}"
     return None
-
-
-def _get_repo_variables(repo: Repository, path: str = "actions") -> Any:
-    status, headers, raw_data = repo._requester.requestJson("GET", f"{repo.url}/{path}/variables")
-    if status != 200:
-        raise Exception(f"Unable to get repo's variables. Status: {status}. Error: {json.loads(raw_data)['message']}")
-    try:
-        variable_data = json.loads(raw_data)
-    except json.JSONDecodeError as exc:
-        raise Exception(f"Github apu returned invalid json {exc}")
-
-    return variable_data["variables"]
-
-
-def _get_repo_variable_dict(repo: Repository, path: str = "actions") -> dict[str, Any]:
-    return {variable["name"]: variable for variable in _get_repo_variables(repo, path)}
 
 
 def check_variables(repo: Repository, variables: list[Secret]) -> tuple[bool, dict[str, list[str] | dict[str, Any]]]:
@@ -43,11 +52,11 @@ def check_variables(repo: Repository, variables: list[Secret]) -> tuple[bool, di
     """
     repo_dict = dict[str, Any]()
     if any(filter(lambda variable: variable.type == "actions", variables)):
-        repo_dict.update(_get_repo_variable_dict(repo))
+        repo_dict.update(__get_repo_variable_dict__(repo))
     if any(filter(lambda variable: variable.type not in {"actions"}, variables)):
         first_variable = next(filter(lambda variable: variable.type not in {"actions"}, variables), None)
         if first_variable is not None:
-            repo_dict.update(_get_repo_variable_dict(repo, first_variable.type))
+            repo_dict.update(__get_repo_variable_dict__(repo, first_variable.type))
     config_dict = {variable.key: variable for variable in variables}
     repo_variable_names = {variable for variable in repo_dict.keys()}
 
@@ -66,8 +75,8 @@ def check_variables(repo: Repository, variables: list[Secret]) -> tuple[bool, di
     for variable_name in variables_to_check_values_on:
         config_var = config_dict.get(variable_name, None)
         repo_var = repo_dict.get(variable_name, None)
-        if config_var.value != repo_var["value"]:
-            diff["diff"][variable_name] = diff_option(variable_name, config_var.value, repo_var["value"])
+        if config_var.value != repo_var.value:
+            diff["diff"][variable_name] = diff_option(variable_name, config_var.value, repo_var.value)
 
     if len(diff["missing"]) + len(diff["extra"]) + len(diff["diff"]) > 0:
         return False, diff
@@ -99,13 +108,25 @@ def update_variables(
         for variable in variableNames:
             if variables_dict[variable].exists:
                 try:
-                    if variables_dict[variable].type == "actions":
-                        repo.create_variable(variable, variables_dict[variable].value)
+                    if issue_type == "diff":
+                        if variables_dict[variable].type == "actions":
+                            __update_variable__(repo, variable, variables_dict[variable].value)
+                        else:
+                            __update_variable__(
+                                repo,
+                                variable,
+                                variables_dict[variable].value,
+                                variables_dict[variable].type.replace("environments/", ""),
+                            )
+                        actions_toolkit.info(f"Updated variable {variable}")
                     else:
-                        repo.get_environment(
-                            variables_dict[variable].type.replace("environments/", "")
-                        ).create_variable(variable, variables_dict[variable].value)
-                    actions_toolkit.info(f"Created variable {variable}")
+                        if variables_dict[variable].type == "actions":
+                            repo.create_variable(variable, variables_dict[variable].value)
+                        else:
+                            repo.get_environment(
+                                variables_dict[variable].type.replace("environments/", "")
+                            ).create_variable(variable, variables_dict[variable].value)
+                        actions_toolkit.info(f"Created variable {variable}")
                 except Exception as exc:  # this should be tighter
                     if variables_dict[variable].required:
                         errors.append(

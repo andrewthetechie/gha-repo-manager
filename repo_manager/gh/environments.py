@@ -45,82 +45,6 @@ def __get_environment_deployment_branch_policies(repo: Repository, environment: 
     )
 
 
-def __create_environment_branch_policy(repo: Repository, environment_name: str, branch_name_pattern: str) -> bool:
-    """:calls: `PUT /repos/{owner}/{repo}/environments/{environment_name}/deployment-branch-policies
-    <https://docs.github.com/en/rest/deployments/branch-policies?apiVersion=2022-11-28#create-or-update-a-branch-protection-policy>`_
-
-    :param environment_name: string
-    :rtype: bool
-    """
-
-    put_parameters = {"name": branch_name_pattern, "type": "branch"}
-    status, headers, data = repo._requester.requestJson(
-        "POST",
-        f"{repo.url}/environments/{environment_name}/deployment-branch-policies",
-        input=put_parameters,
-    )
-    if status not in {200}:
-        raise Exception(
-            f"Unable to create deployment branch policy for environment {environment_name} "
-            + "with branch pattern {branch_name_pattern}. Status: {status}. Error: {json.loads(data)['message']}"
-        )
-
-    return True
-
-
-def __delete_environment_branch_policy(repo: Repository, environment_name: str, branch_name_pattern: str) -> bool:
-    """:calls:
-    `DELETE /repos/{owner}/{repo}/environments/{environment_name}/deployment-branch-policies/{branch_name_pattern}
-    <https://docs.github.com/en/rest/deployments/branch-policies?apiVersion=2022-11-28#delete-a-branch-protection-policy>`_
-
-    :param environment_name: string
-    :rtype: bool
-    """
-    status, headers, raw_data = repo._requester.requestJson(
-        "GET", f"{repo.url}/environments/{environment_name}/deployment-branch-policies"
-    )
-    if status != 200:
-        raise Exception(
-            f"Unable to list deployment branch policies for environment: {environment_name}. "
-            + "Status: {status}. Error: {json.loads(raw_data)['message']}"
-        )
-
-    try:
-        deployment_branch_policies_data = json.loads(raw_data)
-    except json.JSONDecodeError as exc:
-        raise Exception(f"Github apu returned invalid json {exc}")
-
-    branch_policy_id = [
-        branch_policy["id"]
-        for branch_policy in filter(
-            lambda branch_policy: branch_policy["name"] == branch_name_pattern,
-            deployment_branch_policies_data["branch_policies"],
-        )
-    ][0]
-
-    status, headers, data = repo._requester.requestJson(
-        "DELETE",
-        f"{repo.url}/environments/{environment_name}/deployment-branch-policies/{branch_policy_id}",
-    )
-    if status not in {204}:
-        raise Exception(
-            f"Unable to delete deployment branch policy for environment {environment_name} "
-            + "with branch policy id {branch_policy_id}. Status: {status}. Error: {json.loads(data)['message']}"
-        )
-
-    return True
-
-
-def delete_environment(repo: Repository, environment_name: str) -> bool:
-    """:calls: `DELETE /repos/{owner}/{repo}/environments/{environment_name}
-        <https://docs.github.com/en/rest/deployments/environments?apiVersion=2022-11-28#delete-an-environment>`_
-    :param environment_name: string
-    :rtype: bool
-    """
-    status, headers, data = repo._requester.requestJson("DELETE", f"{repo.url}/environments/{environment_name}")
-    return status == 204
-
-
 def diff_option(key: str, expected: Any, repo_value: Any) -> str | None:
     if expected != repo_value:
         return f"{key} -- Expected: {expected} Found: {repo_value}"
@@ -344,7 +268,13 @@ def update_environments(repo: Repository, environments: list[Environment], diffs
                     components = ["secrets", "variables"]
                     for env_component in components:
                         if env_component == "secrets" and config_env_dict[env_name].secrets is not None:
-                            pErrors = update_secrets(repo, config_env_dict[env_name].secrets)
+                            if issue_type == "missing":
+                                secret_diffs = {
+                                    "missing": [secret.key for secret in config_env_dict[env_name].secrets]
+                                }
+                            else:
+                                secret_diffs = diffs[issue_type][env_name][env_component]
+                            pErrors = update_secrets(repo, config_env_dict[env_name].secrets, secret_diffs)
                         elif env_component == "variables" and config_env_dict[env_name].variables is not None:
                             if issue_type == "missing":
                                 var_diffs = {

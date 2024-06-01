@@ -1,11 +1,20 @@
-import json
 from typing import Any
 
 from actions_toolkit import core as actions_toolkit
 
+from github.GithubException import GithubException
 from github.Repository import Repository
 
 from repo_manager.schemas.secret import Secret
+
+
+def __get_repo_secret_names__(repo: Repository, path: str = "actions") -> set[str]:
+    if "admin:org" not in repo._requester.oauth_scopes and path == "dependabot":
+        raise GithubException(403, None, None, "User token does not have access to dependabot secrets")
+    if path in ["actions", "dependabot"]:
+        return {secret.name for secret in repo.get_secrets(path)}
+    else:
+        return {secret.name for secret in repo.get_environment(path).get_secrets()}
 
 
 def check_repo_secrets(repo: Repository, secrets: list[Secret]) -> tuple[bool, dict[str, list[str] | dict[str, Any]]]:
@@ -18,19 +27,18 @@ def check_repo_secrets(repo: Repository, secrets: list[Secret]) -> tuple[bool, d
     Returns:
         Tuple[bool, Optional[List[str]]]: [description]
     """
-    checked = True
     repo_secret_names = set[str]()
     if any(filter(lambda secret: secret.type == "actions", secrets)):
-        repo_secret_names.update(_get_repo_secret_names(repo))
+        repo_secret_names.update(__get_repo_secret_names__(repo))
     if any(filter(lambda secret: secret.type == "dependabot", secrets)):
-        repo_secret_names.update(_get_repo_secret_names(repo, "dependabot"))
+        repo_secret_names.update(__get_repo_secret_names__(repo, "dependabot"))
     if any(filter(lambda secret: secret.type not in {"actions", "dependabot"}, secrets)):
         first_secret = next(
             filter(lambda secret: secret.type not in {"actions", "dependabot"}, secrets),
             None,
         )
         if first_secret is not None:
-            repo_secret_names.update(_get_repo_secret_names(repo, first_secret.type))
+            repo_secret_names.update(__get_repo_secret_names__(repo, first_secret.type))
 
     expected_secrets_names = {secret.key for secret in filter(lambda secret: secret.exists, secrets)}
     diff = {
@@ -44,27 +52,17 @@ def check_repo_secrets(repo: Repository, secrets: list[Secret]) -> tuple[bool, d
         ),
     }
 
-    if len(diff["missing"]) + len(diff["extra"]) > 0:
-        checked = False
+    if len(diff["missing"]) + len(diff["extra"]) + len(diff["diff"]) > 0:
+        return False, diff
 
-    return checked, diff
-
-
-def _get_repo_secret_names(repo: Repository, type: str = "actions") -> set[str]:
-    if "admin:org" not in repo._requester.oauth_scopes and type == "dependabot":
-        return set()
-    status, headers, raw_data = repo._requester.requestJson("GET", f"{repo.url}/{type}/secrets")
-    if status != 200:
-        raise Exception(f"Unable to get repo's secrets {status}")
-    try:
-        secret_data = json.loads(raw_data)
-    except json.JSONDecodeError as exc:
-        raise Exception(f"Github apu returned invalid json {exc}")
-
-    return {secret["name"] for secret in secret_data["secrets"]}
+    return True, None
 
 
-def update_secrets(repo: Repository, secrets: list[Secret]) -> set[str]:
+def update_secrets(
+    repo: Repository,
+    secrets: list[Secret],
+    diffs: tuple[dict[str, list[str] | dict[str, Any]]],
+) -> set[str]:
     """Updates a repo's secrets to match the expected settings
 
     Args:
@@ -75,41 +73,35 @@ def update_secrets(repo: Repository, secrets: list[Secret]) -> set[str]:
         set[str]: [description]
     """
     errors = []
-    for secret in secrets:
-        # Because we cannot diff secrets, just apply it every time
-        if secret.exists:
+    secret_dict = {secret.key: secret for secret in secrets}
+    for issue_type in diffs.keys():
+        for secret_name in diffs[issue_type]:
             try:
-                if secret.type in ["actions", "dependabot"]:
-                    repo.create_secret(secret.key, secret.expected_value, secret.type)
-                else:
-                    repo.get_environment(secret.type.replace("environments/", "")).create_secret(
-                        secret.key, secret.expected_value
-                    )
-                # create_secret(repo, secret.key, secret.expected_value, secret.type)
-                actions_toolkit.info(f"Set {secret.key} to expected value")
+                if issue_type in ["missing", "diff"]:
+                    if secret_dict[secret_name].type in ["actions", "dependabot"]:
+                        repo.create_secret(
+                            secret_name, secret_dict[secret_name].expected_value, secret_dict[secret_name].type
+                        )
+                    else:
+                        repo.get_environment(secret_dict[secret_name].type).create_secret(
+                            secret_name, secret_dict[secret_name].expected_value
+                        )
+                    # create_secret(repo, secret.key, secret.expected_value, secret.type)
+                    actions_toolkit.info(f"Set {secret_name} to expected value")
+                if issue_type == "extra":
+                    if secret_dict[secret_name].type in ["actions", "dependabot"]:
+                        repo.delete_secret(secret_name, secret_dict[secret_name].type)
+                    else:
+                        repo.get_environment(secret_dict[secret_name].type).delete_secret(secret_name)
+                    # delete_secret(repo, secret.key, secret.type)
+                    actions_toolkit.info(f"Deleted {secret_name}")
             except Exception as exc:  # this should be tighter
-                if secret.required:
+                if secret_dict[secret_name].required:
                     errors.append(
                         {
                             "type": "secret-update",
-                            "key": secret.key,
+                            "key": secret_name,
                             "error": f"{exc}",
                         }
                     )
-        else:
-            try:
-                if secret.type in ["actions", "dependabot"]:
-                    repo.delete_secret(secret.key, secret.type)
-                else:
-                    repo.get_environment(secret.type.replace("environments/", "")).delete_secret(secret.key)
-                # delete_secret(repo, secret.key, secret.type)
-                actions_toolkit.info(f"Deleted {secret.key}")
-            except Exception as exc:  # this should be tighter
-                errors.append(
-                    {
-                        "type": "secret-delete",
-                        "key": secret.key,
-                        "error": f"{exc}",
-                    }
-                )
     return errors

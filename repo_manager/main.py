@@ -73,11 +73,12 @@ def main():  # noqa: C901
             if this_diffs is not None:
                 diffs[check_name] = this_diffs
 
-    actions_toolkit.debug(json_diff := json.dumps({}))
+    actions_toolkit.debug(json_diff := json.dumps(diffs))
     actions_toolkit.set_output("diff", json_diff)
 
     if inputs["action"] == "check":
         if not check_result:
+            actions_toolkit.info(json.dumps(diffs))
             actions_toolkit.set_output("result", "Check failed, diff detected")
             actions_toolkit.set_failed("Diff detected")
         actions_toolkit.set_output("result", "Check passed")
@@ -87,13 +88,14 @@ def main():  # noqa: C901
         errors = []
         for update, to_update in {
             # TODO: Implement these functions to reduce length and complexity of code
-            # update_settings: ("settings", config.settings),
-            # update_secrets: ("secrets", config.secrets),
-            # check_repo_labels: ("labels", config.labels),
+            # update_settings: ("settings", config.settings, diffs.get("settings", None)),
+            # check_repo_labels: ("labels", config.labels, diffs.get("labels", None)),
             # check_repo_branch_protections: (
             #     "branch_protections",
             #     config.branch_protections,
+            #     diffs.get("branch_protections", None),
             # ),
+            update_secrets: ("secrets", config.secrets, diffs.get("secrets", None)),
             update_variables: ("variables", config.variables, diffs.get("variables", None)),
             update_environments: ("environments", config.environments, diffs.get("environments", None)),
             update_collaborators: ("collaborators", config.collaborators, diffs.get("collaborators", None)),
@@ -108,17 +110,6 @@ def main():  # noqa: C901
                         actions_toolkit.info(f"Synced {update_name}")
                 except Exception as exc:
                     errors.append({"type": f"{update_name}-update", "error": f"{exc}"})
-
-        # Because we cannot diff secrets, just apply it every time
-        if config.secrets is not None:
-            try:
-                variableErrors = update_secrets(inputs["repo_object"], config.secrets)
-                if len(variableErrors) > 0:
-                    errors.append(variableErrors)
-                else:
-                    actions_toolkit.info("Synced Secrets")
-            except Exception as exc:
-                errors.append({"type": "secrets-update", "error": f"{exc}"})
 
         labels_diff = diffs.get("labels", None)
         if labels_diff is not None:
