@@ -74,7 +74,7 @@ def check_repo_settings(repo: Repository, settings: Settings) -> tuple[bool, lis
             "allow_rebase_merge",
             "delete_branch_on_merge",
             "enable_automated_security_fixes",
-            "enable_vulnerability_alerts"
+            "enable_vulnerability_alerts",
         ]:
             if repo._requester.oauth_scopes is None:
                 continue
