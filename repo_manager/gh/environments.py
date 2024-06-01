@@ -328,58 +328,40 @@ def update_environments(repo: Repository, environments: list[Environment], diffs
     config_env_dict = {environment.name: environment for environment in environments}
     try:
         for issue_type in diffs.keys():
-            for env_name in diffs[issue_type].keys():
-                if issue_type == "missing":
-                    components = {"settings", "branch_policies", "secrets", "variables"}
-                elif issue_type == "extra":
-                    components = {}
-                else:
-                    components = diffs[issue_type][env_name].keys()
-                for env_component in components:
-                    pErrors = []
-                    if env_component == "settings":
-                        create_environment(repo, config_env_dict[env_name])
-                    if env_component == "branch_policies":
-                        if issue_type == "missing":
-                            branch_policy_issue_types = {issue_type}
-                        else:
-                            branch_policy_issue_types = diffs[issue_type][env_name][env_component].keys()
-                        for branch_policy_issue_type in branch_policy_issue_types:
-                            if branch_policy_issue_type == "missing":
-                                for branch_name_pattern in diffs[issue_type][env_name][env_component][
-                                    branch_policy_issue_type
-                                ]:
-                                    pErrors.append(
-                                        f"Unable to link deployment environment {env_name} "
-                                        + f"to branches {branch_name_pattern}. "
-                                        + "Currently the GitHub API does not support "
-                                        + "creating branch policies for environments; get error 404..."
-                                    )
-                                    # __create_environment_branch_policy(repo, env_name, branch_name_pattern)
-                            if branch_policy_issue_type == "extra":
-                                for branch_name_pattern in diffs[issue_type][env_name][env_component][
-                                    branch_policy_issue_type
-                                ]:
-                                    __delete_environment_branch_policy(repo, env_name, branch_name_pattern)
-                    elif env_component == "secrets" and config_env_dict[env_name].secrets is not None:
-                        pErrors = update_secrets(repo, config_env_dict[env_name].secrets)
-                    elif env_component == "variables" and config_env_dict[env_name].variables is not None:
-                        if issue_type == "missing":
-                            diffs[issue_type][env_name][env_component] = {
-                                "missing": [variable.key for variable in config_env_dict[env_name].variables]
-                            }
-                        pErrors = update_variables(
-                            repo,
-                            config_env_dict[env_name].variables,
-                            diffs[issue_type][env_name][env_component],
-                        )
+            if issue_type in ["missing", "extra"]:
+                envList = diffs[issue_type]
+            else:
+                envList = diffs[issue_type].keys()
+            for env_name in envList:
+                pErrors = []
+                if issue_type in ["missing", "diff"]:
+                    repo.create_environment(
+                        env_name,
+                        config_env_dict[env_name].wait_timer,
+                        config_env_dict[env_name].get_ReviewerParams(),
+                        config_env_dict[env_name].get_EnvironmentDeploymentBranchPolicyParams(),
+                    )
+                    components = ["secrets", "variables"]
+                    for env_component in components:
+                        if env_component == "secrets" and config_env_dict[env_name].secrets is not None:
+                            pErrors = update_secrets(repo, config_env_dict[env_name].secrets)
+                        elif env_component == "variables" and config_env_dict[env_name].variables is not None:
+                            if issue_type == "missing":
+                                diffs[issue_type][env_name][env_component] = {
+                                    "missing": [variable.key for variable in config_env_dict[env_name].variables]
+                                }
+                            pErrors = update_variables(
+                                repo,
+                                config_env_dict[env_name].variables,
+                                diffs[issue_type][env_name][env_component],
+                            )
                     if len(pErrors) > 0:
                         errors.append(pErrors)
                     else:
                         actions_toolkit.info(f"Synced {env_component} for environment {env_name}")
-            if issue_type == "extra":
-                if delete_environment(repo, env_name):
-                    actions_toolkit.info(f"Deleted {env_name}")
+                elif issue_type == "extra":
+                    repo.delete_environment(env_name)
+                    actions_toolkit.info(f"Deleted Deployment Environment {env_name}")
     except Exception as exc:
         errors.append({"type": f"{env_component}-update", "error": f"{exc}"})
     return errors
