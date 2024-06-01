@@ -44,7 +44,7 @@ class Reviewer(BaseModel):
         if v not in {"User", "Team"}:
             raise ValueError("Reviewer Type must be user or team.")
         return v
-    
+
     def get_ReviewerParams(self) -> ReviewerParams:
         return ReviewerParams(self.type, self.id)
 
@@ -64,7 +64,7 @@ class DeploymentBranchPolicy(BaseModel):
         if self.protected_branches == self.custom_branch_policies:
             raise ValueError("You must specify either protected branches or custom branch policies, not both.")
         return self
-    
+
     def get_EnvironmentDeploymentBranchPolicyParams(self) -> EnvironmentDeploymentBranchPolicyParams:
         return EnvironmentDeploymentBranchPolicyParams(self.protected_branches, self.custom_branch_policies)
 
@@ -119,9 +119,9 @@ class Environment(BaseModel):
         if len(v) > 6:
             raise ValueError("You can only have up to 6 reviewers.")
         return v
-    
+
     def get_ReviewerParams(self) -> list[ReviewerParams]:
         return [reviewer.get_ReviewerParams() for reviewer in self.reviewers]
-    
+
     def get_EnvironmentDeploymentBranchPolicyParams(self) -> EnvironmentDeploymentBranchPolicyParams:
         return self.deployment_branch_policy.get_EnvironmentDeploymentBranchPolicyParams()
