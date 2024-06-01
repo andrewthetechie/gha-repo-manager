@@ -8,14 +8,14 @@ from github.Repository import Repository
 from repo_manager.schemas.secret import Secret
 
 
-def diff_option(key: str, expected: Any, repo_value: Any) -> str | None:
-    if expected is not None:
-        if expected != repo_value:
-            return f"{key} -- Expected: {expected} Found: {repo_value}"
-    return None
+def __get_repo_variable_dict__(repo: Repository, path: str = "actions") -> dict[str, Any]:
+    if path == "actions":
+        return {variable.name: variable for variable in repo.get_variables()}
+    else:
+        return {variable.name: variable for variable in repo.get_environment(path).get_variables()}
 
 
-def update_variable(repo: Repository, variable_name: str, value: str, path: str = "actions") -> bool:
+def __update_variable__(repo: Repository, variable_name: str, value: str, path: str = "actions") -> bool:
     """
     :calls: `PATCH /repos/{owner}/{repo}/{path}/variables/{variable_name}
     <https://docs.github.com/en/rest/actions/variables?apiVersion=2022-11-28>`_
@@ -33,11 +33,11 @@ def update_variable(repo: Repository, variable_name: str, value: str, path: str 
     return True
 
 
-def _get_repo_variable_dict(repo: Repository, path: str = "actions") -> dict[str, Any]:
-    if path == "actions":
-        return {variable.name: variable for variable in repo.get_variables()}
-    else:
-        return {variable.name: variable for variable in repo.get_environment(path).get_variables()}
+def diff_option(key: str, expected: Any, repo_value: Any) -> str | None:
+    if expected is not None:
+        if expected != repo_value:
+            return f"{key} -- Expected: {expected} Found: {repo_value}"
+    return None
 
 
 def check_variables(repo: Repository, variables: list[Secret]) -> tuple[bool, dict[str, list[str] | dict[str, Any]]]:
@@ -52,11 +52,11 @@ def check_variables(repo: Repository, variables: list[Secret]) -> tuple[bool, di
     """
     repo_dict = dict[str, Any]()
     if any(filter(lambda variable: variable.type == "actions", variables)):
-        repo_dict.update(_get_repo_variable_dict(repo))
+        repo_dict.update(__get_repo_variable_dict__(repo))
     if any(filter(lambda variable: variable.type not in {"actions"}, variables)):
         first_variable = next(filter(lambda variable: variable.type not in {"actions"}, variables), None)
         if first_variable is not None:
-            repo_dict.update(_get_repo_variable_dict(repo, first_variable.type))
+            repo_dict.update(__get_repo_variable_dict__(repo, first_variable.type))
     config_dict = {variable.key: variable for variable in variables}
     repo_variable_names = {variable for variable in repo_dict.keys()}
 
@@ -110,9 +110,9 @@ def update_variables(
                 try:
                     if issue_type == "diff":
                         if variables_dict[variable].type == "actions":
-                            update_variable(repo, variable, variables_dict[variable].value)
+                            __update_variable__(repo, variable, variables_dict[variable].value)
                         else:
-                            update_variable(repo, variable, variables_dict[variable].value, variables_dict[variable].type.replace("environments/", ""))
+                            __update_variable__(repo, variable, variables_dict[variable].value, variables_dict[variable].type.replace("environments/", ""))
                         actions_toolkit.info(f"Updated variable {variable}")
                     else:
                         if variables_dict[variable].type == "actions":
