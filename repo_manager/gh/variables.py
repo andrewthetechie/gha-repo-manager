@@ -113,6 +113,7 @@ def update_variables(
                             update_variable(repo, variable, variables_dict[variable].value)
                         else:
                             update_variable(repo, variable, variables_dict[variable].value, variables_dict[variable].type.replace("environments/", ""))
+                        actions_toolkit.info(f"Updated variable {variable}")
                     else:
                         if variables_dict[variable].type == "actions":
                             repo.create_variable(variable, variables_dict[variable].value)
@@ -120,7 +121,7 @@ def update_variables(
                             repo.get_environment(
                                 variables_dict[variable].type.replace("environments/", "")
                             ).create_variable(variable, variables_dict[variable].value)
-                    actions_toolkit.info(f"Created variable {variable}")
+                        actions_toolkit.info(f"Created variable {variable}")
                 except Exception as exc:  # this should be tighter
                     if variables_dict[variable].required:
                         errors.append(
