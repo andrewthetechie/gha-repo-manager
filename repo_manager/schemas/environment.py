@@ -1,13 +1,13 @@
 from typing import Optional, Self
 
 from github import Github
+from github.EnvironmentDeploymentBranchPolicy import EnvironmentDeploymentBranchPolicyParams
+from github.EnvironmentProtectionRuleReviewer import ReviewerParams
 
-from repo_manager.utils import get_inputs
+from repo_manager.utils import get_client, get_repo
 
 from pydantic import BaseModel  # pylint: disable=E0611
 from pydantic import Field, field_validator, model_validator
-
-# from github.Environment import Environment
 
 from .secret import Secret
 
@@ -26,15 +26,14 @@ class Reviewer(BaseModel):
 
     @model_validator(mode="after")
     def initialize_id(self) -> Self:
-        inputs = get_inputs()
-        client: Github = inputs["api_client"]
+        client: Github = get_client()
         if self.type == "User":
             self.id = int(client.get_user(self.name).id)
         elif self.type == "Team":
             if self.name.count("/") == 1:
                 org, team = self.name.split("/")
             else:
-                org = inputs["repo_object"].owner.login
+                org = get_repo().owner.login
                 team = self.name
             self.id = int(client.get_organization(org).get_team_by_slug(team).id)
         return self
@@ -45,6 +44,9 @@ class Reviewer(BaseModel):
         if v not in {"User", "Team"}:
             raise ValueError("Reviewer Type must be user or team.")
         return v
+
+    def get_ReviewerParams(self) -> ReviewerParams:
+        return ReviewerParams(self.type, self.id)
 
 
 class DeploymentBranchPolicy(BaseModel):
@@ -62,6 +64,9 @@ class DeploymentBranchPolicy(BaseModel):
         if self.protected_branches == self.custom_branch_policies:
             raise ValueError("You must specify either protected branches or custom branch policies, not both.")
         return self
+
+    def get_EnvironmentDeploymentBranchPolicyParams(self) -> EnvironmentDeploymentBranchPolicyParams:
+        return EnvironmentDeploymentBranchPolicyParams(self.protected_branches, self.custom_branch_policies)
 
 
 class Environment(BaseModel):
@@ -114,3 +119,9 @@ class Environment(BaseModel):
         if len(v) > 6:
             raise ValueError("You can only have up to 6 reviewers.")
         return v
+
+    def get_ReviewerParams(self) -> list[ReviewerParams]:
+        return [reviewer.get_ReviewerParams() for reviewer in self.reviewers]
+
+    def get_EnvironmentDeploymentBranchPolicyParams(self) -> EnvironmentDeploymentBranchPolicyParams:
+        return self.deployment_branch_policy.get_EnvironmentDeploymentBranchPolicyParams()

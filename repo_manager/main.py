@@ -2,32 +2,48 @@ import json
 import sys
 
 from actions_toolkit import core as actions_toolkit
-from github.GithubException import GithubException
-from github.GithubException import UnknownObjectException
+from yaml import YAMLError
+from pydantic import ValidationError
 
-from repo_manager.github.branch_protections import check_repo_branch_protections
-from repo_manager.github.branch_protections import update_branch_protection
-from repo_manager.github.files import copy_file
-from repo_manager.github.files import delete_file
-from repo_manager.github.files import move_file
-from repo_manager.github.files import RemoteSrcNotFoundError
-from repo_manager.github.labels import check_repo_labels
-from repo_manager.github.labels import update_label
-from repo_manager.github.secrets import check_repo_secrets
-from repo_manager.github.secrets import create_secret
-from repo_manager.github.secrets import delete_secret
-from repo_manager.github.environments import check_repo_environments
-from repo_manager.github.environments import update_environments
-from repo_manager.github.settings import check_repo_settings
-from repo_manager.github.settings import update_settings
+from repo_manager.gh.branch_protections import check_repo_branch_protections
+from repo_manager.gh.branch_protections import update_branch_protection
+from repo_manager.gh.files import copy_file
+from repo_manager.gh.files import delete_file
+from repo_manager.gh.files import move_file
+from repo_manager.gh.files import RemoteSrcNotFoundError
+from repo_manager.gh.labels import check_repo_labels
+from repo_manager.gh.labels import update_label
+from repo_manager.gh.secrets import check_repo_secrets
+from repo_manager.gh.secrets import update_secrets
+from repo_manager.gh.variables import check_variables
+from repo_manager.gh.variables import update_variables
+from repo_manager.gh.collaborators import check_collaborators
+from repo_manager.gh.collaborators import update_collaborators
+from repo_manager.gh.environments import check_repo_environments
+from repo_manager.gh.environments import update_environments
+from repo_manager.gh.settings import check_repo_settings
+from repo_manager.gh.settings import update_settings
 from repo_manager.schemas import load_config
 from repo_manager.utils import get_inputs
+from repo_manager.gh import GithubException, UnknownObjectException
 
 
 def main():  # noqa: C901
-    inputs = get_inputs()
+    try:
+        inputs = get_inputs()
+    # actions toolkit has very broad exceptions :(
+    except Exception as exc:
+        actions_toolkit.set_failed(f"Unable to collect inputs {exc}")
     actions_toolkit.debug(f"Loading config from {inputs['settings_file']}")
-    config = load_config(inputs["settings_file"])
+    try:
+        config = load_config(inputs["settings_file"])
+    except FileNotFoundError:
+        actions_toolkit.set_failed(f"{inputs['settings_file']} does not exist or is not readable")
+    except YAMLError as exc:
+        actions_toolkit.set_failed(f"Unable to read {inputs['settings_file']} - {exc}")
+    except ValidationError as exc:
+        actions_toolkit.set_failed(f"{inputs['settings_file']} is invalid - {exc}")
+
     actions_toolkit.debug(f"Inputs: {inputs}")
     if inputs["action"] == "validate":
         actions_toolkit.set_output("result", f"Validated {inputs['settings_file']}")
@@ -41,18 +57,21 @@ def main():  # noqa: C901
     for check, to_check in {
         check_repo_settings: ("settings", config.settings),
         check_repo_secrets: ("secrets", config.secrets),
+        check_variables: ("variables", config.variables),
         check_repo_labels: ("labels", config.labels),
         check_repo_branch_protections: (
             "branch_protections",
             config.branch_protections,
         ),
         check_repo_environments: ("environments", config.environments),
+        check_collaborators: ("collaborators", config.collaborators),
     }.items():
         check_name, to_check = to_check
         if to_check is not None:
             this_check, this_diffs = check(inputs["repo_object"], to_check)
             check_result &= this_check
-            diffs[check_name] = this_diffs
+            if this_diffs is not None:
+                diffs[check_name] = this_diffs
 
     actions_toolkit.debug(json_diff := json.dumps({}))
     actions_toolkit.set_output("diff", json_diff)
@@ -75,7 +94,9 @@ def main():  # noqa: C901
             #     "branch_protections",
             #     config.branch_protections,
             # ),
+            update_variables: ("variables", config.variables, diffs.get("variables", None)),
             update_environments: ("environments", config.environments, diffs.get("environments", None)),
+            update_collaborators: ("collaborators", config.collaborators, diffs.get("collaborators", None)),
         }.items():
             update_name, to_update, categorical_diffs = to_update
             if categorical_diffs is not None:
@@ -90,33 +111,14 @@ def main():  # noqa: C901
 
         # Because we cannot diff secrets, just apply it every time
         if config.secrets is not None:
-            for secret in config.secrets:
-                if secret.exists:
-                    try:
-                        create_secret(
-                            inputs["repo_object"], secret.key, secret.expected_value, secret.type == "dependabot"
-                        )
-                        actions_toolkit.info(f"Set {secret.key} to expected value")
-                    except Exception as exc:  # this should be tighter
-                        errors.append(
-                            {
-                                "type": "secret-update",
-                                "key": secret.key,
-                                "error": f"{exc}",
-                            }
-                        )
+            try:
+                variableErrors = update_secrets(inputs["repo_object"], config.secrets)
+                if len(variableErrors) > 0:
+                    errors.append(variableErrors)
                 else:
-                    try:
-                        delete_secret(inputs["repo_object"], secret.key, secret.type == "dependabot")
-                        actions_toolkit.info(f"Deleted {secret.key}")
-                    except Exception as exc:  # this should be tighter
-                        errors.append(
-                            {
-                                "type": "secret-delete",
-                                "key": secret.key,
-                                "error": f"{exc}",
-                            }
-                        )
+                    actions_toolkit.info("Synced Secrets")
+            except Exception as exc:
+                errors.append({"type": "secrets-update", "error": f"{exc}"})
 
         labels_diff = diffs.get("labels", None)
         if labels_diff is not None:
