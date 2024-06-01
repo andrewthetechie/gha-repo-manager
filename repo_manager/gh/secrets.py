@@ -86,13 +86,14 @@ def update_secrets(repo: Repository, secrets: list[Secret]) -> set[str]:
                 # create_secret(repo, secret.key, secret.expected_value, secret.type)
                 actions_toolkit.info(f"Set {secret.key} to expected value")
             except Exception as exc:  # this should be tighter
-                errors.append(
-                    {
-                        "type": "secret-update",
-                        "key": secret.key,
-                        "error": f"{exc}",
-                    }
-                )
+                if secret.required:
+                    errors.append(
+                        {
+                            "type": "secret-update",
+                            "key": secret.key,
+                            "error": f"{exc}",
+                        }
+                    )
         else:
             try:
                 if secret.type in ["actions", "dependabot"]:
