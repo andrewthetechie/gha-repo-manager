@@ -145,12 +145,16 @@ def update_variables(
     variables_dict = {variable.key: variable for variable in variables}
     for variable in diffs["missing"]:
         try:
-            create_variable(
-                repo,
-                variable,
-                variables_dict[variable].value,
-                variables_dict[variable].type,
-            )
+            if variables_dict[variable].type == "actions":
+                repo.create_variable(variable, variables_dict[variable].value)
+            else:
+                repo.get_environment(variables_dict[variable].type).create_variable(variable, variables_dict[variable].value)
+            # create_variable(
+            #     repo,
+            #     variable,
+            #     variables_dict[variable].value,
+            #     variables_dict[variable].type,
+            # )
             actions_toolkit.info(f"Created variable {variable}")
         except Exception as exc:  # this should be tighter
             errors.append(
@@ -162,12 +166,16 @@ def update_variables(
             )
     for variable in diffs["diff"].keys():
         try:
-            update_variable(
-                repo,
-                variable,
-                variables_dict[variable].value,
-                variables_dict[variable].type,
-            )
+            if variables_dict[variable].type == "actions":
+                repo.create_variable(variable, variables_dict[variable].value)
+            else:
+                repo.get_environment(variables_dict[variable].type).create_variable(variable, variables_dict[variable].value)
+            # update_variable(
+            #     repo,
+            #     variable,
+            #     variables_dict[variable].value,
+            #     variables_dict[variable].type,
+            # )
             actions_toolkit.info(f"Set variable {variable} to expected value")
         except Exception as exc:  # this should be tighter
             errors.append(
@@ -179,7 +187,11 @@ def update_variables(
             )
     for variable in diffs["extra"]:
         try:
-            delete_variable(repo, variable, variables_dict[variable].type)
+            if variables_dict[variable].type == "actions":
+                repo.delete_variable(variable)
+            else:
+                repo.get_environment(variables_dict[variable].type).delete_variable(variable)
+            # delete_variable(repo, variable, variables_dict[variable].type)
             actions_toolkit.info(f"Deleted variable {variable}")
         except Exception as exc:  # this should be tighter
             errors.append(
