@@ -72,9 +72,10 @@ def check_repo_settings(repo: Repository, settings: Settings) -> tuple[bool, lis
         if setting_name in ["enable_automated_security_fixes", "enable_vulnerability_alerts"]:
             continue
         if setting_name in ["allow_squash_merge", "allow_merge_commit", "allow_rebase_merge", "delete_branch_on_merge"]:
-            actions_toolkit.debug(repo._requester.oauth_scopes)
             if repo._requester.oauth_scopes is None:
                 continue
+            elif repo_value is None:
+                actions_toolkit.info(f"Unable to access {setting_name} with OAUTH of {repo._requester.oauth_scopes}")
         # We don't want to flag description being different if the YAML is None
         if settings_value is None:
             continue
