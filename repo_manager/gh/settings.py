@@ -76,8 +76,8 @@ def check_repo_settings(repo: Repository, settings: Settings) -> tuple[bool, lis
             if repo._requester.oauth_scopes is None:
                 continue
         # We don't want to flag description being different if the YAML is None
-        if (setting_name in ["description", "topics"] & (settings_value is None)):
-            settings_value = []
+        if settings_value is None:
+            continue
         if repo_value != settings_value:
             drift.append(f"{setting_name} -- Expected: '{settings_value}' Found: '{repo_value}'")
             checked &= False if (settings_value is not None) else True
