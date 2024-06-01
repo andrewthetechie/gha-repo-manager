@@ -91,62 +91,43 @@ def update_variables(
     """
     errors = []
     variables_dict = {variable.key: variable for variable in variables}
-    for variable in diffs["missing"]:
-        try:
-            if variables_dict[variable].type == "actions":
-                repo.create_variable(variable, variables_dict[variable].value)
-            else:
-                repo.get_environment(variables_dict[variable].type.replace("environments/", "")).create_variable(variable, variables_dict[variable].value)
-            # create_variable(
-            #     repo,
-            #     variable,
-            #     variables_dict[variable].value,
-            #     variables_dict[variable].type,
-            # )
-            actions_toolkit.info(f"Created variable {variable}")
-        except Exception as exc:  # this should be tighter
-            errors.append(
-                {
-                    "type": "variable-update",
-                    "key": variable.key,
-                    "error": f"{exc}",
-                }
-            )
-    for variable in diffs["diff"].keys():
-        try:
-            if variables_dict[variable].type == "actions":
-                repo.create_variable(variable, variables_dict[variable].value)
-            else:
-                repo.get_environment(variables_dict[variable].type.replace("environments/", "")).create_variable(variable, variables_dict[variable].value)
-            # update_variable(
-            #     repo,
-            #     variable,
-            #     variables_dict[variable].value,
-            #     variables_dict[variable].type,
-            # )
-            actions_toolkit.info(f"Set variable {variable} to expected value")
-        except Exception as exc:  # this should be tighter
-            errors.append(
-                {
-                    "type": "variable-update",
-                    "key": variable.key,
-                    "error": f"{exc}",
-                }
-            )
-    for variable in diffs["extra"]:
-        try:
-            if variables_dict[variable].type == "actions":
-                repo.delete_variable(variable)
-            else:
-                repo.get_environment(variables_dict[variable].type.replace("environments/", "")).delete_variable(variable)
-            # delete_variable(repo, variable, variables_dict[variable].type)
-            actions_toolkit.info(f"Deleted variable {variable}")
-        except Exception as exc:  # this should be tighter
-            errors.append(
-                {
-                    "type": "variable-update",
-                    "key": variable.key,
-                    "error": f"{exc}",
-                }
-            )
+    for issue_type in diffs.keys():
+        if issue_type == "diff":
+            variableNames = diffs[issue_type].keys()
+        else:
+            variableNames = diffs[issue_type]
+        for variable in variableNames:
+            if variables_dict[variable].exists:
+                try:
+                    if variables_dict[variable].type == "actions":
+                        repo.create_variable(variable, variables_dict[variable].value)
+                    else:
+                        repo.get_environment(variables_dict[variable].type.replace("environments/", "")).create_variable(
+                            variable, variables_dict[variable].value
+                        )
+                    actions_toolkit.info(f"Created variable {variable}")
+                except Exception as exc:  # this should be tighter
+                    if variables_dict[variable].required:
+                        errors.append(
+                            {
+                                "type": "variable-update",
+                                "key": variable.key,
+                                "error": f"{exc}",
+                            }
+                        )
+            else: 
+                try:
+                    if variables_dict[variable].type == "actions":
+                        repo.delete_variable(variable)
+                    else:
+                        repo.get_environment(variables_dict[variable].type.replace("environments/", "")).delete_variable(variable)
+                    actions_toolkit.info(f"Deleted variable {variable}")
+                except Exception as exc:  # this should be tighter
+                    errors.append(
+                        {
+                            "type": "variable-update",
+                            "key": variable.key,
+                            "error": f"{exc}",
+                        }
+                    )
     return errors

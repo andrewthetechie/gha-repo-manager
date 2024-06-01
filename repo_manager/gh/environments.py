@@ -347,13 +347,15 @@ def update_environments(repo: Repository, environments: list[Environment], diffs
                             pErrors = update_secrets(repo, config_env_dict[env_name].secrets)
                         elif env_component == "variables" and config_env_dict[env_name].variables is not None:
                             if issue_type == "missing":
-                                diffs[issue_type][env_name][env_component] = {
+                                var_diffs = {
                                     "missing": [variable.key for variable in config_env_dict[env_name].variables]
                                 }
+                            else:
+                                var_diffs = diffs[issue_type][env_name][env_component]
                             pErrors = update_variables(
                                 repo,
                                 config_env_dict[env_name].variables,
-                                diffs[issue_type][env_name][env_component],
+                                var_diffs,
                             )
                     if len(pErrors) > 0:
                         errors.append(pErrors)
