@@ -1,8 +1,7 @@
 from functools import lru_cache
 
 from github import Github
-from github.GithubException import GithubException
-from github.GithubException import UnknownObjectException
+from github.GithubException import GithubException, UnknownObjectException
 
 
 @lru_cache
