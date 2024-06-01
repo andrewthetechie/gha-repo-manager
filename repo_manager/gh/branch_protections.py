@@ -313,8 +313,9 @@ def check_repo_branch_protections(
 
         try:
             this_protection = repo_bp.get_protection()
-        except Exception:
-            actions_toolkit.info(f"Repo {repo.name} does not currently have any branch protections defined.")
+        except Exception as exc:
+            actions_toolkit.info(f"Repo {repo.full_name} does not currently have any branch protections defined?")
+            actions_toolkit.info(f"error: {exc}")
             continue
         if config_bp.protection.pr_options is not None:
             diffs.append(
