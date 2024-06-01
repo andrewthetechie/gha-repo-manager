@@ -269,9 +269,7 @@ def update_environments(repo: Repository, environments: list[Environment], diffs
                     for env_component in components:
                         if env_component == "secrets" and config_env_dict[env_name].secrets is not None:
                             if issue_type == "missing":
-                                secret_diffs = {
-                                    "missing": [secret.key for secret in config_env_dict[env_name].secrets]
-                                }
+                                secret_diffs = {"missing": [secret.key for secret in config_env_dict[env_name].secrets]}
                             else:
                                 secret_diffs = diffs[issue_type][env_name][env_component]
                             pErrors = update_secrets(repo, config_env_dict[env_name].secrets, secret_diffs)
