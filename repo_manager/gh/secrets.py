@@ -3,75 +3,9 @@ from typing import Any
 
 from actions_toolkit import core as actions_toolkit
 
-from github.PublicKey import PublicKey
 from github.Repository import Repository
 
 from repo_manager.schemas.secret import Secret
-
-
-def get_public_key(repo: Repository, type: str = "actions") -> PublicKey:
-    """
-    :calls: `GET /repos/{owner}/{repo}/actions/secrets/public-key
-    <https://docs.github.com/en/rest/reference/actions#get-a-repository-public-key>`_
-    :rtype: :class:`github.PublicKey.PublicKey`
-    """
-    # can only access dependabot secrets with admin:org scope
-    # https://docs.github.com/en/rest/dependabot/secrets?apiVersion=2022-11-28
-    if "admin:org" not in repo._requester.oauth_scopes and type == "dependabot":
-        raise Exception("dependabot secrets require admin:org scope for the token used to access them.")
-    headers, data = repo._requester.requestJsonAndCheck("GET", f"{repo.url}/{type}/secrets/public-key")
-    return PublicKey(repo._requester, headers, data, completed=True)
-
-
-def create_secret(
-    repo: Repository,
-    secret_name: str,
-    unencrypted_value: str,
-    type: str = "actions",
-) -> bool:
-    """
-    :calls: `PUT /repos/{owner}/{repo}/actions/secrets/{secret_name}
-    <https://docs.github.com/en/rest/reference/actions#get-a-repository-secret>`_
-
-    Copied from https://github.com/PyGithub/PyGithub/blob/master/github/Repository.py#L1428 in order to
-    support dependabot
-    :param secret_name: string
-    :param unencrypted_value: string
-    :rtype: bool
-    """
-    public_key = get_public_key(repo, type)
-    payload = public_key.encrypt(unencrypted_value)
-    put_parameters = {
-        "key_id": public_key.key_id,
-        "encrypted_value": payload,
-    }
-    # can only access dependabot secrets with admin:org scope
-    # https://docs.github.com/en/rest/dependabot/secrets?apiVersion=2022-11-28
-    if "admin:org" not in repo._requester.oauth_scopes and type == "dependabot":
-        raise Exception("dependabot secrets require admin:org scope for the token used to access them.")
-    status, headers, data = repo._requester.requestJson(
-        "PUT", f"{repo.url}/{type}/secrets/{secret_name}", input=put_parameters
-    )
-    if status not in (201, 204):
-        raise Exception(f"Unable to create {type} secret. Status code: {status}")
-    return True
-
-
-def delete_secret(repo: Repository, secret_name: str, type: str = "actions") -> bool:
-    """
-    Copied from https://github.com/PyGithub/PyGithub/blob/master/github/Repository.py#L1448
-    to add support for dependabot
-    :calls: `DELETE /repos/{owner}/{repo}/actions/secrets/{secret_name}
-        <https://docs.github.com/en/rest/reference/actions#delete-a-repository-secret>`_
-    :param secret_name: string
-    :rtype: bool
-    """
-    # can only access dependabot secrets with admin:org scope
-    # https://docs.github.com/en/rest/dependabot/secrets?apiVersion=2022-11-28
-    if "admin:org" not in repo._requester.oauth_scopes and type == "dependabot":
-        raise Exception("dependabot secrets require admin:org scope for the token used to access them.")
-    status, headers, data = repo._requester.requestJson("DELETE", f"{repo.url}/{type}/secrets/{secret_name}")
-    return status == 204
 
 
 def check_repo_secrets(repo: Repository, secrets: list[Secret]) -> tuple[bool, dict[str, list[str] | dict[str, Any]]]:
@@ -145,19 +79,28 @@ def update_secrets(repo: Repository, secrets: list[Secret]) -> set[str]:
         # Because we cannot diff secrets, just apply it every time
         if secret.exists:
             try:
-                create_secret(repo, secret.key, secret.expected_value, secret.type)
+                if secret.type in ["actions", "dependabot"]:
+                    repo.create_secret(secret.key, secret.expected_value, secret.type)
+                else:
+                    repo.get_environment(secret.type).create_secret(secret.key, secret.expected_value)
+                # create_secret(repo, secret.key, secret.expected_value, secret.type)
                 actions_toolkit.info(f"Set {secret.key} to expected value")
             except Exception as exc:  # this should be tighter
-                errors.append(
-                    {
-                        "type": "secret-update",
-                        "key": secret.key,
-                        "error": f"{exc}",
-                    }
-                )
+                if secret.required:
+                    errors.append(
+                        {
+                            "type": "secret-update",
+                            "key": secret.key,
+                            "error": f"{exc}",
+                        }
+                    )
         else:
             try:
-                delete_secret(repo, secret.key, secret.type)
+                if secret.type in ["actions", "dependabot"]:
+                    repo.delete_secret(secret.key, secret.type)
+                else:
+                    repo.get_environment(secret.type).delete_secret(secret.key)
+                # delete_secret(repo, secret.key, secret.type)
                 actions_toolkit.info(f"Deleted {secret.key}")
             except Exception as exc:  # this should be tighter
                 errors.append(

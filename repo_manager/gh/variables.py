@@ -27,60 +27,8 @@ def _get_repo_variables(repo: Repository, path: str = "actions") -> Any:
     return variable_data["variables"]
 
 
-def _get_repo_variable_names(repo: Repository, path: str = "actions") -> set[str]:
-    return {variable["name"] for variable in _get_repo_variables(repo, path)}
-
-
 def _get_repo_variable_dict(repo: Repository, path: str = "actions") -> dict[str, Any]:
     return {variable["name"]: variable for variable in _get_repo_variables(repo, path)}
-
-
-def create_variable(repo: Repository, variable_name: str, value: str, path: str = "actions") -> bool:
-    """
-    :calls: `POST /repos/{owner}/{repo}/{path}/variables
-    <https://docs.github.com/en/rest/actions/variables?apiVersion=2022-11-28>`_
-
-    :param variable_name: string
-    :param value: string
-    :path: string
-    """
-    put_parameters = {"name": variable_name, "value": value}
-    status, headers, data = repo._requester.requestJson("POST", f"{repo.url}/{path}/variables", input=put_parameters)
-    if status not in {201}:
-        raise Exception(f"Unable to create variable: {variable_name}. Error: {json.loads(data)['message']}")
-    return True
-
-
-def update_variable(repo: Repository, variable_name: str, value: str, path: str = "actions") -> bool:
-    """
-    :calls: `PATCH /repos/{owner}/{repo}/{path}/variables/{variable_name}
-    <https://docs.github.com/en/rest/actions/variables?apiVersion=2022-11-28>`_
-
-    :param variable_name: string
-    :param value: string
-    :path: string
-    """
-    put_parameters = {"name": variable_name, "value": value}
-    status, headers, data = repo._requester.requestJson(
-        "PATCH", f"{repo.url}/{path}/variables/{variable_name}", input=put_parameters
-    )
-    if status not in {204}:
-        raise Exception(f"Unable to update variable: {variable_name}. Error: {json.loads(data)['message']}")
-    return True
-
-
-def delete_variable(repo: Repository, variable_name: str, path: str = "actions") -> bool:
-    """
-    :calls: `DELETE /repos/{owner}/{repo}/{path}/variables/{variable_name}
-    <https://docs.github.com/en/rest/actions/variables?apiVersion=2022-11-28>`_
-
-    :param variable_name: string
-    :path: string
-    """
-    status, headers, data = repo._requester.requestJson("DELETE", f"{repo.url}/{path}/variables/{variable_name}")
-    if status not in {204}:
-        raise Exception(f"Unable to delete variable: {variable_name}. Error: {json.loads(data)['message']}")
-    return status == 204
 
 
 def check_variables(repo: Repository, variables: list[Secret]) -> tuple[bool, dict[str, list[str] | dict[str, Any]]]:
@@ -143,50 +91,45 @@ def update_variables(
     """
     errors = []
     variables_dict = {variable.key: variable for variable in variables}
-    for variable in diffs["missing"]:
-        try:
-            create_variable(
-                repo,
-                variable,
-                variables_dict[variable].value,
-                variables_dict[variable].type,
-            )
-            actions_toolkit.info(f"Created variable {variable}")
-        except Exception as exc:  # this should be tighter
-            errors.append(
-                {
-                    "type": "variable-update",
-                    "key": variable.key,
-                    "error": f"{exc}",
-                }
-            )
-    for variable in diffs["diff"].keys():
-        try:
-            update_variable(
-                repo,
-                variable,
-                variables_dict[variable].value,
-                variables_dict[variable].type,
-            )
-            actions_toolkit.info(f"Set variable {variable} to expected value")
-        except Exception as exc:  # this should be tighter
-            errors.append(
-                {
-                    "type": "variable-update",
-                    "key": variable.key,
-                    "error": f"{exc}",
-                }
-            )
-    for variable in diffs["extra"]:
-        try:
-            delete_variable(repo, variable, variables_dict[variable].type)
-            actions_toolkit.info(f"Deleted variable {variable}")
-        except Exception as exc:  # this should be tighter
-            errors.append(
-                {
-                    "type": "variable-update",
-                    "key": variable.key,
-                    "error": f"{exc}",
-                }
-            )
+    for issue_type in diffs.keys():
+        if issue_type == "diff":
+            variableNames = diffs[issue_type].keys()
+        else:
+            variableNames = diffs[issue_type]
+        for variable in variableNames:
+            if variables_dict[variable].exists:
+                try:
+                    if variables_dict[variable].type == "actions":
+                        repo.create_variable(variable, variables_dict[variable].value)
+                    else:
+                        repo.get_environment(
+                            variables_dict[variable].type.replace("environments/", "")
+                        ).create_variable(variable, variables_dict[variable].value)
+                    actions_toolkit.info(f"Created variable {variable}")
+                except Exception as exc:  # this should be tighter
+                    if variables_dict[variable].required:
+                        errors.append(
+                            {
+                                "type": "variable-update",
+                                "key": variable.key,
+                                "error": f"{exc}",
+                            }
+                        )
+            else:
+                try:
+                    if variables_dict[variable].type == "actions":
+                        repo.delete_variable(variable)
+                    else:
+                        repo.get_environment(
+                            variables_dict[variable].type.replace("environments/", "")
+                        ).delete_variable(variable)
+                    actions_toolkit.info(f"Deleted variable {variable}")
+                except Exception as exc:  # this should be tighter
+                    errors.append(
+                        {
+                            "type": "variable-update",
+                            "key": variable.key,
+                            "error": f"{exc}",
+                        }
+                    )
     return errors
