@@ -127,7 +127,7 @@ def diff_option(key: str, expected: Any, repo_value: Any) -> str | None:
     return None
 
 
-def create_environment(repo: Repository, env: environment) -> bool:
+def create_environment(repo: Repository, env: Environment) -> bool:
     """:calls: `PUT /repos/{owner}/{repo}/actions/secrets/{secret_name}
     <https://docs.github.com/en/rest/deployments/environments?apiVersion=2022-11-28#create-or-update-an-environment>`_
 
@@ -163,7 +163,7 @@ def create_environment(repo: Repository, env: environment) -> bool:
     return True
 
 
-def check_environment_settings(repo: Repository, config_env: environment) -> tuple[bool, dict[str, Any]]:
+def check_environment_settings(repo: Repository, config_env: Environment) -> tuple[bool, dict[str, Any]]:
     repo_env = repo.get_environment(config_env.name)
     repo_protection_rules_dict = {
         protection_rule.type: protection_rule for protection_rule in repo_env.protection_rules
@@ -231,7 +231,7 @@ def check_environment_settings(repo: Repository, config_env: environment) -> tup
     return True, None
 
 
-def check_branch_policies(repo: Repository, env: environment) -> tuple[bool, dict[str, Any]]:
+def check_branch_policies(repo: Repository, env: Environment) -> tuple[bool, dict[str, Any]]:
     if env.deployment_branch_policy is not None and env.deployment_branch_policy.custom_branch_policies:
         branch_patterns = {}
         repo_branch_name_patterns = __get_environment_deployment_branch_policies(repo, env.name)
@@ -250,7 +250,7 @@ def check_branch_policies(repo: Repository, env: environment) -> tuple[bool, dic
 
 
 def check_repo_environments(
-    repo: Repository, environments: list[environment]
+    repo: Repository, environments: list[Environment]
 ) -> tuple[bool, dict[str, list[str] | dict[str, Any]]]:
     """Checks a repo's environments vs our expected settings
 
@@ -313,7 +313,7 @@ def check_repo_environments(
     return True, None
 
 
-def update_environments(repo: Repository, environments: list[environment], diffs: dict[str, Any]) -> set[str]:
+def update_environments(repo: Repository, environments: list[Environment], diffs: dict[str, Any]) -> set[str]:
     """Updates a repo's environments to match the expected settings
 
     Args:
@@ -379,7 +379,7 @@ def update_environments(repo: Repository, environments: list[environment], diffs
                         actions_toolkit.info(f"Synced {env_component} for environment {env_name}")
             if issue_type == "extra":
                 if delete_environment(repo, env_name):
-                    actions_toolkit.info(f"Deleted {environment.name}")
+                    actions_toolkit.info(f"Deleted {env_name}")
     except Exception as exc:
         errors.append({"type": f"{env_component}-update", "error": f"{exc}"})
     return errors
