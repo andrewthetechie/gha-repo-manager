@@ -82,7 +82,7 @@ def update_secrets(repo: Repository, secrets: list[Secret]) -> set[str]:
                 if secret.type in ["actions", "dependabot"]:
                     repo.create_secret(secret.key, secret.expected_value, secret.type)
                 else:
-                    repo.get_environment(secret.type).create_secret(secret.key, secret.expected_value)
+                    repo.get_environment(secret.type.replace("environments/","")).create_secret(secret.key, secret.expected_value)
                 # create_secret(repo, secret.key, secret.expected_value, secret.type)
                 actions_toolkit.info(f"Set {secret.key} to expected value")
             except Exception as exc:  # this should be tighter
@@ -99,7 +99,7 @@ def update_secrets(repo: Repository, secrets: list[Secret]) -> set[str]:
                 if secret.type in ["actions", "dependabot"]:
                     repo.delete_secret(secret.key, secret.type)
                 else:
-                    repo.get_environment(secret.type).delete_secret(secret.key)
+                    repo.get_environment(secret.type.replace("environments/","")).delete_secret(secret.key)
                 # delete_secret(repo, secret.key, secret.type)
                 actions_toolkit.info(f"Deleted {secret.key}")
             except Exception as exc:  # this should be tighter
