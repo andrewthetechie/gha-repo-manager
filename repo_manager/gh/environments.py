@@ -6,7 +6,7 @@ from actions_toolkit import core as actions_toolkit
 from github.Repository import Repository
 
 from repo_manager.schemas.environment import (
-    environment,
+    Environment,
     Reviewer,
     DeploymentBranchPolicy,
 )
