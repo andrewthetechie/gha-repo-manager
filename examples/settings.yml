@@ -6,6 +6,20 @@
 # You can run Action from each repo, acting on that repo's settings.yml, or
 # from a central repo, using a single settings.yml to control many repos.
 
+# For users, it is the login id
+# For teams, it is the slug id
+# permission can be 'push','pull','triage','admin','maintain', or any custom role you have defined
+# for either users or teams, set exists to false to remove their permissions
+collaborators:
+  # - name: andrewthetechie
+  #   type: user
+  #   permission: admin
+  #   exists: false
+  # - name: <org>/<team>
+  #   type: team
+  #   permission: admin
+  #   exists: false
+
 # Which method you choose is up to you. See README.md for more info and example
 # Workflows to implement these strategies.
 settings:
@@ -188,6 +202,14 @@ secrets:
     required: false
   - key: DELETED_SECRET
     # setting exists to false will delete a secret. A delete that results in "not found" won't fail a run, so you can use this to make sure a secret is always deleted
+    exists: false
+
+variables:
+  # Largely the same as secrets, except it can actually check the values to see if there is a difference
+  # Secrets get applied / updated evertime this action runs because it cannot determine if the value changed
+  - key: VARIABLE1
+    value: change
+    # set to false in order to remove a variable
     exists: false
 
 # Can copy files from your local context to the repo.
