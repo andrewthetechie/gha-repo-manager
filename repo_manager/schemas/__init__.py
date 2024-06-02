@@ -15,6 +15,7 @@ class RepoManagerConfig(BaseModel):
         None, description="Branch protections in the repo to manage"
     )
     secrets: list[Secret] | None = Field(None, description="Secrets in the repo to manage")
+    variables: list[Secret] | None = Field(None, description="Variables in the repo to manage")
     labels: list[Label] | None = Field(None, description="Labels in the repo to manage")
     files: list[FileConfig] | None = Field(None, description="Files in the repo to manage")
     collaborators: list[Collaborator] | None = Field(None, description="Collaborators in the repo to manage")
@@ -22,6 +23,10 @@ class RepoManagerConfig(BaseModel):
     @property
     def secrets_dict(self):
         return {secret.key: secret for secret in self.secrets} if self.secrets is not None else {}
+
+    @property
+    def variables_dict(self):
+        return {variable.key: variable for variable in self.variables} if self.variables is not None else {}
 
     @property
     def labels_dict(self):

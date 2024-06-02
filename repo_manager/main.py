@@ -15,8 +15,9 @@ from repo_manager.gh.files import RemoteSrcNotFoundError
 from repo_manager.gh.labels import check_repo_labels
 from repo_manager.gh.labels import update_label
 from repo_manager.gh.secrets import check_repo_secrets
-from repo_manager.gh.secrets import create_secret
-from repo_manager.gh.secrets import delete_secret
+from repo_manager.gh.secrets import update_secrets
+from repo_manager.gh.variables import check_variables
+from repo_manager.gh.variables import update_variables
 from repo_manager.gh.collaborators import check_collaborators
 from repo_manager.gh.collaborators import update_collaborators
 from repo_manager.gh.settings import check_repo_settings
@@ -54,6 +55,7 @@ def main():  # noqa: C901
     for check, to_check in {
         check_repo_settings: ("settings", config.settings),
         check_repo_secrets: ("secrets", config.secrets),
+        check_variables: ("variables", config.variables),
         check_repo_labels: ("labels", config.labels),
         check_repo_branch_protections: (
             "branch_protections",
@@ -73,8 +75,6 @@ def main():  # noqa: C901
 
     if inputs["action"] == "check":
         if not check_result:
-            actions_toolkit.info(inputs["repo_object"].full_name)
-            actions_toolkit.info(json.dumps(diffs))
             actions_toolkit.set_output("result", "Check failed, diff detected")
             actions_toolkit.set_failed("Diff detected")
         actions_toolkit.set_output("result", "Check passed")
@@ -84,13 +84,15 @@ def main():  # noqa: C901
         errors = []
         for update, to_update in {
             # TODO: Implement these functions to reduce length and complexity of code
-            # update_settings: ("settings", config.settings),
-            # update_secrets: ("secrets", config.secrets),
-            # check_repo_labels: ("labels", config.labels),
+            # update_settings: ("settings", config.settings, diffs.get("settings", None)),
+            # check_repo_labels: ("labels", config.labels, diffs.get("labels", None)),
             # check_repo_branch_protections: (
             #     "branch_protections",
             #     config.branch_protections,
+            #     diffs.get("branch_protections", None),
             # ),
+            update_secrets: ("secrets", config.secrets, diffs.get("secrets", None)),
+            update_variables: ("variables", config.variables, diffs.get("variables", None)),
             update_collaborators: ("collaborators", config.collaborators, diffs.get("collaborators", None)),
         }.items():
             update_name, to_update, categorical_diffs = to_update
@@ -103,36 +105,6 @@ def main():  # noqa: C901
                         actions_toolkit.info(f"Synced {update_name}")
                 except Exception as exc:
                     errors.append({"type": f"{update_name}-update", "error": f"{exc}"})
-
-        # Because we cannot diff secrets, just apply it every time
-        if config.secrets is not None:
-            for secret in config.secrets:
-                if secret.exists:
-                    try:
-                        create_secret(
-                            inputs["repo_object"], secret.key, secret.expected_value, secret.type == "dependabot"
-                        )
-                        actions_toolkit.info(f"Set {secret.key} to expected value")
-                    except Exception as exc:  # this should be tighter
-                        errors.append(
-                            {
-                                "type": "secret-update",
-                                "key": secret.key,
-                                "error": f"{exc}",
-                            }
-                        )
-                else:
-                    try:
-                        delete_secret(inputs["repo_object"], secret.key, secret.type == "dependabot")
-                        actions_toolkit.info(f"Deleted {secret.key}")
-                    except Exception as exc:  # this should be tighter
-                        errors.append(
-                            {
-                                "type": "secret-delete",
-                                "key": secret.key,
-                                "error": f"{exc}",
-                            }
-                        )
 
         labels_diff = diffs.get("labels", None)
         if labels_diff is not None:
