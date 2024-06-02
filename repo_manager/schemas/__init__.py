@@ -6,6 +6,7 @@ from .file import FileConfig
 from .label import Label
 from .secret import Secret
 from .settings import Settings
+from .environment import Environment
 from .collaborator import Collaborator
 
 
@@ -19,6 +20,7 @@ class RepoManagerConfig(BaseModel):
     labels: list[Label] | None = Field(None, description="Labels in the repo to manage")
     files: list[FileConfig] | None = Field(None, description="Files in the repo to manage")
     collaborators: list[Collaborator] | None = Field(None, description="Collaborators in the repo to manage")
+    environments: list[Environment] | None = Field(None, description="Deployment Environments in the repo to manage")
 
     @property
     def secrets_dict(self):
@@ -37,6 +39,14 @@ class RepoManagerConfig(BaseModel):
         return (
             {branch_protection.name: branch_protection for branch_protection in self.branch_protections}
             if self.branch_protections is not None
+            else {}
+        )
+
+    @property
+    def environments_dict(self):
+        return (
+            {environment.name: environment for environment in self.environments}
+            if self.environments is not None
             else {}
         )
 

@@ -2,7 +2,9 @@ import json
 import sys
 
 from actions_toolkit import core as actions_toolkit
+
 from pydantic import ValidationError
+
 from yaml import YAMLError
 
 from repo_manager.gh import GithubException, UnknownObjectException
@@ -20,6 +22,8 @@ from repo_manager.gh.variables import check_variables
 from repo_manager.gh.variables import update_variables
 from repo_manager.gh.collaborators import check_collaborators
 from repo_manager.gh.collaborators import update_collaborators
+from repo_manager.gh.environments import check_repo_environments
+from repo_manager.gh.environments import update_environments
 from repo_manager.gh.settings import check_repo_settings
 from repo_manager.gh.settings import update_settings
 from repo_manager.schemas import load_config
@@ -61,6 +65,7 @@ def main():  # noqa: C901
             "branch_protections",
             config.branch_protections,
         ),
+        check_repo_environments: ("environments", config.environments),
         check_collaborators: ("collaborators", config.collaborators),
     }.items():
         check_name, to_check = to_check
@@ -75,6 +80,7 @@ def main():  # noqa: C901
 
     if inputs["action"] == "check":
         if not check_result:
+            actions_toolkit.info(json.dumps(diffs))
             actions_toolkit.set_output("result", "Check failed, diff detected")
             actions_toolkit.set_failed("Diff detected")
         actions_toolkit.set_output("result", "Check passed")
@@ -93,6 +99,7 @@ def main():  # noqa: C901
             # ),
             update_secrets: ("secrets", config.secrets, diffs.get("secrets", None)),
             update_variables: ("variables", config.variables, diffs.get("variables", None)),
+            update_environments: ("environments", config.environments, diffs.get("environments", None)),
             update_collaborators: ("collaborators", config.collaborators, diffs.get("collaborators", None)),
         }.items():
             update_name, to_update, categorical_diffs = to_update
