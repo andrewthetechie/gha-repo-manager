@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.8.0](https://github.com/andrewthetechie/gha-repo-manager/compare/v1.7.2...v1.8.0) (2024-06-02)
+
+
+### Features
+
+* Ability to configure repo Collaborators (teams + users) ([#232](https://github.com/andrewthetechie/gha-repo-manager/issues/232)) ([1bd6d38](https://github.com/andrewthetechie/gha-repo-manager/commit/1bd6d382c795e30990b71a202981e40c4cde323a))
+* Pydantic 2.7.1 PR ([#225](https://github.com/andrewthetechie/gha-repo-manager/issues/225)) ([c1e014a](https://github.com/andrewthetechie/gha-repo-manager/commit/c1e014adcf31bafbcd7b29087ebd4e4a4b052ee0))
+
+
+### Bug Fixes
+
+* pydantic 2 fixes ([#237](https://github.com/andrewthetechie/gha-repo-manager/issues/237)) ([252c43a](https://github.com/andrewthetechie/gha-repo-manager/commit/252c43af4de68f15ebfb70ef7292bd10b4cc0b6c))
+
 ## [1.7.2](https://github.com/andrewthetechie/gha-repo-manager/compare/v1.7.1...v1.7.2) (2023-10-06)
 
 
