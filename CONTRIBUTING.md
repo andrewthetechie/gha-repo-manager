@@ -1,5 +1,7 @@
 # Contributor Guide
 
+** THIS ACTION IS NOT ACTIVELY UNDER DEVELOPMENT. ISSUES AND PRS MAY NOT BE RESPONDED TO **
+
 Thank you for your interest in improving this project. This project is
 open-source under the [MIT license](https://opensource.org/licenses/MIT)
 and welcomes contributions in the form of bug reports, feature requests,
