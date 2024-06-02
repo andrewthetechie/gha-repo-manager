@@ -16,7 +16,7 @@
       "name": "shiro",
       "avatar_url": "https://avatars.githubusercontent.com/u/24359398?v=4",
       "profile": "https://github.com/actuarysailor",
-      "contributions": ["bug", "code"]
+      "contributions": ["ideas", "test", "bug", "code"]
     }
   ],
   "contributorsPerLine": 7,
@@ -24,6 +24,6 @@
   "repoType": "github",
   "repoHost": "https://github.com",
   "projectName": "gha-repo-manager",
-  "projectOwner": "andrewthetechie",
+  "projectOwner": "actuarysailor",
   "commitType": "docs"
 }
