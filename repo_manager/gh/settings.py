@@ -1,7 +1,5 @@
 from typing import Any
 
-from actions_toolkit import core as actions_toolkit
-
 from github.Repository import Repository
 
 from repo_manager.schemas.settings import Settings
@@ -68,21 +66,14 @@ def check_repo_settings(repo: Repository, settings: Settings) -> tuple[bool, lis
     for setting_name in settings.dict().keys():
         repo_value = get_repo_value(setting_name, repo)
         settings_value = getattr(settings, setting_name)
-        if setting_name in [
-            "allow_squash_merge",
-            "allow_merge_commit",
-            "allow_rebase_merge",
-            "delete_branch_on_merge",
-            "enable_automated_security_fixes",
-            "enable_vulnerability_alerts",
-        ]:
-            if repo._requester.oauth_scopes is None:
-                continue
-            elif repo_value is None:
-                actions_toolkit.info(f"Unable to access {setting_name} with OAUTH of {repo._requester.oauth_scopes}")
-        # We don't want to flag description being different if the YAML is None
-        if settings_value is None:
+        # These don't seem to update if changed; may need to explore a different API call
+        if (setting_name == "enable_automated_security_fixes") | (setting_name == "enable_vulnerability_alerts"):
             continue
+        # We don't want to flag description being different if the YAML is None
+        if (setting_name == "description") & (not settings_value):
+            continue
+        elif (setting_name == "topics") & (settings_value is None):
+            settings_value = []
         if repo_value != settings_value:
             drift.append(f"{setting_name} -- Expected: '{settings_value}' Found: '{repo_value}'")
             checked &= False if (settings_value is not None) else True

@@ -1,8 +1,6 @@
 from copy import deepcopy
 from typing import Any
 
-from actions_toolkit import core as actions_toolkit
-
 from github.Consts import mediaTypeRequireMultipleApprovingReviews
 from github.GithubException import GithubException
 from github.GithubObject import NotSet
@@ -311,12 +309,7 @@ def check_repo_branch_protections(
             diff_protections[config_bp.name] = ["Branch is not protected"]
             continue
 
-        try:
-            this_protection = repo_bp.get_protection()
-        except Exception as exc:
-            actions_toolkit.info(f"Repo {repo.full_name} does not currently have any branch protections defined?")
-            actions_toolkit.info(f"error: {exc}")
-            continue
+        this_protection = repo_bp.get_protection()
         if config_bp.protection.pr_options is not None:
             diffs.append(
                 diff_option(
