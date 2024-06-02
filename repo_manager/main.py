@@ -17,6 +17,8 @@ from repo_manager.gh.labels import update_label
 from repo_manager.gh.secrets import check_repo_secrets
 from repo_manager.gh.secrets import create_secret
 from repo_manager.gh.secrets import delete_secret
+from repo_manager.gh.collaborators import check_collaborators
+from repo_manager.gh.collaborators import update_collaborators
 from repo_manager.gh.settings import check_repo_settings
 from repo_manager.gh.settings import update_settings
 from repo_manager.schemas import load_config
@@ -57,6 +59,7 @@ def main():  # noqa: C901
             "branch_protections",
             config.branch_protections,
         ),
+        check_collaborators: ("collaborators", config.collaborators),
     }.items():
         check_name, to_check = to_check
         if to_check is not None:
@@ -70,6 +73,8 @@ def main():  # noqa: C901
 
     if inputs["action"] == "check":
         if not check_result:
+            actions_toolkit.info(inputs["repo_object"].full_name)
+            actions_toolkit.info(json.dumps(diffs))
             actions_toolkit.set_output("result", "Check failed, diff detected")
             actions_toolkit.set_failed("Diff detected")
         actions_toolkit.set_output("result", "Check passed")
@@ -77,6 +82,27 @@ def main():  # noqa: C901
 
     if inputs["action"] == "apply":
         errors = []
+        for update, to_update in {
+            # TODO: Implement these functions to reduce length and complexity of code
+            # update_settings: ("settings", config.settings),
+            # update_secrets: ("secrets", config.secrets),
+            # check_repo_labels: ("labels", config.labels),
+            # check_repo_branch_protections: (
+            #     "branch_protections",
+            #     config.branch_protections,
+            # ),
+            update_collaborators: ("collaborators", config.collaborators, diffs.get("collaborators", None)),
+        }.items():
+            update_name, to_update, categorical_diffs = to_update
+            if categorical_diffs is not None:
+                try:
+                    application_errors = update(inputs["repo_object"], to_update, categorical_diffs)
+                    if len(application_errors) > 0:
+                        errors.append(application_errors)
+                    else:
+                        actions_toolkit.info(f"Synced {update_name}")
+                except Exception as exc:
+                    errors.append({"type": f"{update_name}-update", "error": f"{exc}"})
 
         # Because we cannot diff secrets, just apply it every time
         if config.secrets is not None:

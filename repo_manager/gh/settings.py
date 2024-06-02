@@ -1,5 +1,7 @@
 from typing import Any
 
+from actions_toolkit import core as actions_toolkit
+
 from github.Repository import Repository
 
 from repo_manager.schemas.settings import Settings
@@ -69,6 +71,17 @@ def check_repo_settings(repo: Repository, settings: Settings) -> tuple[bool, lis
         # These are dependabot settings and access to them needs to be modified; not part of settings
         if setting_name in ["enable_automated_security_fixes", "enable_vulnerability_alerts"]:
             continue
+        # TODO: Unresolved issues when new Fine Grain Tokens have OAUTH SCOPE of none...
+        if setting_name in [
+            "allow_squash_merge",
+            "allow_merge_commit",
+            "allow_rebase_merge",
+            "delete_branch_on_merge",
+        ]:
+            if repo._requester.oauth_scopes is None:
+                continue
+            elif repo_value is None:
+                actions_toolkit.info(f"Unable to access {setting_name} with OAUTH of {repo._requester.oauth_scopes}")
         # We don't want to flag differences omitted in the YAML file
         if settings_value is None:
             continue
