@@ -7,8 +7,17 @@ on:
     paths:
       - '.github/workflows/action-integration.yml'
       - 'action.yml'
+      - 'Dockerfile'
+      - '.github/scripts/replace_inputs.sh'
+      - '**/*.py'
 
   pull_request_target:
+    paths:
+      - '.github/workflows/action-integration.yml'
+      - 'action.yml'
+      - 'Dockerfile'
+      - '**/*.py'
+
 jobs:
   action-integration-testing:
     name: Action Integration Testing

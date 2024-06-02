@@ -5,9 +5,13 @@ on:
     branches:
       - main
     paths:
+      - '.github/workflows/python-ci.yml'
+      - 'action.yml'
       - '**/*.py'
   pull_request:
     paths:
+      - '.github/workflows/python-ci.yml'
+      - 'action.yml'
       - '**/*.py'
 
 jobs:
