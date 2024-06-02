@@ -1,12 +1,17 @@
-# Repo Manager via Github Actions
+# Manage Administrative Repository Settings from Pull-Requests
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
-<!-- action-docs-description -->
-## Description
+<!-- action-docs-description source="action.yml" -->
+### Description
 
-Manage Administrative Repository Settings from within a repository!
+Manage all Github repo settings from a YAML file, enabling greater change control, transparency, and auditability.
+<!-- action-docs-description source="action.yml" -->
+
+## Usage
+
+Manage Administrative Repository Settings from within a repository - via a YAML file!
 
 **Why would you want to do this?**
 * Adhere to principal of least-privilegas for developers and other contributors.
@@ -18,12 +23,7 @@ Manage Administrative Repository Settings from within a repository!
     * Make directories containing standardized example workflows and use the file-copy to maintain all CI/CD workflows matching a given regex pattern for repo names
     * Similary, add a settings.yml file to that directory to standardize variables, secrets, access control lists, etc.
 
-
-<!-- action-docs-description -->
-
-## Usage
-
-This action manages your repo from a yaml file. You can manage:
+**What Items You May Manage:**
 
 * repos *configure external repos*
 * repo settings
@@ -70,40 +70,32 @@ jobs:
 
 ```
 
-<!-- action-docs-inputs -->
-## Inputs
+<!-- action-docs-inputs source="action.yml" -->
+### Inputs
 
-| parameter | description | required | default |
-| - | - | - | - |
-| action | What action to take with this action. One of validate, check, or apply. Validate will validate your settings file, but not touch your repo. Check will check your repo with your settings file and output a report of any drift. Apply will apply the settings in your settings file to your repo | `false` | check |
-| settings_file | What yaml file to use as your settings. This is local to runner running this action. | `false` | .github/settings.yml |
-| repo | What repo to perform this action on. Default is self, as in the repo this action is running in | `false` | self |
-| github_server_url | Set a custom github server url for github api operations. Useful if you're running on GHE. Will try to autodiscover from env.GITHUB_SERVER_URL if left at default | `false` | none |
-| token | What github token to use with this action. | `true` |  |
+| name | description | required | default |
+| --- | --- | --- | --- |
+| `action` | <p>What action to take with this action. One of validate, check, or apply. Validate will validate your settings file, but not touch your repo. Check will check your repo with your settings file and output a report of any drift. Apply will apply the settings in your settings file to your repo</p> | `false` | `check` |
+| `settings_file` | <p>What yaml file to use as your settings. This is local to runner running this action.</p> | `false` | `.github/settings.yml` |
+| `repo` | <p>What repo to perform this action on. Default is self, as in the repo this action is running in</p> | `false` | `self` |
+| `github_server_url` | <p>Set a custom github server url for github api operations. Useful if you're running on GHE. Will try to autodiscover from env.GITHUB<em>SERVER</em>URL if left at default</p> | `false` | `none` |
+| `token` | <p>What github token to use with this action.</p> | `true` | `""` |
+<!-- action-docs-inputs source="action.yml" -->
 
+<!-- action-docs-outputs source="action.yml" -->
+### Outputs
 
+| name | description |
+| --- | --- |
+| `result` | <p>Result of the action</p> |
+| `diff` | <p>Diff of this action, dumped to a json string</p> |
+<!-- action-docs-outputs source="action.yml" -->
 
-<!-- action-docs-inputs -->
-
-<!-- action-docs-outputs -->
-## Outputs
-
-| parameter | description |
-| - | - |
-| result | Result of the action |
-| diff | Diff of this action, dumped to a json string |
-
-
-
-<!-- action-docs-outputs -->
-
-<!-- action-docs-runs -->
-## Runs
+<!-- action-docs-runs source="action.yml" -->
+### Runs
 
 This action is a `docker` action.
-
-
-<!-- action-docs-runs -->
+<!-- action-docs-runs source="action.yml" -->
 
 ## Contributors
 
