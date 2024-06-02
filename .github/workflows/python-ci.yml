@@ -7,11 +7,17 @@ on:
     paths:
       - '.github/workflows/python-ci.yml'
       - 'action.yml'
+      - '.pre-commit-config.yaml'
+      - 'package-requirements.txt'
+      - 'pyproject.toml'
       - '**/*.py'
   pull_request:
     paths:
       - '.github/workflows/python-ci.yml'
       - 'action.yml'
+      - '.pre-commit-config.yaml'
+      - 'package-requirements.txt'
+      - 'pyproject.toml'
       - '**/*.py'
 
 jobs:

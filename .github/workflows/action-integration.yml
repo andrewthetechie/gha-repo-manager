@@ -8,7 +8,6 @@ on:
       - '.github/workflows/action-integration.yml'
       - 'action.yml'
       - 'Dockerfile'
-      - '.github/scripts/replace_inputs.sh'
       - '**/*.py'
 
   pull_request_target:
