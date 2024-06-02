@@ -25,9 +25,9 @@ class Settings(BaseModel):
     has_wiki: OptBool = Field(
         None, description="Either `true` to enable the wiki for this repository, `false` to disable it."
     )
-    has_downloads: OptBool = Field(
-        None, description="Either `true` to enable downloads for this repository, `false` to disable them."
-    )
+    # has_downloads: OptBool = Field(
+    #     None, description="Either `true` to enable downloads for this repository, `false` to disable them."
+    # )
     default_branch: OptStr = Field(None, description="Set the default branch for this repository. ")
     allow_squash_merge: OptBool = Field(
         None, description="Either `true` to allow squash-merging pull requests, or `false` to prevent squash-merging."

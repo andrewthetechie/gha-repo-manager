@@ -27,7 +27,7 @@ settings:
   has_wiki: false
 
   # Either `true` to enable downloads for this repository, `false` to disable them.
-  has_downloads: false
+  # has_downloads: false
 
   # Set the default branch for this repository.
   default_branch: main
@@ -86,8 +86,8 @@ branch_protections:
         strict: true
         # The list of status checks to require in order to merge into this branch
         checks:
-          - Lint
-          - Integration Testing
+          - pre-commit 3.11 / ubuntu-latest
+          - Action Integration Testing
           - Generate Docs
       # Enforce all configured restrictions for administrators. Set to true to enforce required status checks for repository administrators. Set to null to disable.
       enforce_admins: false
