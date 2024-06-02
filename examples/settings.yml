@@ -6,20 +6,6 @@
 # You can run Action from each repo, acting on that repo's settings.yml, or
 # from a central repo, using a single settings.yml to control many repos.
 
-# For users, it is the login id
-# For teams, it is the slug id
-# permission can be 'push','pull','triage','admin','maintain', or any custom role you have defined
-# for either users or teams, set exists to false to remove their permissions
-collaborators:
-  # - name: andrewthetechie
-  #   type: user
-  #   permission: admin
-  #   exists: false
-  # - name: <org>/<team>
-  #   type: team
-  #   permission: admin
-  #   exists: false
-
 # Which method you choose is up to you. See README.md for more info and example
 # Workflows to implement these strategies.
 settings:
