@@ -3,6 +3,8 @@ from typing import Any
 
 from actions_toolkit import core as actions_toolkit
 
+from github import Github, Repository, Organization
+
 # Needed to handle extracting certain attributes/fields from nested objects and lists
 from itertools import repeat
 
@@ -13,13 +15,14 @@ from ._inputs import INPUTS
 VALID_ACTIONS = {"validate": None, "check": None, "apply": None}
 
 
-def get_inputs() -> dict[str, Any]:
+def __get_inputs__() -> dict:
     """Get inputs from our workflow, valudate them, and return as a dict
     Reads inputs from the dict INPUTS. This dict is generated from the actions.yml file.
     Non required inputs that are not set are returned as None
     Returns:
         Dict[str, Any]: [description]
     """
+    global parsed_inputs
     parsed_inputs = dict()
     for input_name, input_config in INPUTS.items():
         this_input_value = actions_toolkit.get_input(
@@ -37,6 +40,64 @@ def get_inputs() -> dict[str, Any]:
                 parsed_inputs[input_name] = input_config.get("default", None)
                 if parsed_inputs[input_name] is None:
                     actions_toolkit.set_failed(f"Error getting inputs. {input_name} is missing a default")
+    return parsed_inputs
+
+
+def __get_api_url__() -> str:
+    global parsed_inputs
+    parsed_inputs = __get_inputs__() if "parsed_inputs" not in globals() else parsed_inputs
+    global api_url
+    if parsed_inputs["github_server_url"] == "https://github.com":
+        api_url = "https://api.github.com"
+    else:
+        api_url = parsed_inputs["github_server_url"] + "/api/v3"
+    actions_toolkit.debug(f"api_url: {api_url}")
+    return api_url
+
+
+def get_client() -> Github:
+    global parsed_inputs
+    parsed_inputs = __get_inputs__() if "parsed_inputs" not in globals() else parsed_inputs
+    global api_url
+    api_url = __get_api_url__() if "api_url" not in globals() else api_url
+    try:
+        client = get_github_client(parsed_inputs["token"], api_url=api_url)
+    except Exception as exc:  # this should be tighter
+        actions_toolkit.set_failed(f"Error while retrieving GitHub REST API Client from {api_url}. {exc}")
+    return client
+
+
+def get_repo() -> Repository:
+    global parsed_inputs
+    parsed_inputs = __get_inputs__() if "parsed_inputs" not in globals() else parsed_inputs
+    client = get_client()
+    try:
+        repo = client.get_repo(parsed_inputs["repo"])
+    except Exception as exc:  # this should be tighter
+        actions_toolkit.set_failed(f"Error while retrieving {parsed_inputs['repo']} from Github. {exc}")
+    return repo
+
+
+def get_organization() -> Organization:
+    global parsed_inputs
+    parsed_inputs = __get_inputs__() if "parsed_inputs" not in globals() else parsed_inputs
+    client = get_client()
+    try:
+        org = client.get_organization(parsed_inputs["repo"].split("/")[0])
+    except Exception as exc:  # this should be tighter
+        actions_toolkit.set_failed(f"Error while retrieving {parsed_inputs['repo'].split('/')[0]} from Github. {exc}")
+    return org
+
+
+def get_inputs() -> dict[str, Any]:
+    """Get inputs from our workflow, valudate them, and return as a dict
+    Reads inputs from the dict INPUTS. This dict is generated from the actions.yml file.
+    Non required inputs that are not set are returned as None
+    Returns:
+        Dict[str, Any]: [description]
+    """
+    global parsed_inputs
+    parsed_inputs = __get_inputs__() if "parsed_inputs" not in globals() else parsed_inputs
     return validate_inputs(parsed_inputs)
 
 
@@ -83,19 +144,8 @@ def validate_inputs(parsed_inputs: dict[str, Any]) -> dict[str, Any]:
                 + "INPUT_GITHUB_SERVER_URL or GITHUB_SERVER_URL in the env"
             )
     actions_toolkit.debug(f"github_server_url: {parsed_inputs['github_server_url']}")
-    if parsed_inputs["github_server_url"] == "https://github.com":
-        api_url = "https://api.github.com"
-    else:
-        api_url = parsed_inputs["github_server_url"] + "/api/v3"
 
-    actions_toolkit.debug(f"api_url: {api_url}")
-
-    try:
-        repo = get_github_client(parsed_inputs["token"], api_url=api_url).get_repo(parsed_inputs["repo"])
-    except Exception as exc:  # this should be tighter
-        actions_toolkit.set_failed(f"Error while retriving {parsed_inputs['repo']} from Github. {exc}")
-
-    parsed_inputs["repo_object"] = repo
+    parsed_inputs["repo_object"] = get_repo()
 
     return parsed_inputs
 
