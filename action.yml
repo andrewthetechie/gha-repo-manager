@@ -1,6 +1,6 @@
-name: "Yaml Repo Manager"
-description: "Manage your Github repo(s) settings and secrets using Github Actions and a yaml file"
-author: "Andrew Herrington"
+name: "Manage Administrative Repository Settings from Pull-Requests"
+description: Manage all Github repo settings from a YAML file, enabling greater change control, transparency, and auditability.
+author: "actuarysailor"
 inputs:
   action:
     description: What action to take with this action. One of validate, check, or apply. Validate will validate your settings file, but not touch your repo. Check will check your repo with your settings file and output a report of any drift. Apply will apply the settings in your settings file to your repo
