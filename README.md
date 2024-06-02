@@ -6,7 +6,17 @@
 <!-- action-docs-description -->
 ## Description
 
-Manage your Github repo(s) settings and secrets using Github Actions and a yaml file
+Manage Administrative Repository Settings from within a repository!
+
+**Why would you want to do this?**
+* Adhere to principal of least-privilegas for developers and other contributors.
+  * *Allows contributors without repo admin privileges to propose admin changes for review by repo owners and maintainers*
+* Enables contributors without admin rights ability to maintain variables, secrets, deployment environments, etc.
+  * *GitHub restricts many of these items to the repo admin role, but granting this role to many people runs in direct conflict to requirements by audit teams, generally accepted best practices for governance, or corporate standards and requirements*
+* Ability to centralize maintenance of repo configurations and permission standards
+  * *Use of [.github repo](https://www.freecodecamp.org/news/how-to-use-the-dot-github-repository/) or some other centralized repo*
+    * Make directories containing standardized example workflows and use the file-copy to maintain all CI/CD workflows matching a given regex pattern for repo names
+    * Similary, add a settings.yml file to that directory to standardize variables, secrets, access control lists, etc.
 
 
 <!-- action-docs-description -->
@@ -15,12 +25,15 @@ Manage your Github repo(s) settings and secrets using Github Actions and a yaml 
 
 This action manages your repo from a yaml file. You can manage:
 
-* branch protection
-* labels
-* repos
-* secrets
+* repos *configure external repos*
 * repo settings
-* Files
+* branch protection(s)
+* labels
+* secrets
+* variables
+* deployment environments
+* contributors *e.g. access control lists or ACL management*
+* files *such as CI/CD, codeowners, issue and pull-request templates, etc.*
 
 See [examples/settings.yml](./examples/settings.yml) for an example config file. The schemas for this file are in [repo_manager.schemas](./repo_magager/schemas).
 
@@ -44,13 +57,15 @@ jobs:
     - uses: actions/checkout@v3
     name: Checkout
     - name: Run RepoManager
-      uses: andrewthetechie/gha-repo-manager@main
+      # you should always reference a version tag to ensure that your use of an action never changes until you update it
+      uses: actuarysailor/gha-repo-manager@v1.9.0
       with:
         # Apply your settings to the repo, can also be check to just check repo settings vs your file or validate, to validate your
         # file is valid
         action: apply
         settings_file: .github/settings.yml
         # need a PAT that can edit repo settings
+        # note, some settings may require additional permissions; see comments in examples/settings.yml for details
         token: ${{ secrets.GITHUB_PAT }}
 
 ```
@@ -99,8 +114,8 @@ Please see our [Contribution Guide](./CONTRIBUTING.md) for more info on how you 
 <table>
   <tbody>
     <tr>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/andrewthetechie"><img src="https://avatars.githubusercontent.com/u/1377314?v=4?s=100" width="100px;" alt="Andrew"/><br /><sub><b>Andrew</b></sub></a><br /><a href="#ideas-andrewthetechie" title="Ideas, Planning, & Feedback">🤔</a> <a href="https://github.com/andrewthetechie/gha-repo-manager/commits?author=andrewthetechie" title="Tests">⚠️</a> <a href="https://github.com/andrewthetechie/gha-repo-manager/commits?author=andrewthetechie" title="Code">💻</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/actuarysailor"><img src="https://avatars.githubusercontent.com/u/24359398?v=4?s=100" width="100px;" alt="shiro"/><br /><sub><b>shiro</b></sub></a><br /><a href="https://github.com/andrewthetechie/gha-repo-manager/issues?q=author%3Aactuarysailor" title="Bug reports">🐛</a> <a href="https://github.com/andrewthetechie/gha-repo-manager/commits?author=actuarysailor" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/actuarysailor"><img src="https://avatars.githubusercontent.com/u/1377314?v=4?s=100" width="100px;" alt="Andrew"/><br /><sub><b>Andrew</b></sub></a><br /><a href="#ideas-actuarysailor" title="Ideas, Planning, & Feedback">🤔</a> <a href="https://github.com/actuarysailor/gha-repo-manager/commits?author=actuarysailor" title="Tests">⚠️</a> <a href="https://github.com/actuarysailor/gha-repo-manager/commits?author=actuarysailor" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/actuarysailor"><img src="https://avatars.githubusercontent.com/u/24359398?v=4?s=100" width="100px;" alt="shiro"/><br /><sub><b>shiro</b></sub></a><br /><a href="https://github.com/actuarysailor/gha-repo-manager/issues?q=author%3Aactuarysailor" title="Bug reports">🐛</a> <a href="https://github.com/actuarysailor/gha-repo-manager/commits?author=actuarysailor" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
