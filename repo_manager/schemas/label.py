@@ -2,7 +2,7 @@ from typing import Optional
 
 from pydantic import BaseModel  # pylint: disable=E0611
 from pydantic import Field
-from pydantic.color import Color
+from pydantic_extra_types.color import Color
 
 OptBool = Optional[bool]
 OptStr = Optional[str]
@@ -23,4 +23,4 @@ class Label(BaseModel):
     @property
     def color_no_hash(self) -> str:
         """Returns the color without the leader # if it exists"""
-        return self.color if self.color is None else str(self.color.as_hex()).replace("#", "")
+        return self.color if self.color is None else str(self.color._original).replace("#", "")

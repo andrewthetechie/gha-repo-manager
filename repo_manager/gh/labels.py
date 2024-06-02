@@ -40,7 +40,7 @@ def check_repo_labels(
 
         diffs = []
         if config_label.color is not None:
-            if config_label.color_no_hash != repo_label.color:
+            if config_label.color_no_hash.lower() != repo_label.color.lower():
                 diffs.append(f"Expected color '{config_label.color_no_hash}'. Repo has color '{repo_label.color}'")
 
         if config_label.description is not None:

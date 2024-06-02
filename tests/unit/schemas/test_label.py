@@ -24,7 +24,7 @@ def test_valid_config():
 
 def test_color_no_hash():
     this_label = Label(**VALID_CONFIG)
-    assert this_label.color_no_hash == "f0f"
+    assert this_label.color_no_hash == VALID_CONFIG["color"]
 
     no_color_config = deepcopy(VALID_CONFIG)
     no_color_config["color"] = None

@@ -2,7 +2,17 @@ name: Test Docker Image Build
 
 on:
   push:
+    branches:
+      - main
+    paths:
+      - 'Dockerfile'
+      - '.github/scripts/replace_inputs.sh'
+      - '**/*.py'
   pull_request:
+    paths:
+      - 'Dockerfile'
+      - '.github/scripts/replace_inputs.sh'
+      - '**/*.py'
 
 jobs:
   test-docker-image:

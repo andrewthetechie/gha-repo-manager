@@ -6,7 +6,7 @@ settings:
   # A short description of the repository that will show up on GitHub. Set to an empty string to clear.
   description: Manage your Github repo(s) settings and secrets using Github Actions and a yaml file
   # A URL with more information about the repository. Set to an empty string to clear.
-  homepage: https://github.com/andrewthetechie/gha-repo-manager
+  homepage: https://github.com/actuarysailor/gha-repo-manager
 
   # A list of strings to apply as topics on the repo. Set to an empty string to clear topics. Omit or set to null to leave what repo already has
   topics:
@@ -27,7 +27,7 @@ settings:
   has_wiki: false
 
   # Either `true` to enable downloads for this repository, `false` to disable them.
-  has_downloads: false
+  # has_downloads: false
 
   # Set the default branch for this repository.
   default_branch: main
@@ -86,8 +86,8 @@ branch_protections:
         strict: true
         # The list of status checks to require in order to merge into this branch
         checks:
-          - Lint
-          - Integration Testing
+          - pre-commit 3.11 / ubuntu-latest
+          - Action Integration Testing
           - Generate Docs
       # Enforce all configured restrictions for administrators. Set to true to enforce required status checks for repository administrators. Set to null to disable.
       enforce_admins: false
