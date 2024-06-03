@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.9.0](https://github.com/actuarysailor/gha-repo-manager/compare/v1.8.0...v1.9.0) (2024-06-02)
+
+
+### Features
+
+* Ability to configure deployment environments (including their secrets/variables) ([#20](https://github.com/actuarysailor/gha-repo-manager/issues/20)) ([5499a84](https://github.com/actuarysailor/gha-repo-manager/commit/5499a84c9691f7d3d19f0895cacbd865ebfc6c8c))
+* Ability to configure repo Collaborators (teams + users) ([#18](https://github.com/actuarysailor/gha-repo-manager/issues/18)) ([19b7dbc](https://github.com/actuarysailor/gha-repo-manager/commit/19b7dbcf2bef348226efa95f394a645c14a91f2e))
+* Ability to configure repo Variables ([#19](https://github.com/actuarysailor/gha-repo-manager/issues/19)) ([29ea9a8](https://github.com/actuarysailor/gha-repo-manager/commit/29ea9a8646761be6d238b18d8c77b741636e7403))
+* Adjust repo for self-management ([#16](https://github.com/actuarysailor/gha-repo-manager/issues/16)) ([61853a2](https://github.com/actuarysailor/gha-repo-manager/commit/61853a2861df6ff3084e45e9fef5b67de5a7969d))
+
+
+### Bug Fixes
+
+* Auto Docs action-docs-action workflow ([#21](https://github.com/actuarysailor/gha-repo-manager/issues/21)) ([156e9e7](https://github.com/actuarysailor/gha-repo-manager/commit/156e9e78b3f33aa0e895e87653ba7fedb042e3ff))
+
+
+### Documentation
+
+* Update Readme ([3b8ee6e](https://github.com/actuarysailor/gha-repo-manager/commit/3b8ee6eb48373ae615718c6a1199e697c1e11052))
+
 ## [1.8.0](https://github.com/andrewthetechie/gha-repo-manager/compare/v1.7.2...v1.8.0) (2024-06-02)
 
 
