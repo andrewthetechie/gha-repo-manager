@@ -24,7 +24,7 @@ outputs:
     description: "Diff of this action, dumped to a json string"
 runs:
   using: "docker"
-  image: "docker://ghcr.io/actuarysailor/gha-repo-manager:v1.9.0" # x-release-please-version
+  image: "docker://ghcr.io/actuarysailor/gha-repo-manager:v1.9.1" # x-release-please-version
 branding:
   icon: "settings"
   color: "blue"

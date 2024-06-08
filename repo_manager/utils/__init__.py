@@ -135,6 +135,12 @@ def validate_inputs(parsed_inputs: dict[str, Any]) -> dict[str, Any]:
                 + "GITHUB_REPOSITORY env var is not set. Please set INPUT_REPO or GITHUB_REPOSITORY in the env"
             )
 
+    parsed_inputs["workspace_path"] = os.environ.get("RUNNER_WORKSPACE", None)
+    if parsed_inputs["workspace_path"] is None:
+        actions_toolkit.set_failed(
+            "Error getting inputs. RUNNER_WORKSPACE env var is not set. Job likely not running on a GitHub agent."
+        )
+
     if parsed_inputs["github_server_url"].lower() == "none":
         parsed_inputs["github_server_url"] = os.environ.get("GITHUB_SERVER_URL", None)
         if parsed_inputs["github_server_url"] is None:
@@ -144,6 +150,7 @@ def validate_inputs(parsed_inputs: dict[str, Any]) -> dict[str, Any]:
                 + "INPUT_GITHUB_SERVER_URL or GITHUB_SERVER_URL in the env"
             )
     actions_toolkit.debug(f"github_server_url: {parsed_inputs['github_server_url']}")
+    actions_toolkit.debug(f"github_workspace: {parsed_inputs['workspace_path']}")
 
     parsed_inputs["repo_object"] = get_repo()
 

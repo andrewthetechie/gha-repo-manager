@@ -32,7 +32,7 @@ class DismissalOptions(BaseModel):
 
 
 class PROptions(BaseModel):
-    required_approving_review_count: Annotated[int, Field(strict=True, gt=1, le=6)] | None = Field(
+    required_approving_review_count: Annotated[int, Field(strict=True, ge=1, le=6)] | None = Field(
         None, description="The number of approvals required. (1-6)"
     )
     dismiss_stale_reviews: OptBool = Field(

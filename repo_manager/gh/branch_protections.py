@@ -424,12 +424,31 @@ def check_repo_branch_protections(
             )
         )
 
-        # TODO: Figure out how to diff Restriction options
-        # I figured out some of them....
-        try:
-            dismissal_teams = objary_to_list("slug", this_protection.required_pull_request_reviews.dismissal_teams)
-        except TypeError:
+        if this_protection.required_pull_request_reviews is None:
+            dismissal_users = []
             dismissal_teams = []
+        else:
+            if this_protection.required_pull_request_reviews.dismissal_teams is not None:
+                dismissal_teams = objary_to_list("slug", this_protection.required_pull_request_reviews.dismissal_teams)
+            else:
+                dismissal_teams = []
+
+            if this_protection.required_pull_request_reviews.dismissal_users is not None:
+                dismissal_users = objary_to_list("name", this_protection.required_pull_request_reviews.dismissal_users)
+            else:
+                dismissal_users = []
+
+        dismissal_users.sort()
+        if config_bp.protection.pr_options.dismissal_restrictions is not None:
+            if config_bp.protection.pr_options.dismissal_restrictions.teams is not None:
+                config_bp.protection.pr_options.dismissal_restrictions.teams.sort()
+            diffs.append(
+                diff_option(
+                    "dismissal_users",
+                    config_bp.protection.pr_options.dismissal_restrictions.users,
+                    dismissal_users,
+                )
+            )
 
         dismissal_teams.sort()
         if config_bp.protection.pr_options.dismissal_restrictions is not None:
@@ -440,21 +459,6 @@ def check_repo_branch_protections(
                     "dismissal_teams",
                     config_bp.protection.pr_options.dismissal_restrictions.teams,
                     dismissal_teams,
-                )
-            )
-        try:
-            dismissal_users = objary_to_list("name", this_protection.required_pull_request_reviews.dismissal_users)
-        except TypeError:
-            dismissal_users = []
-        dismissal_users.sort()
-        if config_bp.protection.pr_options.dismissal_restrictions is not None:
-            if config_bp.protection.pr_options.dismissal_restrictions.teams is not None:
-                config_bp.protection.pr_options.dismissal_restrictions.teams.sort()
-            diffs.append(
-                diff_option(
-                    "dismissal_users",
-                    config_bp.protection.pr_options.dismissal_restrictions.users,
-                    dismissal_users,
                 )
             )
 

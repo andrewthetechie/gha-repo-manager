@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.9.1](https://github.com/actuarysailor/gha-repo-manager/compare/v1.9.0...v1.9.1) (2024-06-06)
+
+
+### Bug Fixes
+
+* Required Reviewer Count Boundaries ([#30](https://github.com/actuarysailor/gha-repo-manager/issues/30)) ([e3a240e](https://github.com/actuarysailor/gha-repo-manager/commit/e3a240e8b0e45bb8b13c488f5b8e2ed8120b5bee))
+* JSON issue with dumping differences ([#36](https://github.com/actuarysailor/gha-repo-manager/issues/36)) ([ea14c1e](https://github.com/actuarysailor/gha-repo-manager/commit/ea14c1ef05a9c137e18954ebf28f72bac61c0185))
+
+
+### Documentation
+
+* Simplify local development ([9bab2f2](https://github.com/actuarysailor/gha-repo-manager/commit/9bab2f23c757446ffc742a361bed50a1d936bbfb))
+* Update Tips for Local Debugging ([eb49f51](https://github.com/actuarysailor/gha-repo-manager/commit/eb49f51e1285d5e4bf672bf4e2fa2b57f83b6df2))
+
 ## [1.8.0](https://github.com/andrewthetechie/gha-repo-manager/compare/v1.7.2...v1.8.0) (2024-06-02)
 
 

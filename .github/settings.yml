@@ -93,3 +93,11 @@ branch_protections:
       enforce_admins: false
       # Permit force pushes for all users with push access.
       allow_force_pushes: true
+
+secrets:
+  # Can't really test these in integration because we always assume they are different which causes diffs to be detected -> test fails
+  # Manage secrets in your repo. Useful to manage secrets from a central repo for non organizations or to manage secrets org wide
+  # - key: SOME_SECRET
+    # pull the value from an environment variable. If this variable is not found in the env, throw an error and fail the run
+    # Set env vars on the github action job from secrets in your repo to sync screts across repos
+    # env: SOME_SECRET
