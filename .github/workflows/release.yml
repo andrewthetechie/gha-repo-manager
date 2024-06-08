@@ -14,7 +14,6 @@ on:
         required: false
         default: false
         type: boolean
-
 jobs:
   update-dockerfile:
     if: github.repository_owner == 'actuarysailor'
@@ -24,21 +23,17 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.THIS_PAT }}
-
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3.0.0
-
+        uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3.3.0
-
+        uses: docker/setup-buildx-action@v2
       - name: Login to DockerHub
-        uses: docker/login-action@v3.2.0
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
       - name: Docker metadata
-        uses: docker/metadata-action@v5.5.1
+        uses: docker/metadata-action@v4
         id: meta
         with:
           images: |
@@ -49,10 +44,9 @@ jobs:
             type=sha,prefix=
             # full length sha
             type=sha,format=long,prefix=
-
       - name: Build and push
         id: docker_build
-        uses: docker/build-push-action@v5.3.0
+        uses: docker/build-push-action@v3
         with:
           context: .
           file: Docker/Dockerfile
@@ -63,32 +57,28 @@ jobs:
           # https://github.com/docker/build-push-action/blob/master/docs/advanced/cache.md#registry-cache
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          github-token: ${{ secrets.THIS_PAT }}
-
       - name: Update Action Dockerfile with Jinja
         id: update_action-dockerfile
-        uses: cuchi/jinja2-action@v1.2.2
+        uses: cuchi/jinja2-action@v1.2.0
         with:
           template: Docker/ActionDockerfile.j2
           output_file: Dockerfile
           strict: true
           variables: |
             image_version=${{ inputs.version }}
-
       - name: Commit Dockerfile changes
-        uses: stefanzweifel/git-auto-commit-action@v5.0.1
+        uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: "ci: update actions dockerfile for release"
           file_pattern: Dockerfile
           tagging_message: ${{ inputs.version }}
-
   release:
     runs-on: ubuntu-latest
     needs: update-dockerfile
     steps:
       - name: Create Release
         id: create_release
-        uses: actions/create-release@v1.1.4
+        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.THIS_PAT }}
         with:

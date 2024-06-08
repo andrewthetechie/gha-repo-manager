@@ -17,7 +17,7 @@ OptPath = Optional[Path]
 class FileConfig(BaseModel):
     exists: OptBool = Field(True, description="Set to false to delete dest_file")
     remote_src: OptBool = Field(False, description="If true, src_file is a remote file")
-    src_file: Path = Field(
+    src_file: Path | None = Field(
         None,
         description="Sourrce file to copy from. Can me a local file path, or if you prefix with remote://, "
         + "a path inside the target_repo. Can be relative to the GHA workspace",

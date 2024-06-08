@@ -1,8 +1,8 @@
-FROM python:3.12-slim-bullseye AS builder
+FROM python:3.11-slim-bullseye AS builder
 WORKDIR /app
 
-# install build requirements # https://git-scm.com/download/linux
-RUN apt-get update && apt-get install -y binutils patchelf build-essential scons upx git
+# install build requirements
+RUN apt-get update && apt-get install -y binutils patchelf build-essential scons upx
 
 # copy the app
 COPY ./ /app
@@ -25,11 +25,9 @@ RUN cd ./dist && \
 RUN mkdir /app/tmp
 
 
-FROM cicirello/pyaction:latest
+FROM scratch
 
 ENTRYPOINT ["/repo-manager"]
 
 COPY --from=builder /app/dist/repo-manager-static /repo-manager
 COPY --from=builder /app/tmp /tmp
-
-RUN git --version

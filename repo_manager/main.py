@@ -7,18 +7,27 @@ from pydantic import ValidationError
 
 from yaml import YAMLError
 
-from repo_manager.gh import GithubException
-from repo_manager.schemas import load_config
-from repo_manager.utils import get_inputs
+from repo_manager.gh import GithubException, UnknownObjectException
 from repo_manager.gh.branch_protections import check_repo_branch_protections
 from repo_manager.gh.branch_protections import update_branch_protection
-from repo_manager.gh.files import check_files, update_files
-from repo_manager.gh.labels import check_repo_labels, update_label
-from repo_manager.gh.secrets import check_repo_secrets, update_secrets
-from repo_manager.gh.variables import check_variables, update_variables
-from repo_manager.gh.collaborators import check_collaborators, update_collaborators
-from repo_manager.gh.environments import check_repo_environments, update_environments
-from repo_manager.gh.settings import check_repo_settings, update_settings
+from repo_manager.gh.files import copy_file
+from repo_manager.gh.files import delete_file
+from repo_manager.gh.files import move_file
+from repo_manager.gh.files import RemoteSrcNotFoundError
+from repo_manager.gh.labels import check_repo_labels
+from repo_manager.gh.labels import update_label
+from repo_manager.gh.secrets import check_repo_secrets
+from repo_manager.gh.secrets import update_secrets
+from repo_manager.gh.variables import check_variables
+from repo_manager.gh.variables import update_variables
+from repo_manager.gh.collaborators import check_collaborators
+from repo_manager.gh.collaborators import update_collaborators
+from repo_manager.gh.environments import check_repo_environments
+from repo_manager.gh.environments import update_environments
+from repo_manager.gh.settings import check_repo_settings
+from repo_manager.gh.settings import update_settings
+from repo_manager.schemas import load_config
+from repo_manager.utils import get_inputs
 
 
 def main():  # noqa: C901
@@ -48,7 +57,6 @@ def main():  # noqa: C901
     check_result = True
     diffs = {}
     for check, to_check in {
-        check_files: ("files", config.files),
         check_repo_settings: ("settings", config.settings),
         check_repo_secrets: ("secrets", config.secrets),
         check_variables: ("variables", config.variables),
@@ -93,7 +101,6 @@ def main():  # noqa: C901
             update_variables: ("variables", config.variables, diffs.get("variables", None)),
             update_environments: ("environments", config.environments, diffs.get("environments", None)),
             update_collaborators: ("collaborators", config.collaborators, diffs.get("collaborators", None)),
-            update_files: ("files", config.files, diffs.get("files", None)),
         }.items():
             update_name, to_update, categorical_diffs = to_update
             if categorical_diffs is not None:
@@ -191,6 +198,71 @@ def main():  # noqa: C901
                 actions_toolkit.info("Synced Settings")
             except Exception as exc:
                 errors.append({"type": "settings-update", "error": f"{exc}"})
+
+        commits = []
+        if config.files is not None:
+            for file_config in config.files:
+                # delete files
+                if not file_config.exists:
+                    try:
+                        commits.append(delete_file(inputs["repo_object"], file_config))
+                        actions_toolkit.info(f"Deleted {str(file_config.dest_file)}")
+                    except UnknownObjectException:
+                        target_branch = (
+                            file_config.target_branch
+                            if file_config.target_branch is not None
+                            else inputs["repo_object"].default_branch
+                        )
+                        actions_toolkit.warning(
+                            f"{str(file_config.dest_file)} does not exist in "
+                            + f"{target_branch}"
+                            + " branch. Because this is a delete, not failing run"
+                        )
+                    except Exception as exc:
+                        errors.append({"type": "file-delete", "file": str(file_config.dest_file), "error": f"{exc}"})
+                elif file_config.move:
+                    try:
+                        copy_commit, delete_commit = move_file(inputs["repo_object"], file_config)
+                        commits.append(copy_commit)
+                        commits.append(delete_commit)
+                        actions_toolkit.info(f"Moved {str(file_config.src_file)} to {str(file_config.dest_file)}")
+                    except RemoteSrcNotFoundError:
+                        target_branch = (
+                            file_config.target_branch
+                            if file_config.target_branch is not None
+                            else inputs["repo_object"].default_branch
+                        )
+                        actions_toolkit.warning(
+                            f"{str(file_config.src_file)} does not exist in "
+                            + f"{target_branch}"
+                            + " branch. Because this is a move, not failing run"
+                        )
+                    except Exception as exc:
+                        errors.append(
+                            {
+                                "type": "file-move",
+                                "src_file": str(file_config.src_file),
+                                "dest_file": str(file_config.dest_file),
+                                "error": f"{exc}",
+                            }
+                        )
+                else:
+                    try:
+                        commits.append(copy_file(inputs["repo_object"], file_config))
+                        actions_toolkit.info(
+                            f"Copied{' remote ' if file_config.remote_src else ' '}{str(file_config.src_file)}"
+                            + f" to {str(file_config.dest_file)}"
+                        )
+                    except Exception as exc:
+                        errors.append(
+                            {
+                                "type": "file-copy",
+                                "src_file": str(file_config.src_file),
+                                "dest_file": str(file_config.dest_file),
+                                "error": f"{exc}",
+                            }
+                        )
+        actions_toolkit.info("Commit SHAs: " + ",".join(commits))
 
         if len(errors) > 0:
             actions_toolkit.error(json.dumps(errors))
